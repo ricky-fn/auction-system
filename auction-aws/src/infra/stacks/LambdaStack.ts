@@ -16,7 +16,7 @@ export class LambdaStack extends Stack {
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
 
-		const auctionLambda = new NodejsFunction(this, "SpacesLambda", {
+		const auctionLambda = new NodejsFunction(this, "AuctionLambda", {
 			runtime: Runtime.NODEJS_16_X,
 			handler: "handler",
 			entry: (join(__dirname, "..", "..", "services", "auction", "handler.ts")),
