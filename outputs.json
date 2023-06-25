@@ -1,0 +1,14 @@
+{
+  "AuctionDataStack": {
+    "ExportsOutputFnGetAttBidsTableE1AD1632Arn920A85E0": "arn:aws:dynamodb:ap-south-1:399759979072:table/BidsTable-02af78724bbc",
+    "ExportsOutputFnGetAttItemsTable5AAC2C46ArnC2DB7822": "arn:aws:dynamodb:ap-south-1:399759979072:table/ItemsTable-02af78724bbc",
+    "ExportsOutputRefItemsTable5AAC2C4611DBACFF": "ItemsTable-02af78724bbc",
+    "ExportsOutputFnGetAttDepositTableEF241A1FArn2ECE5B6A": "arn:aws:dynamodb:ap-south-1:399759979072:table/DepositTable-02af78724bbc"
+  },
+  "AuctionAuthStack": {
+    "AuctionIdentityPoolId": "ap-south-1:6a285623-1cda-48d7-9e20-4adc397a5888",
+    "AuctionAuthRegion": "ap-south-1",
+    "AuctionUserPoolId": "ap-south-1_mRQGyq6Xm",
+    "AuctionUserPoolClientId": "4t1g59htkidi1i5majpdqtddec"
+  }
+}

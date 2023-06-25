@@ -1,5 +1,5 @@
-import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider } from "aws-cdk-lib/aws-cognito";
+import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
+import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, Policy, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
@@ -22,6 +22,10 @@ export class AuthStack extends Stack {
 		this.createRoles(); // create roles with trust policy to allow cognito identity pool to assume them
 		this.attachRoles(); // attach roles to the identity pool
 		this.createAdminsGroup(); // create admins group after creating the admin role
+
+		new CfnOutput(this, "AuctionAuthRegion", {
+			value: Aws.REGION
+		});
 	}
 
 	private createUserPool() {
@@ -43,20 +47,8 @@ export class AuthStack extends Stack {
 				adminUserPassword: true,
 				custom: true,
 				userPassword: true,
-				userSrp: true
+				userSrp: true,
 			},
-			generateSecret: true,
-			// refer to https://next-auth.js.org/providers/cognito
-			oAuth: {
-				flows: {
-					authorizationCodeGrant: true,
-				},
-				scopes: [
-					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
-				],
-				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
-			},
-			supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
 		});
 		new CfnOutput(this, "AuctionUserPoolClientId", {
 			value: this.userPoolClient.userPoolClientId
