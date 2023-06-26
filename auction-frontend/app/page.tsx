@@ -14,10 +14,7 @@ export default async function Page() {
   // const result = new TextDecoder('utf-8').decode(response.Payload)
   return (
     <div>
-      <button onClick={() => signIn("cognito", {
-        username: "ricky",
-        password: "askjskfT7sdf&"
-      })}>Sign in</button>
+      <button onClick={() => signIn("cognito")}>Sign in</button>
     </div>
   )
 }

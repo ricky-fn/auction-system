@@ -65,13 +65,14 @@ export class AuthStack extends Stack {
 			// refer to https://next-auth.js.org/providers/cognito
 			oAuth: {
 				flows: {
-					implicitCodeGrant: true
+					// implicitCodeGrant: true,
+					authorizationCodeGrant: true,
 				},
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				// callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
-				callbackUrls: ["https://jwt.io"], // read from env file
+				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
+				// callbackUrls: ["https://jwt.io"], // read from env file
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});

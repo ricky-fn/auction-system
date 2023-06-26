@@ -8,12 +8,13 @@ export const authOptions: AuthOptions = {
       clientId: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
       clientSecret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
       issuer: `https://cognito-idp.${CDKStack.AuctionAuthStack.AuctionAuthRegion}.amazonaws.com/${CDKStack.AuctionAuthStack.AuctionUserPoolId}`,
+      checks: "nonce"
     }),
   ],
   secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
-  pages: {
-    signIn: '/auth/signin',
-  }
+  // pages: {
+  //   signIn: '/auth/signin',
+  // }
 }
 
 const handler = NextAuth(authOptions)
