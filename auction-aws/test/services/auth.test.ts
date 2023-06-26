@@ -1,15 +1,16 @@
+import { CognitoUser } from "@aws-amplify/auth";
 import { ListBucketsCommand, S3Client } from "@aws-sdk/client-s3";
 import { AuthService } from "../lib/auth";
 import { AwsCredentialIdentity } from "@aws-sdk/types";
 
 async function testAuth() {
 	const service = new AuthService();
-	const loginResult = await service.login(
+	const loginResult: CognitoUser = await service.login(
 		"ricky",
 		"askjskfT7sdf&"
 	);
 
-	console.log(loginResult.getSignInUserSession().getIdToken().getJwtToken());
+	console.log(loginResult.getSignInUserSession()!.getIdToken().getJwtToken());
 
 	// const credentials = await service.generateTemporaryCredentials(loginResult);
 	// const buckets = await listBuckets(credentials);

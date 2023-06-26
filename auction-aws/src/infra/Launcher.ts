@@ -15,11 +15,11 @@ const stackProps: StackProps = {
 	},
 };
 
-const dataStack = new DataStack(app, "AuctionDataStack", stackProps);
+// const dataStack = new DataStack(app, "AuctionDataStack", stackProps);
 new AuthStack(app, "AuctionAuthStack", stackProps);
-new LambdaStack(app, "AuctionLambdaStack", {
-	...stackProps,
-	itemsTable: dataStack.itemsTable,
-	bidsTable: dataStack.bidsTable,
-	depositTable: dataStack.depositTable
-});
+// new LambdaStack(app, "AuctionLambdaStack", {
+// 	...stackProps,
+// 	itemsTable: dataStack.itemsTable,
+// 	bidsTable: dataStack.bidsTable,
+// 	depositTable: dataStack.depositTable
+// });

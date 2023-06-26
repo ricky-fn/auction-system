@@ -3,20 +3,23 @@ import { AuctionAuthStack } from "../../../../outputs.json";
 import { CognitoUser } from "@aws-amplify/auth";
 
 Amplify.configure({
+	// reference: https://aws-amplify.github.io/amplify-js/api/interfaces/authoptions.html
 	Auth: {
 		region: AuctionAuthStack.AuctionAuthRegion,
 		userPoolId: AuctionAuthStack.AuctionUserPoolId,
 		userPoolWebClientId: AuctionAuthStack.AuctionUserPoolClientId,
 		identityPoolId: AuctionAuthStack.AuctionIdentityPoolId,
-		authenticationFlowType: "USER_PASSWORD_AUTH"
+		authenticationFlowType: "USER_PASSWORD_AUTH",
 	}
 });
 
 export class AuthService {
-	public async login(userName: string, password: string) {
+	public async login(username: string, password: string) {
 		let result;
 		try {
-			result = await Auth.signIn(userName, password);
+			result = await Auth.signIn({
+				username, password
+			});
 		} catch (error) {
 			console.log(error);
 		}

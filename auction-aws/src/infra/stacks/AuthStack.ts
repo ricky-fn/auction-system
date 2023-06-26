@@ -1,5 +1,5 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
+import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, Policy, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
@@ -37,6 +37,12 @@ export class AuthStack extends Stack {
 			}
 		});
 
+		this.userPool.addDomain("AuctionUserPoolDomain", {
+			cognitoDomain: {
+				domainPrefix: "auction"
+			}
+		});
+
 		new CfnOutput(this, "AuctionUserPoolId", {
 			value: this.userPool.userPoolId
 		});
@@ -49,6 +55,21 @@ export class AuthStack extends Stack {
 				userPassword: true,
 				userSrp: true,
 			},
+			generateSecret: true,
+			// refer to https://next-auth.js.org/providers/cognito
+			oAuth: {
+				flows: {
+					authorizationCodeGrant: true,
+				},
+				scopes: [
+					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
+				],
+				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
+			},
+			supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
+		});
+		new CfnOutput(this, "AuctionUserPoolClientSecret", {
+			value: this.userPoolClient.userPoolClientSecret.toString()
 		});
 		new CfnOutput(this, "AuctionUserPoolClientId", {
 			value: this.userPoolClient.userPoolClientId
