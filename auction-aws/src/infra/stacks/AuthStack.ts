@@ -1,6 +1,7 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider } from "aws-cdk-lib/aws-cognito";
+import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, Policy, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
+import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
 
 export class AuthStack extends Stack {
@@ -17,11 +18,12 @@ export class AuthStack extends Stack {
 		super(scope, id, props);
 
 		this.createUserPool();
+		this.createGoogleIdentityPool();
 		this.createUserPoolClient();
 		this.createIdentityPool();
-		this.createRoles(); // create roles with trust policy to allow cognito identity pool to assume them
-		this.attachRoles(); // attach roles to the identity pool
-		this.createAdminsGroup(); // create admins group after creating the admin role
+		// this.createRoles(); // create roles with trust policy to allow cognito identity pool to assume them
+		// this.attachRoles(); // attach roles to the identity pool
+		// this.createAdminsGroup(); // create admins group after creating the admin role
 
 		new CfnOutput(this, "AuctionAuthRegion", {
 			value: Aws.REGION
@@ -33,14 +35,17 @@ export class AuthStack extends Stack {
 			selfSignUpEnabled: true,
 			signInAliases: {
 				username: true,
-				email: true
 			}
 		});
 
-		this.userPool.addDomain("AuctionUserPoolDomain", {
+		const CognitoDomain = this.userPool.addDomain("AuctionUserPoolDomain", {
 			cognitoDomain: {
 				domainPrefix: "auction"
 			}
+		});
+
+		new CfnOutput(this, "AuctionUserPoolDomain", {
+			value: `${CognitoDomain.domainName}.auth.${Aws.REGION}.amazoncognito.com`
 		});
 
 		new CfnOutput(this, "AuctionUserPoolId", {
@@ -49,6 +54,7 @@ export class AuthStack extends Stack {
 	}
 	private createUserPoolClient() {
 		this.userPoolClient = this.userPool.addClient("AuctionUserPoolClient", {
+			userPoolClientName: "AuctionCognitoGoogle",
 			authFlows: {
 				adminUserPassword: true,
 				custom: true,
@@ -59,14 +65,15 @@ export class AuthStack extends Stack {
 			// refer to https://next-auth.js.org/providers/cognito
 			oAuth: {
 				flows: {
-					authorizationCodeGrant: true,
+					implicitCodeGrant: true
 				},
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
+				// callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
+				callbackUrls: ["https://jwt.io"], // read from env file
 			},
-			supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
+			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
 		new CfnOutput(this, "AuctionUserPoolClientSecret", {
 			value: this.userPoolClient.userPoolClientSecret.toString()
@@ -81,6 +88,25 @@ export class AuthStack extends Stack {
 			userPoolId: this.userPool.userPoolId,
 			groupName: "admins",
 			roleArn: this.adminRole.roleArn // add the admin role to the group
+		});
+	}
+
+	// reference: https://aws-cdk.com/cognito-google
+	private createGoogleIdentityPool() {
+		new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
+			userPool: this.userPool,
+			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com",
+			clientSecret: "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",
+			scopes: ["email", "openid", "profile"],
+			attributeMapping: {
+				email: ProviderAttribute.GOOGLE_EMAIL,
+				givenName: ProviderAttribute.GOOGLE_GIVEN_NAME,
+				familyName: ProviderAttribute.GOOGLE_FAMILY_NAME,
+				nickname: ProviderAttribute.GOOGLE_NAME,
+				custom: {
+					email_verified: ProviderAttribute.other("email_verified"),
+				}
+			}
 		});
 	}
 

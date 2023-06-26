@@ -1,9 +1,10 @@
 {
   "AuctionAuthStack": {
-    "AuctionIdentityPoolId": "ap-south-1:6cadcf54-8101-485e-80e9-bf73ab8f8841",
+    "AuctionIdentityPoolId": "ap-south-1:3742c46e-b94c-41fe-a1dc-fbd5d8ef8a9a",
     "AuctionAuthRegion": "ap-south-1",
-    "AuctionUserPoolId": "ap-south-1_k5qPpVDuT",
-    "AuctionUserPoolClientSecret": "1rg3f6872e67f1kh8de66e99tcs637ci8lo7vr4g5gb3terkelb2",
-    "AuctionUserPoolClientId": "1sk2vje4p2m6d8t5gk5h4a7430"
+    "AuctionUserPoolDomain": "auction.auth.ap-south-1.amazoncognito.com",
+    "AuctionUserPoolId": "ap-south-1_TxBorudh0",
+    "AuctionUserPoolClientSecret": "1dgfne2ui8hpkbbd7q3c6giuqqibfohgqfftf3tr5m0tqnj0ehnj",
+    "AuctionUserPoolClientId": "7v4d8tfbc47ss7hkcrh54k3rll"
   }
 }
