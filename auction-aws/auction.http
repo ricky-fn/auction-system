@@ -1,0 +1,4 @@
+@url = https://dpebruovrg.execute-api.ap-south-1.amazonaws.com/prod/
+
+GET {{url}}/get-items
+###

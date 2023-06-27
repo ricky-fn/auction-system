@@ -1,18 +1,11 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle } from "aws-cdk-lib/aws-cognito";
-import { Effect, FederatedPrincipal, Policy, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
-import { Provider } from "aws-cdk-lib/custom-resources";
+import { CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 
 export class AuthStack extends Stack {
 
 	public userPool: UserPool;
 	private userPoolClient: UserPoolClient;
-	private identityPool: CfnIdentityPool;
-	private authenticatedRole: Role; // add authenticated role
-	private unAuthenticatedRole: Role; // add unauthenticated role
-	private adminRole: Role; // add admin role
-
 
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
@@ -20,10 +13,6 @@ export class AuthStack extends Stack {
 		this.createUserPool();
 		this.createGoogleIdentityPool();
 		this.createUserPoolClient();
-		this.createIdentityPool();
-		// this.createRoles(); // create roles with trust policy to allow cognito identity pool to assume them
-		// this.attachRoles(); // attach roles to the identity pool
-		// this.createAdminsGroup(); // create admins group after creating the admin role
 
 		new CfnOutput(this, "AuctionAuthRegion", {
 			value: Aws.REGION
@@ -71,8 +60,7 @@ export class AuthStack extends Stack {
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // read from env file
-				// callbackUrls: ["https://jwt.io"], // read from env file
+				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // ! read from env file
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
@@ -88,7 +76,7 @@ export class AuthStack extends Stack {
 		new CfnUserPoolGroup(this, "AuctionAdmins", {
 			userPoolId: this.userPool.userPoolId,
 			groupName: "admins",
-			roleArn: this.adminRole.roleArn // add the admin role to the group
+			// roleArn: this.adminRole.roleArn // add the admin role to the group
 		});
 	}
 
@@ -96,8 +84,8 @@ export class AuthStack extends Stack {
 	private createGoogleIdentityPool() {
 		new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
 			userPool: this.userPool,
-			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com",
-			clientSecret: "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",
+			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com", // ! read from env file
+			clientSecret: "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", // ! read from env file
 			scopes: ["email", "openid", "profile"],
 			attributeMapping: {
 				email: ProviderAttribute.GOOGLE_EMAIL,
@@ -106,69 +94,6 @@ export class AuthStack extends Stack {
 				nickname: ProviderAttribute.GOOGLE_NAME,
 				custom: {
 					email_verified: ProviderAttribute.other("email_verified"),
-				}
-			}
-		});
-	}
-
-	private createIdentityPool() {
-		this.identityPool = new CfnIdentityPool(this, "AuctionIdentityPool", {
-			allowUnauthenticatedIdentities: true,
-			cognitoIdentityProviders: [{ // connected to our user pool
-				clientId: this.userPoolClient.userPoolClientId,
-				providerName: this.userPool.userPoolProviderName
-			}]
-		});
-		new CfnOutput(this, "AuctionIdentityPoolId", {
-			value: this.identityPool.ref // output the identity pool id
-		});
-	}
-
-	private createRoles() {
-		this.unAuthenticatedRole = new Role(this, "CognitoDefaultUnauthenticatedRole", {
-			assumedBy: new FederatedPrincipal("cognito-identity.amazonaws.com", {
-				StringEquals: {
-					"cognito-identity.amazonaws.com:aud": this.identityPool.ref,
-				},
-				"ForAnyValue:StringLike": {
-					"cognito-identity.amazonaws.com:amr": "unauthenticated",
-				},
-			}, "sts:AssumeRoleWithWebIdentity"),
-		});
-		this.authenticatedRole = new Role(this, "CognitoDefaultAuthenticatedRole", {
-			assumedBy: new FederatedPrincipal("cognito-identity.amazonaws.com", {
-				StringEquals: {
-					"cognito-identity.amazonaws.com:aud": this.identityPool.ref,
-				},
-				"ForAnyValue:StringLike": {
-					"cognito-identity.amazonaws.com:amr": "authenticated",
-				},
-			}, "sts:AssumeRoleWithWebIdentity"),
-		});
-		this.adminRole = new Role(this, "CognitoAdminRole", {
-			assumedBy: new FederatedPrincipal("cognito-identity.amazonaws.com", {
-				StringEquals: {
-					"cognito-identity.amazonaws.com:aud": this.identityPool.ref,
-				},
-				"ForAnyValue:StringLike": {
-					"cognito-identity.amazonaws.com:amr": "authenticated",
-				},
-			}, "sts:AssumeRoleWithWebIdentity"),
-		});
-	}
-
-	private attachRoles() {
-		new CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoleAttachment", {
-			identityPoolId: this.identityPool.ref,
-			roles: {
-				"unauthenticated": this.unAuthenticatedRole.roleArn,
-				"authenticated": this.authenticatedRole.roleArn,
-			},
-			roleMappings: {
-				adminMapping: {
-					identityProvider: `${this.userPool.userPoolProviderName}:${this.userPoolClient.userPoolClientId}`,
-					type: "Token",
-					ambiguousRoleResolution: "AuthenticatedRole",
 				}
 			}
 		});
