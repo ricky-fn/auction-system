@@ -1,18 +1,25 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle } from "aws-cdk-lib/aws-cognito";
+import { CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
+
+interface AuthStackProps extends StackProps {
+	userSignUpLambda: NodejsFunction;
+	userSignInLambda: NodejsFunction;
+}
 
 export class AuthStack extends Stack {
 
 	public userPool: UserPool;
 	private userPoolClient: UserPoolClient;
 
-	constructor(scope: Construct, id: string, props?: StackProps) {
+	constructor(scope: Construct, id: string, props: AuthStackProps) {
 		super(scope, id, props);
 
 		this.createUserPool();
 		this.createGoogleIdentityPool();
 		this.createUserPoolClient();
+		this.createAuthTriggers(props);
 
 		new CfnOutput(this, "AuctionAuthRegion", {
 			value: Aws.REGION
@@ -50,7 +57,7 @@ export class AuthStack extends Stack {
 				userPassword: true,
 				userSrp: true,
 			},
-			generateSecret: true,
+			// generateSecret: true, // ! turn it on for production
 			// refer to https://next-auth.js.org/providers/cognito
 			oAuth: {
 				flows: {
@@ -64,12 +71,17 @@ export class AuthStack extends Stack {
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
-		new CfnOutput(this, "AuctionUserPoolClientSecret", {
-			value: this.userPoolClient.userPoolClientSecret.toString()
-		});
+		// new CfnOutput(this, "AuctionUserPoolClientSecret", {
+		// 	value: this.userPoolClient.userPoolClientSecret.toString()
+		// });
 		new CfnOutput(this, "AuctionUserPoolClientId", {
 			value: this.userPoolClient.userPoolClientId
 		});
+	}
+
+	private createAuthTriggers(props: AuthStackProps) {
+		this.userPool.addTrigger(UserPoolOperation.PRE_SIGN_UP, props.userSignUpLambda);
+		this.userPool.addTrigger(UserPoolOperation.PRE_AUTHENTICATION, props.userSignInLambda);
 	}
 
 	private createAdminsGroup() {

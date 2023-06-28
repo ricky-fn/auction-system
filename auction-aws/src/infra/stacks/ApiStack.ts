@@ -5,6 +5,7 @@ import { Construct } from "constructs";
 
 interface ApiStackProps extends StackProps {
 	getItemsLambdaIntegration: LambdaIntegration,
+	getUserLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
 }
 
@@ -38,7 +39,8 @@ export class ApiStack extends Stack {
 		const getItemsResource = api.root.addResource("get-items", optionsWithCors); // attach cors to apigateway root
 		getItemsResource.addMethod("GET", props.getItemsLambdaIntegration);
 
-		// spacesResource.addMethod("POST", props.spacesLambdaIntegration, optionsWithAuth);
+		const getUserResource = api.root.addResource("get-user", optionsWithCors); // attach cors to apigateway root
+		getUserResource.addMethod("GET", props.getUserLambdaIntegration, optionsWithAuth);
 
 		new CfnOutput(this, "AuctionApiUrl", {
 			value: api.url

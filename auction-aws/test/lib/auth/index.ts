@@ -8,13 +8,13 @@ Amplify.configure({
 		region: AuctionAuthStack.AuctionAuthRegion,
 		userPoolId: AuctionAuthStack.AuctionUserPoolId,
 		userPoolWebClientId: AuctionAuthStack.AuctionUserPoolClientId,
-		identityPoolId: AuctionAuthStack.AuctionIdentityPoolId,
 		authenticationFlowType: "USER_PASSWORD_AUTH",
 	}
 });
 
 export class AuthService {
 	public async login(username: string, password: string) {
+
 		let result;
 		try {
 			result = await Auth.signIn({

@@ -15,7 +15,9 @@
 			"args": [
 				"${relativeFile}"
 			],
-			"env": {}
+			"env": {
+				"DB_USERS_TABLE": "UsersTable-0a554d71a646",
+			}
 		},
 		{
 			"type": "node",

@@ -7,6 +7,7 @@ export class DataStack extends Stack {
 	public readonly itemsTable: ITable;
 	public readonly bidsTable: ITable;
 	public readonly depositTable: ITable;
+	public readonly usersTable: ITable;
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
@@ -34,6 +35,14 @@ export class DataStack extends Stack {
 				type: AttributeType.STRING
 			},
 			tableName: `DepositTable-${suffix}`
+		});
+
+		this.usersTable = new Table(this, "UsersTable", {
+			partitionKey: {
+				name: "id",
+				type: AttributeType.STRING
+			},
+			tableName: `UsersTable-${suffix}`
 		});
 	}
 }

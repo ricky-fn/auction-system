@@ -10,20 +10,29 @@ import { join } from "path";
 interface LambdaStackProps extends StackProps {
 	itemsTable: ITable,
 	bidsTable: ITable,
-	depositTable: ITable
+	depositTable: ITable,
+	usersTable: ITable
 }
 
 export class LambdaStack extends Stack {
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
+	public readonly getUserLambdaIntegration: LambdaIntegration;
+
+	public readonly userSignUpLambda: NodejsFunction;
+	public readonly userSignInLambda: NodejsFunction;
 
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
 
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
+		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
+
+		this.userSignUpLambda = this.createUserSignUpLambda(props);
+		this.userSignInLambda = this.createUserSignInLambda(props);
 	}
 
-	private getLambdaRuntime(props: NodejsFunctionProps) {
-		return new NodejsFunction(this, "AuctionLambda", {
+	private getLambdaRuntime(name: string, props: NodejsFunctionProps) {
+		return new NodejsFunction(this, name, {
 			runtime: Runtime.NODEJS_16_X,
 			handler: "handler",
 			tracing: Tracing.ACTIVE,
@@ -32,10 +41,10 @@ export class LambdaStack extends Stack {
 	}
 
 	private createGetItemsLambda(props: LambdaStackProps) {
-		const getItemsLambda = this.getLambdaRuntime({
-			entry: (join(__dirname, "..", "..", "services", "auction", "handler.ts")),
+		const getItemsLambda = this.getLambdaRuntime("GetItemsLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "getItems.ts")),
 			environment: {
-				TABLE_NAME: props.itemsTable.tableName
+				DB_ITEMS_TABLE: props.itemsTable.tableName
 			}
 		});
 
@@ -48,5 +57,72 @@ export class LambdaStack extends Stack {
 		}));
 
 		return getItemsLambda;
+	}
+
+	private createUserSignUpLambda(props: LambdaStackProps) {
+		const userSignUpLambda = this.getLambdaRuntime("UserSignUpLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auth", "signUp.ts")),
+			environment: {
+				DB_USERS_TABLE: props.usersTable.tableName
+			}
+		});
+
+		userSignUpLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.usersTable.tableArn],
+			actions: [
+				"dynamodb:PutItem",
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:GetItem",
+				"dynamodb:UpdateItem",
+			]
+		}));
+
+		return userSignUpLambda;
+	}
+
+	private createUserSignInLambda(props: LambdaStackProps) {
+		const userSignUpLambda = this.getLambdaRuntime("UserSignInLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auth", "signIn.ts")),
+			environment: {
+				DB_USERS_TABLE: props.usersTable.tableName
+			}
+		});
+
+		userSignUpLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.usersTable.tableArn],
+			actions: [
+				"dynamodb:PutItem",
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:GetItem",
+				"dynamodb:UpdateItem",
+			]
+		}));
+
+		return userSignUpLambda;
+	}
+
+	private createGetUserLambda(props: LambdaStackProps) {
+		const getUserLambda = this.getLambdaRuntime("GetUserLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "getUser.ts")),
+			environment: {
+				DB_USERS_TABLE: props.usersTable.tableName
+			}
+		});
+
+		getUserLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.usersTable.tableArn],
+			actions: [
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:GetItem",
+			]
+		}));
+
+		return getUserLambda;
 	}
 }
