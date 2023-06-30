@@ -14,45 +14,38 @@ import { DynamoDB } from "aws-sdk";
  */
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { User } from "../../../../types";
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { User } from "auction-shared/models";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { createLambdaResponse, lambdaErrorHelper } from "../utils";
 
 const dbClient = new DynamoDBClient({});
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
 
-export async function handler(event: APIGatewayProxyEvent) {
-	console.log("getUser Event for test: ", event);
+export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	const userId = event.requestContext.authorizer?.claims["cognito:username"] || null;
 
-	return {
-		statusCode: 200,
-		body: JSON.stringify({
-			message: "Hello World!",
-		})
-	};
+	if (!userId) {
+		return lambdaErrorHelper.handleBadRequest("B001", "Missing userId", event.requestContext);
+	}
+
+	const user = await getUserByUsername(userId);
+
+	return createLambdaResponse<{ user: User }>(200, { user });
 }
 
 // Function to retrieve user by username from DynamoDB
-// async function getUserByUsername(userId: string): Promise<User | undefined> {
-// 	// Create the parameters for the DynamoDB query
+async function getUserByUsername(userId: string): Promise<User | undefined> {
+	// Create the parameters for the DynamoDB query
 
-// 	const getItemResponse = await dbClient.send(new GetItemCommand({
-// 		TableName: DB_USERS_TABLE,
-// 		Key: {
-// 			"id": { S: userId }
-// 		}
-// 	}));
-// 	if (getItemResponse.Item) {
-// 		const unmashalledItem = unmarshall(getItemResponse.Item) as User;
-// 		return unmashalledItem;
-// 	}
-// 	return undefined;
-// }
-
-// // Function to store user in DynamoDB
-// async function createUser(user: User) {
-// 	const item = marshall(user);
-// 	await dbClient.send(new PutItemCommand({
-// 		TableName: DB_USERS_TABLE,
-// 		Item: item
-// 	}));
-// }
+	const getItemResponse = await dbClient.send(new GetItemCommand({
+		TableName: DB_USERS_TABLE,
+		Key: {
+			"id": { S: userId }
+		}
+	}));
+	if (getItemResponse.Item) {
+		const unmashalledItem = unmarshall(getItemResponse.Item) as User;
+		return unmashalledItem;
+	}
+	return undefined;
+}

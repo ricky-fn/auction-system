@@ -4,7 +4,10 @@
     "paths": {
       "auction-shared/*": [
         "../auction-shared/*"
-      ]
+      ],
+      "@/*": [
+        "./*"
+      ],
     },
     "module": "commonjs",
     "target": "ES2020",

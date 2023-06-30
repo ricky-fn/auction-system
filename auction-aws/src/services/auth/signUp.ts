@@ -15,7 +15,7 @@ import { DynamoDB } from "aws-sdk";
 import { Callback, Context, PreSignUpExternalProviderTriggerEvent, PreSignUpTriggerEvent } from "aws-lambda";
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { User } from "../../../types";
+import { User } from "auction-shared/models";
 
 const dbClient = new DynamoDBClient({});
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;

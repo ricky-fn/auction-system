@@ -8,7 +8,7 @@
 import { APIGatewayEventRequestContext, APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import { lambdaErrorHelper, createLambdaResponse } from "./utils";
-import { Item, Items, LambdaResponse } from "../../../types";
+import { Item, Items, LambdaResponse } from "auction-shared/models";
 
 const dynamodb = new DynamoDB();
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;

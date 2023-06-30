@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEventRequestContext, Context } from "aws-lambda";
-import { LambdaResponse } from "../../../../types";
+import { ApiResponse } from "auction-shared/api";
 
 // Lambda Error Helper
 export const lambdaErrorHelper = {
@@ -38,16 +38,18 @@ export const lambdaErrorHelper = {
 export const createLambdaResponse = <T>(
 	statusCode: number,
 	data?: T
-): LambdaResponse<T> => {
+): APIGatewayProxyResult => {
+	const responseBody: ApiResponse<T> = {
+		timestamp: Date.now(),
+		data
+	};
+
 	return {
 		statusCode,
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({
-			timestamp: Date.now(),
-			data
-		}),
+		body: JSON.stringify(responseBody),
 	};
 };

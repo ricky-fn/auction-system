@@ -57,7 +57,7 @@ export class AuthStack extends Stack {
 				userPassword: true,
 				userSrp: true,
 			},
-			// generateSecret: true, // ! turn it on for production
+			generateSecret: true, // ! turn it on for production
 			// refer to https://next-auth.js.org/providers/cognito
 			oAuth: {
 				flows: {
@@ -71,9 +71,9 @@ export class AuthStack extends Stack {
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
-		// new CfnOutput(this, "AuctionUserPoolClientSecret", {
-		// 	value: this.userPoolClient.userPoolClientSecret.toString()
-		// });
+		new CfnOutput(this, "AuctionUserPoolClientSecret", {
+			value: this.userPoolClient.userPoolClientSecret.toString()
+		});
 		new CfnOutput(this, "AuctionUserPoolClientId", {
 			value: this.userPoolClient.userPoolClientId
 		});

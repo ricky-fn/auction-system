@@ -1,5 +1,5 @@
 import { Amplify, Auth } from "aws-amplify";
-import { AuctionAuthStack } from "../../../../outputs.json";
+import { AuctionAuthStack } from "auction-shared/outputs.json";
 import { CognitoUser } from "@aws-amplify/auth";
 
 Amplify.configure({
