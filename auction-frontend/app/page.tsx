@@ -1,20 +1,14 @@
-'use client'
-import AWS from 'aws-sdk';
-import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda'
-import { signIn } from 'next-auth/react';
-
+import Nav from "@/component/nav/Nav";
+import { requestWithAuth } from "@/lib/utils/request";
+import { ApiList } from "auction-shared/api"
 
 export default async function Page() {
-  // const client = new LambdaClient({})
-  // const command = new InvokeCommand({
-  //   FunctionName: 'arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-SpacesLambdaA5F923A4-OV1KouOXlweL',
-  //   InvocationType: "RequestResponse",
-  // });
-  // const response = await client.send(command);
-  // const result = new TextDecoder('utf-8').decode(response.Payload)
+  // const { data: result } = await requestWithAuth<ApiList['user']>('https://ddjejmwwrb.execute-api.ap-south-1.amazonaws.com/prod/get-user');
+  // console.log(result.user.balance)
   return (
     <div>
-      <button onClick={() => signIn("cognito")}>Sign in</button>
+      <Nav></Nav>
+      home page
     </div>
   )
 }
