@@ -4,6 +4,7 @@ import { Tab } from '@headlessui/react'
 import { classNames } from '@/lib/utils/styles'
 import ListHeader from './ListHeader'
 import ListItem from './ListItem'
+import BidModal from '../modal/BidModal'
 
 export default function ItemList() {
   let [categories] = useState({
@@ -41,8 +42,19 @@ export default function ItemList() {
     ],
   })
 
+  let [isOpen, setIsOpen] = useState(false)
+
+  function closeBidModal() {
+    setIsOpen(false)
+  }
+
+  function openBidModal() {
+    setIsOpen(true)
+  }
+
   return (
     <div className="w-full">
+      <BidModal isOpen={isOpen} closeModal={closeBidModal} />
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 max-w-md">
           {Object.keys(categories).map((category) => (
@@ -72,7 +84,7 @@ export default function ItemList() {
                 'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
               )}
             >
-              <ListItem />
+              <ListItem onClick={openBidModal} />
             </Tab.Panel>
           ))}
         </Tab.Panels>
