@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { PhotoIcon } from '@heroicons/react/24/solid'
 import Nav from "@/component/nav/Nav";
 
-export default async function DepositPage() {
+export default async function CreateItemPage() {
   const session = await getServerSession(authOptions)
 
   if (!session) {
