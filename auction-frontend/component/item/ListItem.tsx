@@ -1,7 +1,7 @@
 
 export default function ListItem() {
   return (
-    <table className="w-full mb-2 text-md">
+    <table className="relative rounded-md w-full mb-3 text-md hover:bg-gray-100 border-2">
       <tbody>
         <tr>
           <td className="px-6 py-4 text-left w-1/4">
