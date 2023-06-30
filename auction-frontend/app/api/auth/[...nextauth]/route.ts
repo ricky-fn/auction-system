@@ -1,6 +1,6 @@
 import NextAuth, { AuthOptions, User } from "next-auth";
 import CognitoProvider from "next-auth/providers/cognito";
-import CDKStack from '../../../../../outputs.json';
+import CDKStack from 'auction-shared/outputs.json';
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -12,9 +12,21 @@ export const authOptions: AuthOptions = {
     }),
   ],
   secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
-  // pages: {
-  //   signIn: '/auth/signin',
-  // }
+  pages: {
+    signIn: '/auth/signin',
+  },
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        token.idToken = account.id_token;
+      }
+      return token;
+    },
+    async session({ session, token, user }) {
+      session.idToken = token.idToken;
+      return session;
+    }
+  },
 }
 
 const handler = NextAuth(authOptions)
