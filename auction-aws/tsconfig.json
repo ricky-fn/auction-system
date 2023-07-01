@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    // use path alias with vscode debug feature: https://www.npmjs.com/package/tsconfig-paths
     "paths": {
       "auction-shared/*": [
         "../auction-shared/*"
@@ -14,7 +15,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules/"

@@ -12,11 +12,13 @@ import { DynamoDB } from "aws-sdk";
  * Bad Request: B001
  * Internal Error: I001, I002
  */
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { User } from "auction-shared/models";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { createLambdaResponse, lambdaErrorHelper } from "../utils";
+import { createLambdaResponse } from "../utils";
+import { ApiList } from "auction-shared/api";
+import { AuthorizationFail } from "../utils/helpers";
 
 const dbClient = new DynamoDBClient({});
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
@@ -25,12 +27,18 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 	const userId = event.requestContext.authorizer?.claims["cognito:username"] || null;
 
 	if (!userId) {
-		return lambdaErrorHelper.handleBadRequest("B001", "Missing userId", event.requestContext);
+		const error = new AuthorizationFail("A001", "username is required");
+		return error.getResponse();
 	}
 
 	const user = await getUserByUsername(userId);
 
-	return createLambdaResponse<{ user: User }>(200, { user });
+	return createLambdaResponse<ApiList["user"]>(200, {
+		timestamp: Date.now(),
+		data: {
+			user
+		}
+	});
 }
 
 // Function to retrieve user by username from DynamoDB

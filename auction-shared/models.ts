@@ -12,12 +12,14 @@ export type Item = {
   itemId: string;
   createdBy: string;
   expirationTime: number;
-  highestBid: number;
-  highestBidder: string;
+  highestBid?: number;
+  highestBidder?: string;
   lastBidTimestamp?: number;
   name: string;
   startingPrice: number;
   timestamp: number;
+  about: string;
+  photo: string;
 }
 
 export type Items = Item[]

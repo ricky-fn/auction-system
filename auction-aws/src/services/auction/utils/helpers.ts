@@ -1,55 +1,64 @@
-import { APIGatewayProxyResult, APIGatewayEventRequestContext, Context } from "aws-lambda";
-import { ApiResponse } from "auction-shared/api";
+import { APIGatewayProxyResult } from "aws-lambda";
 
-// Lambda Error Helper
-export const lambdaErrorHelper = {
-	handleError: (errorCode: number, errorMessage: string): APIGatewayProxyResult => {
+export class Response {
+	protected statusCode = 200;
+	public outputResponse(message: string): APIGatewayProxyResult {
 		return {
-			statusCode: errorCode,
+			statusCode: this.statusCode,
 			headers: {
 				"Access-Control-Allow-Origin": "*"
 			},
 			body: JSON.stringify({
 				timestamp: Date.now(),
-				error: errorMessage,
+				error: message,
 			}),
 		};
-	},
+	}
+}
 
-	// Method to handle internal server errors
-	handleInternalError: (errorCode: string, errorMessage: unknown, context: APIGatewayEventRequestContext | Context): APIGatewayProxyResult => {
-		console.log(`Internal Server Error [${errorCode}]: ${errorMessage}`, context);
-		return lambdaErrorHelper.handleError(500, `${errorCode} Internal Server Error`);
-	},
+export class BadRequest extends Response {
+	protected statusCode = 400;
+	constructor(public errorCode: string, public errorMessage: string) {
+		super();
+		console.log(`Bad Request [${errorCode}]: ${errorMessage}`);
+	}
+	public getResponse(): APIGatewayProxyResult {
+		return this.outputResponse(`${this.errorCode} Bad Request`);
+	}
+}
 
-	// Method to handle authorization failures
-	handleAuthorizationFail: (errorCode: string, errorMessage: unknown, context: APIGatewayEventRequestContext | Context): APIGatewayProxyResult => {
-		console.log(`Authorization Failure [${errorCode}]: ${errorMessage}`, context);
-		return lambdaErrorHelper.handleError(401, `${errorCode} Authorization failed`);
-	},
+export class InternalError extends Response {
+	protected statusCode = 500;
+	constructor(public errorCode: string, public errorMessage: string) {
+		super();
+		console.log(`Internal Server Error [${errorCode}]: ${errorMessage}`);
+	}
+	public getResponse(): APIGatewayProxyResult {
+		return this.outputResponse(`${this.errorCode} Internal Server Error`);
+	}
+}
 
-	// Method to handle bad requests
-	handleBadRequest: (errorCode: string, errorMessage: unknown, context: APIGatewayEventRequestContext | Context): APIGatewayProxyResult => {
-		console.log(`Bad Request [${errorCode}]: ${errorMessage}`, context);
-		return lambdaErrorHelper.handleError(400, `${errorCode} Bad Request`);
-	},
-};
+export class AuthorizationFail extends Response {
+	protected statusCode = 401;
+	constructor(public errorCode: string, public errorMessage: string) {
+		super();
+		console.log(`Authorization Failure [${errorCode}]: ${errorMessage}`);
+	}
+	public getResponse(): APIGatewayProxyResult {
+		return this.outputResponse(`${this.errorCode} Authorization failed`);
+	}
+}
 
 export const createLambdaResponse = <T>(
 	statusCode: number,
 	data?: T
 ): APIGatewayProxyResult => {
-	const responseBody: ApiResponse<T> = {
-		timestamp: Date.now(),
-		data
-	};
-
 	return {
 		statusCode,
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify(responseBody),
+		body: JSON.stringify(data),
 	};
 };

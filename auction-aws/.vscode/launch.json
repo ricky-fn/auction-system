@@ -10,14 +10,18 @@
 			"name": "Debug local file",
 			"runtimeArgs": [
 				"-r",
-				"ts-node/register"
+				"${workspaceFolder}/node_modules/ts-node/register",
+				"-r",
+				"${workspaceFolder}/node_modules/tsconfig-paths/register"
 			],
 			"args": [
 				"${relativeFile}"
 			],
 			"env": {
 				"DB_USERS_TABLE": "UsersTable-0a554d71a646",
-			}
+				"DB_ITEMS_TABLE": "ItemsTable-0a554d71a646",
+				"TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
+			},
 		},
 		{
 			"type": "node",
