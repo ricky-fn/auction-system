@@ -5,19 +5,15 @@
  * Internal Error: I001, I002
  */
 
-import { APIGatewayEventRequestContext, APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
-import { lambdaErrorHelper, createLambdaResponse } from "./utils";
-import { Item, Items, LambdaResponse } from "auction-shared/models";
+import { createLambdaResponse, InternalError } from "@/src/services/auction/utils";
+import { Item, Items } from "auction-shared/models";
+import { ApiList } from "auction-shared/api";
 
 const dynamodb = new DynamoDB();
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
 
-type GetItemsOutput = {
-	items: Items
-}
-
-export const handler = async (event: APIGatewayProxyEvent, context: APIGatewayEventRequestContext): Promise<LambdaResponse<GetItemsOutput>> => {
+export const handler = async () => {
 	// Retrieve all items from the Items table
 	let itemsDBData;
 	try {
@@ -27,18 +23,21 @@ export const handler = async (event: APIGatewayProxyEvent, context: APIGatewayEv
 			})
 			.promise();
 	} catch (err) {
-		return lambdaErrorHelper.handleInternalError("I001", err, context);
+		const error = new InternalError("I001", err.message);
+		return error.getResponse();
 	}
 
 	if (!itemsDBData.Items) {
-		return lambdaErrorHelper.handleInternalError("I002", "Fetch items failed", context);
+		const error = new InternalError("I002", "Fetch items failed");
+		return error.getResponse();
 	}
 
 	const items: Items = itemsDBData.Items.map((item: DynamoDB.AttributeMap) => {
 		return DynamoDB.Converter.unmarshall(item) as Item;
 	});
 
-	return createLambdaResponse<GetItemsOutput>(200, {
-		items
+	return createLambdaResponse<ApiList["get-items"]>(200, {
+		timestamp: Date.now(),
+		data: items
 	});
 };

@@ -34,5 +34,6 @@ new ApiStack(app, "AuctionApiStack", {
 	...stackProps,
 	getItemsLambdaIntegration: lambdaStack.getItemsLambdaIntegration,
 	getUserLambdaIntegration: lambdaStack.getUserLambdaIntegration,
+	createItemLambdaIntegration: lambdaStack.createItemsLambdaIntegration,
 	userPool: authStack.userPool,
 });

@@ -66,9 +66,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 	return createLambdaResponse<ApiList["create-item"]>(200, {
 		timestamp: Date.now(),
-		data: {
-			item: newItem
-		}
+		data: newItem
 	});
 };
 

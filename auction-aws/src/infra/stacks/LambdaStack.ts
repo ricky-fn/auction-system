@@ -16,6 +16,7 @@ interface LambdaStackProps extends StackProps {
 
 export class LambdaStack extends Stack {
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
+	public readonly createItemsLambdaIntegration: LambdaIntegration;
 	public readonly getUserLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
@@ -26,6 +27,7 @@ export class LambdaStack extends Stack {
 
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
+		this.createItemsLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -120,6 +122,25 @@ export class LambdaStack extends Stack {
 				"dynamodb:Query",
 				"dynamodb:Scan",
 				"dynamodb:GetItem",
+			]
+		}));
+
+		return getUserLambda;
+	}
+
+	private createCreateItemLambda(props: LambdaStackProps) {
+		const getUserLambda = this.getLambdaRuntime("CreateItemLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "createItem.ts")),
+			environment: {
+				DB_ITEMS_TABLE: props.itemsTable.tableName
+			}
+		});
+
+		getUserLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.itemsTable.tableArn],
+			actions: [
+				"dynamodb:PutItem",
 			]
 		}));
 
