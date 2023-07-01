@@ -1,25 +1,33 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
+import { CfnIdentityPool, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
+import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { IBucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 interface AuthStackProps extends StackProps {
-	userSignUpLambda: NodejsFunction;
-	userSignInLambda: NodejsFunction;
+	userSignUpLambda: NodejsFunction
+	userSignInLambda: NodejsFunction
+	photosBucket: IBucket
 }
 
 export class AuthStack extends Stack {
 
 	public userPool: UserPool;
 	private userPoolClient: UserPoolClient;
+	private identityPool: CfnIdentityPool;
+	private authenticatedRole: Role;
+	private unAuthenticatedRole: Role;
 
 	constructor(scope: Construct, id: string, props: AuthStackProps) {
 		super(scope, id, props);
 
 		this.createUserPool();
-		this.createGoogleIdentityPool();
 		this.createUserPoolClient();
+		this.createGoogleIdentityPool();
 		this.createAuthTriggers(props);
+		this.createIdentityPool();
+		this.createRoles(props.photosBucket);
 
 		new CfnOutput(this, "AuctionAuthRegion", {
 			value: Aws.REGION
@@ -110,4 +118,46 @@ export class AuthStack extends Stack {
 			}
 		});
 	}
+
+	private createIdentityPool() {
+		this.identityPool = new CfnIdentityPool(this, "AuctionIdentityPool", {
+			allowUnauthenticatedIdentities: true,
+			cognitoIdentityProviders: [{ // connected to our user pool
+				clientId: this.userPoolClient.userPoolClientId,
+				providerName: this.userPool.userPoolProviderName
+			}]
+		});
+		new CfnOutput(this, "AuctionIdentityPoolId", {
+			value: this.identityPool.ref // output the identity pool id
+		});
+	}
+
+	private createRoles(photosBucket: IBucket) {
+		this.unAuthenticatedRole = new Role(this, "CognitoDefaultUnauthenticatedRole", {
+			assumedBy: new FederatedPrincipal("cognito-identity.amazonaws.com", {
+				StringEquals: {
+					"cognito-identity.amazonaws.com:aud": this.identityPool.ref,
+				},
+				"ForAnyValue:StringLike": {
+					"cognito-identity.amazonaws.com:amr": "unauthenticated",
+				},
+			}, "sts:AssumeRoleWithWebIdentity"),
+		});
+		this.authenticatedRole = new Role(this, "CognitoDefaultAuthenticatedRole", {
+			assumedBy: new FederatedPrincipal("cognito-identity.amazonaws.com", {
+				StringEquals: {
+					"cognito-identity.amazonaws.com:aud": this.identityPool.ref,
+				},
+				"ForAnyValue:StringLike": {
+					"cognito-identity.amazonaws.com:amr": "authenticated",
+				},
+			}, "sts:AssumeRoleWithWebIdentity"),
+		});
+		this.authenticatedRole.addToPolicy(new PolicyStatement({ // add s3 list bucket policy to the admin role
+			effect: Effect.ALLOW,
+			actions: ["s3:PutObject", "s3:PutObjectAcl"],
+			resources: [photosBucket.bucketArn + "/*"]
+		}));
+	}
+
 }

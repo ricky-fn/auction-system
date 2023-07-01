@@ -28,6 +28,7 @@ const authStack = new AuthStack(app, "AuctionAuthStack", {
 	...stackProps,
 	userSignUpLambda: lambdaStack.userSignUpLambda,
 	userSignInLambda: lambdaStack.userSignInLambda,
+	photosBucket: dataStack.photosBucket
 });
 new ApiStack(app, "AuctionApiStack", {
 	...stackProps,
