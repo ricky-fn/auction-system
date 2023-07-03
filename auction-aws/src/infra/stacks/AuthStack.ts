@@ -1,5 +1,5 @@
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
+import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { IBucket } from "aws-cdk-lib/aws-s3";
@@ -28,6 +28,7 @@ export class AuthStack extends Stack {
 		this.createAuthTriggers(props);
 		this.createIdentityPool();
 		this.createRoles(props.photosBucket);
+		this.attachRoles(); // attach roles to the identity pool
 
 		new CfnOutput(this, "AuctionAuthRegion", {
 			value: Aws.REGION
@@ -153,11 +154,27 @@ export class AuthStack extends Stack {
 				},
 			}, "sts:AssumeRoleWithWebIdentity"),
 		});
-		this.authenticatedRole.addToPolicy(new PolicyStatement({ // add s3 list bucket policy to the admin role
+		this.authenticatedRole.addToPolicy(new PolicyStatement({
 			effect: Effect.ALLOW,
 			actions: ["s3:PutObject", "s3:PutObjectAcl"],
 			resources: [photosBucket.bucketArn + "/*"]
 		}));
 	}
 
+	private attachRoles() {
+		new CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoleAttachment", {
+			identityPoolId: this.identityPool.ref,
+			roles: {
+				"unauthenticated": this.unAuthenticatedRole.roleArn,
+				"authenticated": this.authenticatedRole.roleArn,
+			}
+			// roleMappings: {
+			// 	adminMapping: {
+			// 		identityProvider: `${this.userPool.userPoolProviderName}:${this.userPoolClient.userPoolClientId}`,
+			// 		type: "Token",
+			// 		ambiguousRoleResolution: "AuthenticatedRole",
+			// 	}
+			// }
+		});
+	}
 }

@@ -1,4 +1,4 @@
-import { Item, User } from "./models";
+import { Item, Items, User } from "./models";
 
 export interface ApiResponse<T> {
   timestamp: number;
@@ -6,6 +6,7 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiList {
-  user: ApiResponse<{ user: User }>;
-  'create-item': ApiResponse<{ item: Item }>;
+  user: ApiResponse<User>;
+  'create-item': ApiResponse<Item>;
+  'get-items': ApiResponse<Items>
 }
