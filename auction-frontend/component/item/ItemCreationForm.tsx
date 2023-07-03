@@ -9,6 +9,8 @@ import { useState } from 'react';
 import useServices from '@/lib/hooks/useServices';
 import { setLoading, showToast } from '@/store/actions/appActions';
 import { useDispatch } from 'react-redux';
+import PhotoDropzone from '../features/PhotoDropzone';
+import { useRouter } from 'next/navigation'
 
 interface Field {
   name: keyof Item;
@@ -111,6 +113,7 @@ export default function ItemCreationForm() {
   const authorizedAxios = useAuthorizedAxios();
   const { dataService } = useServices();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const updateFields = (name: string, value: string | File) => {
     const updatedFields = fields.map((field) => {
@@ -159,6 +162,7 @@ export default function ItemCreationForm() {
     }
 
     try {
+      dispatch(setLoading(true))
       const photoUrl = await dataService.uploadPhoto(getFieldValue('photo') as File);
 
       const item: Omit<Item, 'createdBy' | 'itemId' | 'timestamp'> = fields.reduce((obj, field) => {
@@ -170,14 +174,14 @@ export default function ItemCreationForm() {
         return obj;
       }, {} as any);
 
-      dispatch(setLoading(true))
-
       await authorizedAxios.post<ApiList['create-item']>('/create-item', item)
 
       dispatch(showToast({
         type: 'success',
         message: 'You Have Created An Item'
       }))
+
+      router.push('/')
 
     } catch (error) {
       console.log(error)
@@ -300,35 +304,15 @@ export default function ItemCreationForm() {
             </div>
 
             <div className="col-span-full">
-              <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900 mb-2">
                 Cover photo
               </label>
-              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                <div className="text-center">
-                  <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                  <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                    <label
-                      htmlFor="photo-upload"
-                      className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                    >
-                      <span>Upload a file</span>
-                      <input
-                        id="photo-upload"
-                        name="photo"
-                        type="file"
-                        className="sr-only"
-                        onChange={handleInputChange}
-                        accept="image/*"
-                      />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
-                  </div>
-                  <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 5MB</p>
-                </div>
-              </div>
-              {getFieldError("photo") && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("photo")}</p>
-              )}
+              <PhotoDropzone
+                fieldName="photo"
+                selectedFile={getFieldValue('photo')}
+                updateFile={updateFields}
+                fieldError={getFieldError('photo')}
+              />
             </div>
           </div>
         </div>
