@@ -1,5 +1,7 @@
+import ToastMessage from "@/component/toast/ToastMessage";
 import Provider from "../component/Provider"
 import "./globals.css";
+import Loading from "@/component/spinner/Loading";
 
 export default function RootLayout({
   children,
@@ -11,6 +13,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Provider>
+          <ToastMessage />
+          <Loading />
           <main>{children}</main>
         </Provider>
       </body>
