@@ -20,7 +20,7 @@ const userNavigation = [
 const Nav = () => {
   const { isLoggedIn } = useSessionStatus();
   const handleSignOut = () => {
-    if (isLoggedIn) return
+    if (!isLoggedIn) return
     signOut()
   }
   return (

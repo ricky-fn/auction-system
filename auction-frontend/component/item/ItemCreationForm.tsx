@@ -1,0 +1,350 @@
+'use client'
+import useAuthorizedAxios from '@/lib/axios/axiosInstance';
+import { classNames } from '@/lib/utils/styles';
+import { PhotoIcon } from '@heroicons/react/24/solid'
+import { ApiList } from 'auction-shared/api';
+import { Item } from 'auction-shared/models';
+import Link from 'next/link';
+import { useState } from 'react';
+import useServices from '@/lib/hooks/useServices';
+import { setLoading, showToast } from '@/store/actions/appActions';
+import { useDispatch } from 'react-redux';
+
+interface Field {
+  name: keyof Item;
+  value: string | undefined | File;
+  error: string | null;
+  validationFn: (value: any) => string | null;
+}
+
+const initialFieldValues = {
+  name: '',
+  startingPrice: '',
+  expirationTime: '',
+  about: '',
+  photo: undefined,
+} as const;
+
+const validateItemName = (value: string): string | null => {
+  if (!value.trim()) {
+    return 'Item name cannot be empty.';
+  }
+
+  return null;
+};
+
+const validateStartingPrice = (price: string): string | null => {
+  const parsedPrice = parseInt(price, 10);
+
+  if (!price.trim()) {
+    return 'Start price cannot be empty.';
+  }
+
+  if (isNaN(parsedPrice) || parsedPrice <= 0) {
+    return 'Start price must be a number greater than 0.';
+  }
+
+  return null;
+};
+
+const validateExpirationTimeField = (window: string): string | null => {
+  const expirationTimeRegex = /^\d+h$/;
+
+  if (!window.trim()) {
+    return 'Time window cannot be empty.';
+  }
+
+  if (!expirationTimeRegex.test(window)) {
+    return 'Time window must follow the format of Xh, e.g., 1h.';
+  }
+
+  return null;
+};
+
+const validatePhotoField = (photo: File | undefined): string | null => {
+  if (!photo) {
+    return 'Photo cannot be empty.'
+  }
+
+  if (photo.size > 5 * 1024 * 1024) {
+    return 'Photo must be less than 5MB.';
+  }
+
+  return null;
+};
+
+const initialFields: Field[] = [
+  {
+    name: 'name',
+    value: initialFieldValues.name,
+    error: null,
+    validationFn: validateItemName,
+  },
+  {
+    name: 'startingPrice',
+    value: initialFieldValues.startingPrice,
+    error: null,
+    validationFn: validateStartingPrice,
+  },
+  {
+    name: 'expirationTime',
+    value: initialFieldValues.expirationTime,
+    error: null,
+    validationFn: validateExpirationTimeField,
+  },
+  {
+    name: 'about',
+    value: initialFieldValues.about,
+    error: null,
+    validationFn: validateItemName,
+  },
+  {
+    name: 'photo',
+    value: initialFieldValues.photo,
+    error: null,
+    validationFn: validatePhotoField,
+  },
+];
+
+export default function ItemCreationForm() {
+  const [fields, setFields] = useState<Field[]>([...initialFields]);
+  const authorizedAxios = useAuthorizedAxios();
+  const { dataService } = useServices();
+  const dispatch = useDispatch();
+
+  const updateFields = (name: string, value: string | File) => {
+    const updatedFields = fields.map((field) => {
+      if (field.name === name) {
+        const error = field.validationFn(value);
+        return { ...field, value, error };
+      }
+      return field;
+    });
+
+    setFields(updatedFields);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+
+    const files = (event.target as unknown as HTMLInputElement).files;
+    if (files) {
+      updateFields(name, files[0]);
+    } else {
+      updateFields(name, value);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    let hasErrors = false;
+
+    // Perform validation for each field
+    fields.forEach((field) => {
+      const { value, validationFn } = field;
+      const error = validationFn(value);
+      field.error = error; // Update the error for the field
+      if (error) {
+        hasErrors = true; // Set hasErrors flag if any field has an error
+      }
+    });
+
+    // Update the state to trigger re-rendering with the updated errors
+    setFields([...fields]);
+
+    // Check if there are any field errors
+    if (hasErrors) {
+      return;
+    }
+
+    try {
+      const photoUrl = await dataService.uploadPhoto(getFieldValue('photo') as File);
+
+      const item: Omit<Item, 'createdBy' | 'itemId' | 'timestamp'> = fields.reduce((obj, field) => {
+        if (field.name === 'photo') {
+          obj[field.name] = photoUrl
+        } else {
+          obj[field.name] = field.value;
+        }
+        return obj;
+      }, {} as any);
+
+      dispatch(setLoading(true))
+
+      await authorizedAxios.post<ApiList['create-item']>('/create-item', item)
+
+      dispatch(showToast({
+        type: 'success',
+        message: 'You Have Created An Item'
+      }))
+
+    } catch (error) {
+      console.log(error)
+      dispatch(showToast({
+        type: 'error',
+        message: 'Oops Something Wrong...'
+      }))
+    }
+
+    dispatch(setLoading(false))
+    // Reset form fields and errors
+    setFields(initialFields);
+  };
+
+  const getFieldValue = (name: keyof typeof initialFieldValues) => {
+    const field = fields.find((field) => field.name === name);
+    return field?.value;
+  };
+
+  const getFieldError = (name: keyof typeof initialFieldValues) => {
+    const field = fields.find((field) => field.name === name);
+    return field?.error;
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-12">
+        <div className="border-b border-gray-900/10 pb-12">
+
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="sm:col-span-3">
+              <label htmlFor="item-name" className="block text-sm font-medium leading-6 text-gray-900">
+                Name
+              </label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  name="name"
+                  id="item-name"
+                  value={getFieldValue("name") as string}
+                  onChange={handleInputChange}
+                  className={classNames(
+                    getFieldError("name") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
+                    "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                  )}
+                />
+              </div>
+              {getFieldError("name") && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("name")}</p>
+              )}
+            </div>
+
+            <div className="sm:col-span-3">
+              <label htmlFor="start-price" className="block text-sm font-medium leading-6 text-gray-900">
+                Start Price
+              </label>
+              <div className="mt-2">
+                <input
+                  type="number"
+                  name="startingPrice"
+                  id="start-price"
+                  value={getFieldValue("startingPrice") as string}
+                  onChange={handleInputChange}
+                  className={classNames(
+                    getFieldError("startingPrice") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
+                    "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                  )}
+                />
+              </div>
+              {getFieldError("startingPrice") && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("startingPrice")}</p>
+              )}
+            </div>
+
+            <div className="col-span-full">
+              <label htmlFor="time-window" className="block text-sm font-medium leading-6 text-gray-900">
+                Time Window
+              </label>
+              <div className="mt-2">
+                <input
+                  id="time-window"
+                  name="expirationTime"
+                  type="text"
+                  value={getFieldValue("expirationTime") as string}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 1h"
+                  className={classNames(
+                    getFieldError("expirationTime") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
+                    "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                  )}
+                />
+              </div>
+              {getFieldError("expirationTime") && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("expirationTime")}</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="col-span-full">
+              <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
+                About
+              </label>
+              <div className="mt-2">
+                <textarea
+                  id="about"
+                  name="about"
+                  value={getFieldValue("about") as string}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className={classNames(
+                    getFieldError("about") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
+                    "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                  )}
+                />
+              </div>
+              {getFieldError("about") && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("about")}</p>
+              )}
+              <p className="mt-3 text-sm leading-6 text-gray-600">Write a few sentences about this item</p>
+            </div>
+
+            <div className="col-span-full">
+              <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
+                Cover photo
+              </label>
+              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                <div className="text-center">
+                  <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                  <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                    <label
+                      htmlFor="photo-upload"
+                      className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                    >
+                      <span>Upload a file</span>
+                      <input
+                        id="photo-upload"
+                        name="photo"
+                        type="file"
+                        className="sr-only"
+                        onChange={handleInputChange}
+                        accept="image/*"
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 5MB</p>
+                </div>
+              </div>
+              {getFieldError("photo") && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{getFieldError("photo")}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 flex items-center justify-end gap-x-6">
+        <Link href="/" type="button" className="text-sm font-semibold leading-6 text-gray-900">
+          Cancel
+        </Link>
+        <button
+          type="submit"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  )
+}
