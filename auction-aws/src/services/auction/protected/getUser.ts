@@ -32,7 +32,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
 	const user = await getUserByUsername(userId);
 
-	return createLambdaResponse<ApiList["user"]>(200, {
+	return createLambdaResponse<ApiList["get-user"]>(200, {
 		timestamp: Date.now(),
 		data: user
 	});

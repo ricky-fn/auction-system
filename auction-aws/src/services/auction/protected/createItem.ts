@@ -24,7 +24,7 @@ import { ApiList } from "auction-shared/api";
 const dbClient = new DynamoDBClient({});
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE;
 
-export type createItemInputParameters = Omit<Item, "itemId" | "createdBy" | "highestBid" | "highestBidder" | "lastBidTimestamp" | "timestamp">
+export type createItemInputParameters = Omit<Item, "itemId" | "createdBy" | "highestBid" | "highestBidder" | "lastBidTimestamp" | "timestamp" | "createdAt" | "status">
 
 export const handler = async (event: APIGatewayProxyEvent) => {
 	const result = parseInputParameter(event);

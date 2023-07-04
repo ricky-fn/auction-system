@@ -7,6 +7,7 @@ interface ApiStackProps extends StackProps {
 	getItemsLambdaIntegration: LambdaIntegration,
 	getUserLambdaIntegration: LambdaIntegration,
 	createItemLambdaIntegration: LambdaIntegration,
+	depositLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
 }
 
@@ -45,6 +46,9 @@ export class ApiStack extends Stack {
 
 		const createItemApiResource = api.root.addResource("create-item", optionsWithCors); // attach cors to apigateway root
 		createItemApiResource.addMethod("POST", props.createItemLambdaIntegration, optionsWithAuth);
+
+		const depositApiResource = api.root.addResource("deposit", optionsWithCors); // attach cors to apigateway root
+		depositApiResource.addMethod("POST", props.depositLambdaIntegration, optionsWithAuth);
 
 		new CfnOutput(this, "AuctionApiUrl", {
 			value: api.url

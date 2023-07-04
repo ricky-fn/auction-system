@@ -16,8 +16,9 @@ interface LambdaStackProps extends StackProps {
 
 export class LambdaStack extends Stack {
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
-	public readonly createItemsLambdaIntegration: LambdaIntegration;
+	public readonly createItemLambdaIntegration: LambdaIntegration;
 	public readonly getUserLambdaIntegration: LambdaIntegration;
+	public readonly depositLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
@@ -28,7 +29,8 @@ export class LambdaStack extends Stack {
 
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
-		this.createItemsLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
+		this.createItemLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
+		this.depositLambdaIntegration = new LambdaIntegration(this.createDepositLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -172,5 +174,25 @@ export class LambdaStack extends Stack {
 		}));
 
 		return checkStatusLambda;
+	}
+
+	private createDepositLambda(props: LambdaStackProps) {
+		const depositLambda = this.getLambdaRuntime("DepositLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "deposit.ts")),
+			environment: {
+				DB_USERS_TABLE: props.usersTable.tableName,
+			}
+		});
+
+		depositLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.usersTable.tableArn],
+			actions: [
+				"dynamodb:GetItem",
+				"dynamodb:UpdateItem",
+			]
+		}));
+
+		return depositLambda;
 	}
 }
