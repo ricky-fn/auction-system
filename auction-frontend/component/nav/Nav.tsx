@@ -67,7 +67,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                      <img className="h-10 w-10 rounded-full" src={user.picture} />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">{user.given_name}</div>

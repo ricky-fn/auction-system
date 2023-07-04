@@ -1,6 +1,6 @@
 import { classNames } from "@/lib/utils/styles";
 import { Menu, Transition } from "@headlessui/react";
-import { User } from "next-auth";
+import { User } from "auction-shared/models";
 import { Fragment } from "react";
 
 interface Props {
@@ -12,12 +12,10 @@ interface Props {
 export default function NavbarMenu({ signOut, userNavigation, user }: Props) {
   return (
     <Menu as="div" className="relative ml-3">
-      <div>
-        <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-          <span className="sr-only">Open user menu</span>
-          <img className="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-        </Menu.Button>
-      </div>
+      <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+        <span className="sr-only">Open user menu</span>
+        <img className="h-10 w-10 rounded-full" src={user.picture} />
+      </Menu.Button>
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -28,6 +26,10 @@ export default function NavbarMenu({ signOut, userNavigation, user }: Props) {
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="px-4 py-3 border-b border-gray-100">
+            <span className="block text-sm text-gray-900 dark:text-white">{user.given_name} {user.family_name}</span>
+            <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{user.email}</span>
+          </div>
           {userNavigation.map((item) => (
             <Menu.Item key={item.name}>
               {({ active }) => (

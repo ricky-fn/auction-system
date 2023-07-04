@@ -50,7 +50,7 @@ export async function handler(event: PreSignUpExternalProviderTriggerEvent, cont
 function createUserObject(event: PreSignUpTriggerEvent): User {
 	let user;
 	if (event.triggerSource === "PreSignUp_ExternalProvider") {
-		const { email, given_name, family_name } = event.request.userAttributes;
+		const { email, given_name, family_name, picture } = event.request.userAttributes;
 		const userId = event.userName;
 		// Create the user object to be stored in DynamoDB
 		user = {
@@ -59,7 +59,8 @@ function createUserObject(event: PreSignUpTriggerEvent): User {
 			balance: 0,
 			email,
 			given_name,
-			family_name
+			family_name,
+			picture
 		};
 	}
 

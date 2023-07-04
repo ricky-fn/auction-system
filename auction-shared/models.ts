@@ -6,6 +6,7 @@ export type User = {
   create_at: number;
   given_name?: string;
   family_name?: string;
+  picture?: string;
 }
 
 export type Item = {
