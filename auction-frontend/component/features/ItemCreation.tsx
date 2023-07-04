@@ -9,7 +9,7 @@ import { useState } from 'react';
 import useServices from '@/lib/hooks/useServices';
 import { setLoading, showToast } from '@/store/actions/appActions';
 import { useDispatch } from 'react-redux';
-import PhotoDropzone from '../features/PhotoDropzone';
+import PhotoDropzone from './PhotoDropzone';
 import { useRouter } from 'next/navigation'
 
 interface Field {
@@ -108,7 +108,7 @@ const initialFields: Field[] = [
   },
 ];
 
-export default function ItemCreationForm() {
+export default function ItemCreation() {
   const [fields, setFields] = useState<Field[]>([...initialFields]);
   const authorizedAxios = useAuthorizedAxios();
   const { dataService } = useServices();

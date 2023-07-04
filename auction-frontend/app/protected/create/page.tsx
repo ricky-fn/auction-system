@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from 'next/navigation'
 import Nav from "@/component/nav/Nav";
-import ItemCreationForm from "@/component/item/ItemCreationForm";
+import ItemCreation from "@/component/features/ItemCreation";
 
 export default async function CreateItemPage() {
   const session = await getServerSession(authOptions)
@@ -22,7 +22,7 @@ export default async function CreateItemPage() {
       </header>
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          <ItemCreationForm />
+          <ItemCreation />
         </div>
       </main>
     </div>
