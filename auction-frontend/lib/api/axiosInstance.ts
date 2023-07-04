@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { useSession } from "next-auth/react";
 import CDKStack from 'auction-shared/outputs.json';
+import { Session, getServerSession } from "next-auth";
 
 const config: AxiosRequestConfig = {};
 export const baseURL =
@@ -12,13 +13,13 @@ config.baseURL = baseURL;
 
 export const axiosInstance = axios.create(config);
 
-const useAuthorizedAxios = (): AxiosInstance => {
-  const session = useSession();
+const useAuthorizedAxios = (session: Session | undefined): AxiosInstance => {
+  const idToken = session?.idToken || useSession().data?.idToken;
 
   const axiosInstance = axios.create({
     ...config,
     headers: {
-      Authorization: session.data?.idToken,
+      Authorization: idToken,
     },
   });
 

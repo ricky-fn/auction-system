@@ -6,7 +6,7 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiList {
-  user: ApiResponse<User>;
+  'get-user': ApiResponse<User>;
   'create-item': ApiResponse<Item>;
   'get-items': ApiResponse<Items>
 }
