@@ -12,7 +12,7 @@ const userNavigation = [
   { name: 'Deposit', href: '/protected/deposit' },
 ]
 
-const Nav = ({ user }: { user: null | User }) => {
+const Nav = ({ user }: { user: undefined | User }) => {
   const handleSignOut = () => {
     if (!user) return
     signOut()

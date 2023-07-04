@@ -15,7 +15,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  let user: (null | User) = null
+  let user: (undefined | User)
   const session = await getServerSession(authOptions)
   if (session) {
     const axios = useAuthorizedAxios(session)

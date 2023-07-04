@@ -13,7 +13,7 @@ config.baseURL = baseURL;
 
 export const axiosInstance = axios.create(config);
 
-const useAuthorizedAxios = (session: Session | undefined): AxiosInstance => {
+const useAuthorizedAxios = (session?: Session | undefined): AxiosInstance => {
   const idToken = session?.idToken || useSession().data?.idToken;
 
   const axiosInstance = axios.create({

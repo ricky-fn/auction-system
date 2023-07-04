@@ -1,13 +1,68 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from 'next/navigation'
+'use client';
+import useAuthorizedAxios from "@/lib/api/axiosInstance";
+import { classNames } from "@/lib/utils/styles";
+import { setLoading, showToast } from "@/store/actions/appActions";
+import { ApiList } from "auction-shared/api";
 import Link from "next/link";
+import { useRouter } from 'next/navigation'
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
-export default async function DepositPage() {
-  const session = await getServerSession(authOptions)
+export default function DepositPage() {
+  const [amount, setAmount] = useState('');
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const authorizedAxios = useAuthorizedAxios();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  if (!session) {
-    redirect('/auth/signin')
+  const validateAmount = (amount: string): string | null => {
+    if (!amount) {
+      return 'Amount is required';
+    }
+    if (Number(amount) <= 0) {
+      return 'Amount must be greater than 0';
+    }
+    return null;
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setAmount(value);
+    const error = validateAmount(value);
+    if (error) {
+      setAmountError(validateAmount(value));
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const error = validateAmount(amount);
+    if (error) {
+      setAmountError(error);
+      return;
+    }
+
+    try {
+      dispatch(setLoading(true))
+      await authorizedAxios.post<ApiList['deposit']>('/deposit', {
+        amount: Number(amount),
+      });
+
+      dispatch(showToast({
+        type: 'success',
+        message: 'Deposit successfully',
+      }))
+
+      router.push('/');
+    } catch (error) {
+      dispatch(showToast({
+        type: 'error',
+        message: 'Oops Something Wrong...'
+      }))
+    }
+    dispatch(setLoading(false))
   }
 
   return (
@@ -20,7 +75,7 @@ export default async function DepositPage() {
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
 
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="space-y-12">
               <div className="border-b border-gray-900/10 pb-12">
 
@@ -34,9 +89,17 @@ export default async function DepositPage() {
                         id="amount"
                         name="amount"
                         type="number"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={amount}
+                        onChange={handleInputChange}
+                        className={classNames(
+                          amountError ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
+                          "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                        )}
                       />
                     </div>
+                    {amountError && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-500">{amountError}</p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -13,7 +13,8 @@
     "ExportsOutputFnGetAttUserSignInLambda90E6C625Arn47C117D6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambda90E6C625-4waPnHvyWRE1",
     "ExportsOutputFnGetAttGetItemsLambdaB11521A6ArnCB7087D7": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemsLambdaB11521A6-Lpp2zZIOfkbD",
     "ExportsOutputFnGetAttCreateItemLambda5E129E2FArn7C023B8A": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CreateItemLambda5E129E2F-7pQbR0PES7Jy",
-    "ExportsOutputFnGetAttUserSignUpLambdaF06CE815Arn3CDDCF91": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaF06CE815-Ts0gX2UhGJrL"
+    "ExportsOutputFnGetAttUserSignUpLambdaF06CE815Arn3CDDCF91": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaF06CE815-Ts0gX2UhGJrL",
+    "ExportsOutputFnGetAttDepositLambdaDE532884Arn80C3BB01": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-DepositLambdaDE532884-h6OMFetZqfRF"
   },
   "AuctionAuthStack": {
     "ExportsOutputFnGetAttAuctionUserPool5D793815Arn7D60F36A": "arn:aws:cognito-idp:ap-south-1:399759979072:userpool/ap-south-1_G9KgvfCoH",

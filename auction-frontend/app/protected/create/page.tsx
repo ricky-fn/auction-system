@@ -1,15 +1,6 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from 'next/navigation'
-import Nav from "@/component/nav/Nav";
 import ItemCreation from "@/component/features/ItemCreation";
 
 export default async function CreateItemPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect('/auth/signin')
-  }
 
   return (
     <div className="min-h-full">

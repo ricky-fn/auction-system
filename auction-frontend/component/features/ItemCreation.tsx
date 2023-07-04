@@ -1,7 +1,6 @@
 'use client'
 import useAuthorizedAxios from '@/lib/api/axiosInstance';
 import { classNames } from '@/lib/utils/styles';
-import { PhotoIcon } from '@heroicons/react/24/solid'
 import { ApiList } from 'auction-shared/api';
 import { Item } from 'auction-shared/models';
 import Link from 'next/link';

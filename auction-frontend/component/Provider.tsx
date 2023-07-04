@@ -7,7 +7,7 @@ const Provider = ({ children }: {
   children: React.ReactNode
 }) => {
   return (
-    <SessionProvider session={null}>
+    <SessionProvider>
       <ReduxProvider store={store}>
         {children}
       </ReduxProvider>
