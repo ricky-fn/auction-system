@@ -11,16 +11,19 @@ export type User = {
 export type Item = {
   itemId: string;
   createdBy: string;
-  expirationTime: number;
+  expirationTime: string;
   highestBid?: number;
   highestBidder?: string;
   lastBidTimestamp?: number;
   name: string;
   startingPrice: number;
-  timestamp: number;
+  createdAt: number;
   about: string;
   photo: string;
+  status: ItemStatus;
 }
+
+export type ItemStatus = 'ongoing' | 'completed'
 
 export type Items = Item[]
 

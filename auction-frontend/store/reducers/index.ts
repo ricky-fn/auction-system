@@ -3,7 +3,6 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { UserData, userReducer } from './userReducer';
 import { AppData, appReducer } from './appReducer';
 import { ItemData, itemsReducer } from './ItemsReducer';
-import { checkSession } from '../actions/userActions';
 import { EndpointsState, endpointsReducer } from './endpointsReducer';
 import thunkMiddleware, { ThunkDispatch } from 'redux-thunk';
 
@@ -25,8 +24,5 @@ const store: Store<RootState, AnyAction> & { dispatch: ThunkDispatch<RootState, 
   rootReducer,
   composeWithDevTools(applyMiddleware(thunkMiddleware))
 );
-
-// Dispatch the checkSession action when the app starts
-store.dispatch(checkSession());
 
 export default store;
