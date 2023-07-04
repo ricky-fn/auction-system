@@ -5,22 +5,21 @@ import { classNames } from '@/lib/utils/styles'
 import ListHeader from './ListHeader'
 import ListItem from './ListItem'
 import BidModal from '../features/BidItem'
-import { axiosInstance as axios } from '@/lib/api/axiosInstance'
-import { ApiList } from 'auction-shared/api'
 import { Item, Items } from 'auction-shared/models'
 import { signIn, useSession } from 'next-auth/react'
 
-type categories = {
+type Categories = {
   completed: Items,
   ongoing: Items,
 }
 
-export default function ItemList() {
+export default function ItemListContainer({ items }: { items: Items }) {
+  console.log(items)
   const { status } = useSession();
-  let [categories, setCategories] = useState<categories>({
-    completed: [],
-    ongoing: [],
-  })
+  const categories: Categories = {
+    completed: items.filter((item) => item.status === 'completed'),
+    ongoing: items.filter((item) => item.status === 'ongoing'),
+  }
 
   let [isOpen, setIsOpen] = useState(false)
   let [selectedItem, setSelectedItem] = useState<Item | null>(null)
@@ -37,15 +36,6 @@ export default function ItemList() {
     setIsOpen(true)
     setSelectedItem(item)
   }
-
-  useEffect(() => {
-    axios.get<ApiList['get-items']>('/get-items').then(({ data }) => {
-      const items = data.data
-      categories.completed = items.filter((item) => item.status === 'completed')
-      categories.ongoing = items.filter((item) => item.status === 'ongoing')
-      setCategories(categories)
-    })
-  }, [])
 
   return (
     <div className="w-full">
