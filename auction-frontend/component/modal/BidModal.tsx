@@ -1,12 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react'
+import { Item } from 'auction-shared/models'
 import { Fragment } from 'react'
 
 interface BidModalProps {
   isOpen: boolean
-  closeModal: () => void
+  closeModal: () => void,
+  item: Item | null,
 }
 
-export default function BidModal({ isOpen, closeModal }: BidModalProps) {
+export default function BidModal({ isOpen, closeModal, item }: BidModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -38,7 +40,7 @@ export default function BidModal({ isOpen, closeModal }: BidModalProps) {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Bid Item Name
+                  {item && item.name}
                 </Dialog.Title>
                 <form>
                   <div className="space-y-12">

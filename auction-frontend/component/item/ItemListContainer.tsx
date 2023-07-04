@@ -1,60 +1,55 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Tab } from '@headlessui/react'
 import { classNames } from '@/lib/utils/styles'
 import ListHeader from './ListHeader'
 import ListItem from './ListItem'
 import BidModal from '../modal/BidModal'
+import { axiosInstance as axios } from '@/lib/axios/axiosInstance'
+import { ApiList } from 'auction-shared/api'
+import { Item, Items } from 'auction-shared/models'
+import { signIn, useSession } from 'next-auth/react'
+
+type categories = {
+  completed: Items,
+  ongoing: Items,
+}
 
 export default function ItemList() {
-  let [categories] = useState({
-    Recent: [
-      {
-        id: 1,
-        title: 'Does drinking coffee make you smarter?',
-        date: '5h ago',
-        commentCount: 5,
-        shareCount: 2,
-      },
-      {
-        id: 2,
-        title: "So you've bought coffee... now what?",
-        date: '2h ago',
-        commentCount: 3,
-        shareCount: 2,
-      },
-    ],
-    Popular: [
-      {
-        id: 1,
-        title: 'Is tech making coffee better or worse?',
-        date: 'Jan 7',
-        commentCount: 29,
-        shareCount: 16,
-      },
-      {
-        id: 2,
-        title: 'The most innovative things happening in coffee',
-        date: 'Mar 19',
-        commentCount: 24,
-        shareCount: 12,
-      },
-    ],
+  const { status } = useSession();
+  let [categories, setCategories] = useState<categories>({
+    completed: [],
+    ongoing: [],
   })
 
   let [isOpen, setIsOpen] = useState(false)
+  let [selectedItem, setSelectedItem] = useState<Item | null>(null)
 
   function closeBidModal() {
     setIsOpen(false)
   }
 
-  function openBidModal() {
+  function openBidModal(item: Item) {
+    if (status !== 'authenticated') {
+      return signIn('cognito')
+    }
+
     setIsOpen(true)
+    setSelectedItem(item)
   }
+
+  useEffect(() => {
+    axios.get<ApiList['get-items']>('/get-items').then(({ data }) => {
+      const items = data.data
+      categories.completed = items.filter((item) => item.status === 'completed')
+      categories.ongoing = items.filter((item) => item.status === 'ongoing')
+      setCategories(categories)
+    })
+  }, [])
 
   return (
     <div className="w-full">
-      <BidModal isOpen={isOpen} closeModal={closeBidModal} />
+      <BidModal isOpen={isOpen} closeModal={closeBidModal} item={selectedItem} />
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 max-w-md">
           {Object.keys(categories).map((category) => (
@@ -76,7 +71,7 @@ export default function ItemList() {
         </Tab.List>
         <Tab.Panels className="mt-2">
           <ListHeader />
-          {Object.values(categories).map((posts, idx) => (
+          {Object.values(categories).map((items, idx) => (
             <Tab.Panel
               key={idx}
               className={classNames(
@@ -84,7 +79,11 @@ export default function ItemList() {
                 'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
               )}
             >
-              <ListItem onClick={openBidModal} />
+              {
+                items.map((item) => (
+                  <ListItem key={item.itemId} onClick={() => openBidModal(item)} item={item} />
+                ))
+              }
             </Tab.Panel>
           ))}
         </Tab.Panels>
