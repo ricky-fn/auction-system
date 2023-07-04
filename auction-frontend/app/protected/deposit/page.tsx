@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from 'next/navigation'
-import { PhotoIcon } from '@heroicons/react/24/solid'
-import Nav from "@/component/nav/Nav";
+import Link from "next/link";
 
 export default async function DepositPage() {
   const session = await getServerSession(authOptions)
@@ -13,8 +12,6 @@ export default async function DepositPage() {
 
   return (
     <div className="min-h-full">
-      <Nav />
-
       <header className="bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Deposit</h1>
@@ -46,9 +43,9 @@ export default async function DepositPage() {
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-x-6">
-              <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
+              <Link href="/" type="button" className="text-sm font-semibold leading-6 text-gray-900">
                 Cancel
-              </button>
+              </Link>
               <button
                 type="submit"
                 className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

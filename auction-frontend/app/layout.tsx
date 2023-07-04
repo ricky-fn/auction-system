@@ -15,6 +15,7 @@ export default function RootLayout({
         <Provider>
           <ToastMessage />
           <Loading />
+          <Nav />
           <main>{children}</main>
         </Provider>
       </body>
