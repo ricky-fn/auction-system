@@ -113,6 +113,7 @@ export class AuthStack extends Stack {
 				givenName: ProviderAttribute.GOOGLE_GIVEN_NAME,
 				familyName: ProviderAttribute.GOOGLE_FAMILY_NAME,
 				nickname: ProviderAttribute.GOOGLE_NAME,
+				profilePicture: ProviderAttribute.GOOGLE_PICTURE,
 				custom: {
 					email_verified: ProviderAttribute.other("email_verified"),
 				}
