@@ -3,6 +3,7 @@ import { LambdaStack } from "./stacks/LambdaStack";
 import { DataStack } from "./stacks/DataStack";
 import { AuthStack } from "./stacks/AuthStack";
 import { ApiStack } from "./stacks/ApiStack";
+import { ScheduleStack } from "./stacks/ScheduleStack";
 
 const app = new App({
 	context: {
@@ -36,4 +37,8 @@ new ApiStack(app, "AuctionApiStack", {
 	getUserLambdaIntegration: lambdaStack.getUserLambdaIntegration,
 	createItemLambdaIntegration: lambdaStack.createItemsLambdaIntegration,
 	userPool: authStack.userPool,
+});
+new ScheduleStack(app, "AuctionScheduleStack", {
+	...stackProps,
+	checkStatusLambda: lambdaStack.checkStatusLambda
 });

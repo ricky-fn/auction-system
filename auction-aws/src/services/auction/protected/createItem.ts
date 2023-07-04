@@ -44,13 +44,14 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	const itemId = assignItemId();
 
 	// Get the current timestamp
-	const timestamp = Math.floor(Date.now() / 1000);
+	const createdAt = Math.floor(Date.now() / 1000);
 
 	const newItem: Item = {
 		...result,
 		itemId,
-		timestamp,
+		createdAt,
 		createdBy: userId,
+		status: "ongoing",
 	};
 
 	// Create a new item in the Items table
@@ -97,10 +98,10 @@ const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | createIt
 		return new BadRequest("B006", "expirationTime is required");
 	}
 
-	const oneHourInMillis = 3600000;
-	const oneHourAhead = Date.now() + oneHourInMillis;
-	if (oneHourAhead > input.expirationTime) {
-		return new BadRequest("B007", "expirationTime must be one hour ahead from now");
+	const regex = /^(\d+)h$/;
+	const match = input.expirationTime.match(regex);
+	if (!match) {
+		return new BadRequest("B007", "expirationTime must be in the format of {number}h");
 	}
 
 	return input;

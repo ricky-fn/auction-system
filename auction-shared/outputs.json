@@ -8,6 +8,7 @@
     "ExportsOutputRefUsersTable9725E9C857961836": "UsersTable-0a554d71a646"
   },
   "AuctionLambdaStack": {
+    "ExportsOutputFnGetAttCheckStatusLambda66E1DC5DArnE35723E5": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CheckStatusLambda66E1DC5D-cfdkCzp9VZ1q",
     "ExportsOutputFnGetAttGetUserLambda881D1138Arn7B461E1F": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetUserLambda881D1138-U1Rg5lxUAkPf",
     "ExportsOutputFnGetAttUserSignInLambda90E6C625Arn47C117D6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambda90E6C625-4waPnHvyWRE1",
     "ExportsOutputFnGetAttGetItemsLambdaB11521A6ArnCB7087D7": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemsLambdaB11521A6-Lpp2zZIOfkbD",

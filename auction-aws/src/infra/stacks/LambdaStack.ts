@@ -21,6 +21,7 @@ export class LambdaStack extends Stack {
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
+	public readonly checkStatusLambda: NodejsFunction;
 
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
@@ -31,6 +32,7 @@ export class LambdaStack extends Stack {
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
+		this.checkStatusLambda = this.createCheckStatusLambda(props);
 	}
 
 	private getLambdaRuntime(name: string, props: NodejsFunctionProps) {
@@ -55,6 +57,8 @@ export class LambdaStack extends Stack {
 			resources: [props.itemsTable.tableArn],
 			actions: [
 				"dynamodb:GetItem",
+				"dynamodb:Scan",
+				"dynamodb:Query",
 			]
 		}));
 
@@ -145,5 +149,28 @@ export class LambdaStack extends Stack {
 		}));
 
 		return getUserLambda;
+	}
+
+	private createCheckStatusLambda(props: LambdaStackProps) {
+		const checkStatusLambda = this.getLambdaRuntime("CheckStatusLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "checkStatus.ts")),
+			environment: {
+				DB_ITEMS_TABLE: props.itemsTable.tableName,
+			}
+		});
+
+		checkStatusLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.itemsTable.tableArn],
+			actions: [
+				"dynamodb:PutItem",
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:GetItem",
+				"dynamodb:UpdateItem",
+			]
+		}));
+
+		return checkStatusLambda;
 	}
 }

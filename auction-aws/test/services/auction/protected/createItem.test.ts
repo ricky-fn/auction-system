@@ -2,7 +2,7 @@ import { handler, createItemInputParameters } from "@/src/services/auction/prote
 
 async function testGetUserLambdaWithAPIRequest() {
 	const params: createItemInputParameters = {
-		expirationTime: Date.now() + 3600000,
+		expirationTime: "2h",
 		name: "first item",
 		startingPrice: 100,
 		about: "hello first item",
