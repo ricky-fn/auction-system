@@ -28,10 +28,7 @@ export default function BidModal({ item, isOpen, closeModal, bid }: BidModalProp
     const { value } = event.target;
 
     setAmount(value);
-    const error = validateAmount(value);
-    if (error) {
-      setAmountError(validateAmount(value));
-    }
+    setAmountError(validateAmount(value));
   };
 
   const onClosing = () => {

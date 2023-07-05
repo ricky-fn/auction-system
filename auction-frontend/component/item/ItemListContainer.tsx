@@ -77,10 +77,11 @@ export default function ItemListContainer({ items }: { items: Items }) {
         }
       })
 
-      if (totalBidAmount! + amount <= selectedItem.highestBid!) {
+      const currentPrice = selectedItem.highestBid || selectedItem.startingPrice;
+      if (totalBidAmount! + amount <= currentPrice) {
         dispatch(showToast({
           type: 'error',
-          message: `Your Bid Must Be Higher Than ${selectedItem.highestBid! - totalBidAmount!}`
+          message: `Your Bid Must Be Higher Than ${currentPrice - totalBidAmount!}`
         }))
         dispatch(setLoading(false));
         return;
