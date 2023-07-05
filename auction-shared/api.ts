@@ -11,6 +11,7 @@ export interface ApiResponseList {
   'get-items': ApiResponse<Items>;
   'deposit': ApiResponse<null>;
   'bid-item': ApiResponse<Item>;
+  'get-total-bid-amount': ApiResponse<number>;
 }
 
 export interface ApiRequestParams {
@@ -19,4 +20,5 @@ export interface ApiRequestParams {
   'get-items': undefined;
   'deposit': { amount: number };
   'bid-item': { itemId: string, bidAmount: number };
+  'get-total-bid-amount': { itemId: string };
 }

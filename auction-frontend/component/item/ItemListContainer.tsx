@@ -55,7 +55,7 @@ export default function ItemListContainer({ items }: { items: Items }) {
     setSelectedItem(item)
   }
 
-  const handleBid = (amount: number) => {
+  const handleBid = async (amount: number) => {
     if (!selectedItem) {
       return;
     }
@@ -66,26 +66,47 @@ export default function ItemListContainer({ items }: { items: Items }) {
 
     dispatch(setLoading(true));
 
-    authorizedAxios.post<
-      ApiResponseList['bid-item'],
-      AxiosResponse<ApiResponseList['bid-item']>,
-      ApiRequestParams['bid-item']
-    >('/bid-item', {
-      itemId: selectedItem.itemId,
-      bidAmount: amount,
-    }).then(() => {
+    try {
+      const { data: { data: totalBidAmount } } = await authorizedAxios.get<
+        ApiResponseList['get-total-bid-amount'],
+        AxiosResponse<ApiResponseList['get-total-bid-amount']>,
+        ApiRequestParams['get-total-bid-amount']
+      >('/get-total-bid-amount', {
+        params: {
+          itemId: selectedItem.itemId,
+        }
+      })
+
+      if (totalBidAmount! + amount <= selectedItem.highestBid!) {
+        dispatch(showToast({
+          type: 'error',
+          message: `Your Bid Must Be Higher Than ${selectedItem.highestBid! - totalBidAmount!}`
+        }))
+        dispatch(setLoading(false));
+        return;
+      }
+
+      await authorizedAxios.post<
+        ApiResponseList['bid-item'],
+        AxiosResponse<ApiResponseList['bid-item']>,
+        ApiRequestParams['bid-item']
+      >('/bid-item', {
+        itemId: selectedItem.itemId,
+        bidAmount: amount,
+      })
+
       dispatch(showToast({
         type: 'success',
         message: 'You Have Placed A Bid'
       }))
       refreshData();
-    }).catch(() => {
+    } catch (error) {
       dispatch(showToast({
         type: 'error',
         message: 'Oops Something Wrong...'
       }))
       dispatch(setLoading(false));
-    });
+    }
   }
 
   return (
