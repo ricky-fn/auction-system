@@ -157,18 +157,22 @@ export class LambdaStack extends Stack {
 			entry: (join(__dirname, "..", "..", "services", "auction", "checkStatus.ts")),
 			environment: {
 				DB_ITEMS_TABLE: props.itemsTable.tableName,
+				DB_BIDS_TABLE: props.bidsTable.tableName,
+				DB_USERS_TABLE: props.usersTable.tableName,
 			}
 		});
 
 		checkStatusLambda.addToRolePolicy(new PolicyStatement({
 			effect: Effect.ALLOW,
-			resources: [props.itemsTable.tableArn],
+			resources: [props.itemsTable.tableArn, props.bidsTable.tableArn, props.usersTable.tableArn],
 			actions: [
 				"dynamodb:PutItem",
 				"dynamodb:Query",
 				"dynamodb:Scan",
 				"dynamodb:GetItem",
 				"dynamodb:UpdateItem",
+				"dynamodb:BatchGetItem",
+				"dynamodb:BatchWriteItem"
 			]
 		}));
 

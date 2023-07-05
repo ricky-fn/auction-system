@@ -119,20 +119,28 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	}
 
 	// Update the item with the new bid
-	let updatedItem;
+	const updatedItem: Item = {
+		...item,
+		highestBid: totalBidAmount,
+		lastBidTimestamp: currentTimestamp,
+		highestBidder: userId
+	};
+
 	try {
-		updatedItem = await dbClient.send(new UpdateItemCommand({
+		await dbClient.send(new UpdateItemCommand({
 			TableName: DB_ITEMS_TABLE,
-			Key: {
-				"itemId": { S: itemId }
+			Key: marshall({ itemId: itemId }),
+			UpdateExpression: "SET #highestBid = :highestBid, #lastBidTimestamp = :lastBidTimestamp, #highestBidder = :highestBidder",
+			ExpressionAttributeNames: {
+				"#highestBid": "highestBid",
+				"#lastBidTimestamp": "lastBidTimestamp",
+				"#highestBidder": "highestBidder"
 			},
-			UpdateExpression: "SET highestBid = :highestBid, lastBidTimestamp = :lastBidTimestamp, lastBidder = :lastBidder",
 			ExpressionAttributeValues: marshall({
-				":highestBid": totalBidAmount,
-				":lastBidTimestamp": currentTimestamp,
-				":lastBidder": userId
-			}),
-			ReturnValues: "ALL_NEW"
+				":highestBid": updatedItem.highestBid,
+				":lastBidTimestamp": updatedItem.lastBidTimestamp,
+				":highestBidder": updatedItem.highestBidder
+			})
 		}));
 	} catch (err) {
 		const error = new InternalError("I005", err.message);

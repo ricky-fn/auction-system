@@ -20,7 +20,7 @@
 			"env": {
 				"DB_USERS_TABLE": "UsersTable-0a554d71a646",
 				"DB_ITEMS_TABLE": "ItemsTable-0a554d71a646",
-				"DB_BID_RECORDS_TABLE": "BidsRecordTable-0a554d71a646",
+				"DB_BIDS_TABLE": "BidsRecordTable-0a554d71a646",
 				"TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
 			},
 		},
