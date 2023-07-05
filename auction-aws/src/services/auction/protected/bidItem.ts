@@ -1,5 +1,5 @@
 /**
- * v0.1.0
+ * v0.1.1
  * Allows user to bid an item, the price must be higher than current highest price
  * 
  * @example
@@ -102,12 +102,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 	// Check if enough time has passed since the last bid
 	const lastBidTimestamp = item.lastBidTimestamp ? item.lastBidTimestamp : 0;
-	const currentTimestamp = Math.floor(Date.now() / 1000);
-	const timeElapsed = currentTimestamp - lastBidTimestamp;
-	const minimumTimeElapsed = 5; // Minimum time (in seconds) required between bids
-
-	if (timeElapsed < minimumTimeElapsed) {
-		const error = new BadRequest("B010", `Please wait at least ${minimumTimeElapsed} seconds between bids`);
+	if (hasEnoughTimePassedSinceLastBid(5, lastBidTimestamp)) {
+		const error = new BadRequest("B010", "Please wait at least 5 seconds between bids");
 		return error.getResponse();
 	}
 
@@ -123,7 +119,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	const updatedItem: Item = {
 		...item,
 		highestBid: totalBidAmount,
-		lastBidTimestamp: currentTimestamp,
+		lastBidTimestamp: Date.now(),
 		highestBidder: userId
 	};
 
@@ -154,7 +150,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		bidderId: userId,
 		amount: bidAmount,
 		status: "pending",
-		timestamp: currentTimestamp,
+		timestamp: Date.now(),
 	};
 
 	try {
@@ -271,4 +267,12 @@ async function getTotalBidAmountByUserAndItem(userId: string, itemId: string): P
 	}
 
 	return totalBidAmount;
+}
+
+// Check if enough time has passed since the last bid
+function hasEnoughTimePassedSinceLastBid(minimumTimeElapsed: number, lastBidTimestamp: number): boolean {
+	const currentTimestamp = Math.floor(Date.now() / 1000);
+	const timeElapsed = currentTimestamp - lastBidTimestamp;
+
+	return timeElapsed >= minimumTimeElapsed;
 }
