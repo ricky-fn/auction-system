@@ -7,6 +7,12 @@ import ListItem from './ListItem'
 import BidModal from '../features/BidItem'
 import { Item, Items } from 'auction-shared/models'
 import { signIn, useSession } from 'next-auth/react'
+import useAuthorizedAxios from '@/lib/api/axiosInstance'
+import { ApiRequestParams, ApiResponseList } from 'auction-shared/api'
+import { useDispatch } from 'react-redux'
+import { setLoading, showToast } from '@/store/actions/appActions'
+import { AxiosResponse } from 'axios'
+import { useRouter, usePathname } from 'next/navigation'
 
 type Categories = {
   completed: Items,
@@ -14,21 +20,33 @@ type Categories = {
 }
 
 export default function ItemListContainer({ items }: { items: Items }) {
-  console.log(items)
   const { status } = useSession();
+  const dispatch = useDispatch();
+  const authorizedAxios = useAuthorizedAxios();
   const categories: Categories = {
-    completed: items.filter((item) => item.status === 'completed'),
     ongoing: items.filter((item) => item.status === 'ongoing'),
+    completed: items.filter((item) => item.status === 'completed'),
   }
 
-  let [isOpen, setIsOpen] = useState(false)
-  let [selectedItem, setSelectedItem] = useState<Item | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
 
-  function closeBidModal() {
+  const router = useRouter();
+  const pathname = usePathname()
+
+  const refreshData = () => {
+    router.replace(pathname);
+  };
+
+  useEffect(() => {
+    dispatch(setLoading(false))
+  }, [items]);
+
+  const closeBidModal = () => {
     setIsOpen(false)
   }
 
-  function openBidModal(item: Item) {
+  const openBidModal = (item: Item) => {
     if (status !== 'authenticated') {
       return signIn('cognito')
     }
@@ -37,9 +55,47 @@ export default function ItemListContainer({ items }: { items: Items }) {
     setSelectedItem(item)
   }
 
+  const handleBid = (amount: number) => {
+    if (!selectedItem) {
+      return;
+    }
+
+    if (!amount) {
+      return;
+    }
+
+    dispatch(setLoading(true));
+
+    authorizedAxios.post<
+      ApiResponseList['bid-item'],
+      AxiosResponse<ApiResponseList['bid-item']>,
+      ApiRequestParams['bid-item']
+    >('/bid-item', {
+      itemId: selectedItem.itemId,
+      bidAmount: amount,
+    }).then(() => {
+      dispatch(showToast({
+        type: 'success',
+        message: 'You Have Placed A Bid'
+      }))
+      refreshData();
+    }).catch(() => {
+      dispatch(showToast({
+        type: 'error',
+        message: 'Oops Something Wrong...'
+      }))
+      dispatch(setLoading(false));
+    });
+  }
+
   return (
     <div className="w-full">
-      <BidModal isOpen={isOpen} closeModal={closeBidModal} item={selectedItem} />
+      <BidModal
+        isOpen={isOpen}
+        closeModal={closeBidModal}
+        item={selectedItem}
+        bid={handleBid}
+      />
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 max-w-md">
           {Object.keys(categories).map((category) => (

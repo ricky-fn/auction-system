@@ -1,11 +1,13 @@
 {
   "AuctionDataStack": {
+    "ExportsOutputFnGetAttBidsTableE1AD1632Arn920A85E0": "arn:aws:dynamodb:ap-south-1:399759979072:table/BidsRecordTable-0a554d71a646",
     "ExportsOutputFnGetAttItemsTable5AAC2C46ArnC2DB7822": "arn:aws:dynamodb:ap-south-1:399759979072:table/ItemsTable-0a554d71a646",
     "AuctionPhotosBucketName": "auction-photos-0a554d71a646",
     "ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99": "arn:aws:dynamodb:ap-south-1:399759979072:table/UsersTable-0a554d71a646",
     "ExportsOutputRefItemsTable5AAC2C4611DBACFF": "ItemsTable-0a554d71a646",
     "ExportsOutputFnGetAttAuctionPhotos210EF05EArn12090A3A": "arn:aws:s3:::auction-photos-0a554d71a646",
-    "ExportsOutputRefUsersTable9725E9C857961836": "UsersTable-0a554d71a646"
+    "ExportsOutputRefUsersTable9725E9C857961836": "UsersTable-0a554d71a646",
+    "ExportsOutputRefBidsTableE1AD1632086B90CC": "BidsRecordTable-0a554d71a646"
   },
   "AuctionLambdaStack": {
     "ExportsOutputFnGetAttCheckStatusLambda66E1DC5DArnE35723E5": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CheckStatusLambda66E1DC5D-cfdkCzp9VZ1q",
@@ -13,6 +15,7 @@
     "ExportsOutputFnGetAttUserSignInLambda90E6C625Arn47C117D6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambda90E6C625-4waPnHvyWRE1",
     "ExportsOutputFnGetAttGetItemsLambdaB11521A6ArnCB7087D7": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemsLambdaB11521A6-Lpp2zZIOfkbD",
     "ExportsOutputFnGetAttCreateItemLambda5E129E2FArn7C023B8A": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CreateItemLambda5E129E2F-7pQbR0PES7Jy",
+    "ExportsOutputFnGetAttBidItemLambdaD01AFD89ArnB2CA1AEF": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-BidItemLambdaD01AFD89-YWrwJeVyOtBk",
     "ExportsOutputFnGetAttUserSignUpLambdaF06CE815Arn3CDDCF91": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaF06CE815-Ts0gX2UhGJrL",
     "ExportsOutputFnGetAttDepositLambdaDE532884Arn80C3BB01": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-DepositLambdaDE532884-h6OMFetZqfRF"
   },

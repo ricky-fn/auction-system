@@ -1,7 +1,7 @@
 'use client'
 import useAuthorizedAxios from '@/lib/api/axiosInstance';
 import { classNames } from '@/lib/utils/styles';
-import { ApiList } from 'auction-shared/api';
+import { ApiResponseList } from 'auction-shared/api';
 import { Item } from 'auction-shared/models';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -173,7 +173,7 @@ export default function ItemCreation() {
         return obj;
       }, {} as any);
 
-      await authorizedAxios.post<ApiList['create-item']>('/create-item', item)
+      await authorizedAxios.post<ApiResponseList['create-item']>('/create-item', item)
 
       dispatch(showToast({
         type: 'success',

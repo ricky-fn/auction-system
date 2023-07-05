@@ -32,11 +32,11 @@ const ToastMessage = () => {
   const appData = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (appData.showToast) {
-      setTimeout(handleHideToast, 2000)
-    }
-  }, [appData.showToast])
+  // useEffect(() => {
+  //   if (appData.showToast) {
+  //     setTimeout(handleHideToast, 2000)
+  //   }
+  // }, [appData.showToast])
 
   const handleHideToast = () => {
     dispatch(hideToast())
@@ -55,7 +55,7 @@ const ToastMessage = () => {
       leaveTo="opacity-0"
     >
       <div
-        className="fixed bottom-4 left-4 flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        className="fixed top-20 left-4 flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
       >
         <div className={classNames(
           appData.toastType ? variant[appData.toastType] : '',

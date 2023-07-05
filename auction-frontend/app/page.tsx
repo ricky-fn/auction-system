@@ -1,10 +1,10 @@
 import ItemListContainer from "@/component/item/ItemListContainer";
 import { axiosInstance } from "@/lib/api/axiosInstance";
-import { ApiList } from "auction-shared/api";
+import { ApiResponseList } from "auction-shared/api";
 
 export default async function Page() {
-  const { data } = await axiosInstance.get<ApiList['get-items']>('/get-items')
-
+  const { data } = await axiosInstance.get<ApiResponseList['get-items']>('/get-items')
+  console.info('updated items data')
   return (
     <div className="min-h-full">
       <header className="bg-white shadow">
@@ -14,7 +14,7 @@ export default async function Page() {
       </header>
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          <ItemListContainer items={data.data} />
+          <ItemListContainer items={data.data || []} />
         </div>
       </main>
     </div>
