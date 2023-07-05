@@ -2,7 +2,8 @@
 import useAuthorizedAxios from "@/lib/api/axiosInstance";
 import { classNames } from "@/lib/utils/styles";
 import { setLoading, showToast } from "@/store/actions/appActions";
-import { ApiResponseList } from "auction-shared/api";
+import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
+import { AxiosResponse } from "axios";
 import Link from "next/link";
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
@@ -46,7 +47,11 @@ export default function DepositPage() {
 
     try {
       dispatch(setLoading(true))
-      await authorizedAxios.post<ApiResponseList['deposit']>('/deposit', {
+      await authorizedAxios.post<
+        ApiResponseList['deposit'],
+        AxiosResponse<ApiResponseList['deposit']>,
+        ApiRequestParams['deposit']
+      >('/deposit', {
         amount: Number(amount),
       });
 

@@ -1,7 +1,7 @@
 'use client'
 import useAuthorizedAxios from '@/lib/api/axiosInstance';
 import { classNames } from '@/lib/utils/styles';
-import { ApiResponseList } from 'auction-shared/api';
+import { ApiRequestParams, ApiResponseList } from 'auction-shared/api';
 import { Item } from 'auction-shared/models';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { setLoading, showToast } from '@/store/actions/appActions';
 import { useDispatch } from 'react-redux';
 import PhotoDropzone from './PhotoDropzone';
 import { useRouter } from 'next/navigation'
+import { AxiosResponse } from 'axios';
 
 interface Field {
   name: keyof Item;
@@ -164,7 +165,7 @@ export default function ItemCreation() {
       dispatch(setLoading(true))
       const photoUrl = await dataService.uploadPhoto(getFieldValue('photo') as File);
 
-      const item: Omit<Item, 'createdBy' | 'itemId' | 'timestamp'> = fields.reduce((obj, field) => {
+      const item: ApiRequestParams['create-item'] = fields.reduce((obj, field) => {
         if (field.name === 'photo') {
           obj[field.name] = photoUrl
         } else {
@@ -173,7 +174,11 @@ export default function ItemCreation() {
         return obj;
       }, {} as any);
 
-      await authorizedAxios.post<ApiResponseList['create-item']>('/create-item', item)
+      await authorizedAxios.post<
+        ApiResponseList['create-item'],
+        AxiosResponse<ApiResponseList['create-item']>,
+        ApiRequestParams['create-item']
+      >('/create-item', item)
 
       dispatch(showToast({
         type: 'success',
