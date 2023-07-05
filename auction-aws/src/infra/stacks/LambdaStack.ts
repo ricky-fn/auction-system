@@ -18,6 +18,7 @@ export class LambdaStack extends Stack {
 	public readonly createItemLambdaIntegration: LambdaIntegration;
 	public readonly getUserLambdaIntegration: LambdaIntegration;
 	public readonly depositLambdaIntegration: LambdaIntegration;
+	public readonly bidItemLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
@@ -30,6 +31,7 @@ export class LambdaStack extends Stack {
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
 		this.createItemLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
 		this.depositLambdaIntegration = new LambdaIntegration(this.createDepositLambda(props));
+		this.bidItemLambdaIntegration = new LambdaIntegration(this.createBidItemLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -199,5 +201,29 @@ export class LambdaStack extends Stack {
 		}));
 
 		return depositLambda;
+	}
+
+	private createBidItemLambda(props: LambdaStackProps) {
+		const bidItemLambda = this.getLambdaRuntime("BidItemLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "bidItem.ts")),
+			environment: {
+				DB_USERS_TABLE: props.usersTable.tableName,
+				DB_BIDS_TABLE: props.bidsTable.tableName,
+				DB_ITEMS_TABLE: props.itemsTable.tableName,
+			}
+		});
+
+		bidItemLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.usersTable.tableArn, props.bidsTable.tableArn, props.itemsTable.tableArn],
+			actions: [
+				"dynamodb:GetItem",
+				"dynamodb:UpdateItem",
+				"dynamodb:PutItem",
+				"dynamodb:Scan",
+			]
+		}));
+
+		return bidItemLambda;
 	}
 }

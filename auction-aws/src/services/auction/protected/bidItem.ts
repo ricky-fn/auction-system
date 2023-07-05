@@ -1,5 +1,5 @@
 /**
- * v0.1.2
+ * v0.1.3
  * Allows user to bid an item, the price must be higher than current highest price
  * 
  * @example
@@ -106,8 +106,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	}
 
 	// Check if enough time has passed since the last bid
-	const lastBidTimestamp = item.lastBidTimestamp ? item.lastBidTimestamp : 0;
-	if (hasEnoughTimePassedSinceLastBid(5, lastBidTimestamp)) {
+	if (await hasEnoughTimePassedSinceLastBid(item, userId, 5)) {
 		const error = new BadRequest("B011", "Please wait at least 5 seconds between bids");
 		return error.getResponse();
 	}
@@ -274,10 +273,21 @@ async function getTotalBidAmountByUserAndItem(userId: string, itemId: string): P
 	return totalBidAmount;
 }
 
-// Check if enough time has passed since the last bid
-function hasEnoughTimePassedSinceLastBid(minimumTimeElapsed: number, lastBidTimestamp: number): boolean {
-	const currentTimestamp = Math.floor(Date.now() / 1000);
-	const timeElapsed = currentTimestamp - lastBidTimestamp;
+// Check if enough time has passed since the last bid by user id and item id
+async function hasEnoughTimePassedSinceLastBid(item: Item, userId: string, seconds: number): Promise<boolean> {
+	// query the bid records table that the timestamp is greater than the current time minus the seconds
+	const queryResponse = await dbClient.send(new ScanCommand({
+		TableName: DB_BID_RECORDS_TABLE,
+		FilterExpression: "itemId = :itemId AND bidderId = :bidderId AND #timestamp > :timestamp",
+		ExpressionAttributeNames: {
+			"#timestamp": "timestamp"
+		},
+		ExpressionAttributeValues: marshall({
+			":itemId": item.itemId,
+			":bidderId": userId,
+			":timestamp": Date.now() - seconds * 1000
+		})
+	}));
 
-	return timeElapsed >= minimumTimeElapsed;
+	return queryResponse.Items && queryResponse.Items.length > 0;
 }

@@ -10,4 +10,5 @@ export interface ApiList {
   'create-item': ApiResponse<Item>;
   'get-items': ApiResponse<Items>;
   'deposit': ApiResponse<null>;
+  'bid-item': ApiResponse<Item>;
 }

@@ -26,6 +26,17 @@ export type Item = {
 
 export type ItemStatus = 'ongoing' | 'completed'
 
+export type BidRecord = {
+  bidId: string;
+  itemId: string;
+  bidderId: string;
+  amount: number;
+  timestamp: number;
+  status: BidRecordStatus;
+};
+
+export type BidRecordStatus = 'pending' | 'refunded' | 'completed';
+
 export type Items = Item[]
 
 export type Session = {
