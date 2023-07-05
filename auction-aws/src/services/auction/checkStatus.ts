@@ -66,6 +66,23 @@ export const handler = async () => {
 		} as Item;
 	});
 
+	// If there is no completed auction, end the function
+	if (completedItems.length === 0) {
+		return;
+	}
+
+	// For each completed item, retrieve the highest bidder and refund the other bidders
+	for (const item of completedItems) {
+		const highestBidder = item.highestBidder;
+
+		// Refund the other bidders
+		const refundResult = await refundUsers(item.itemId, highestBidder);
+
+		if (refundResult instanceof InternalError) {
+			return refundResult;
+		}
+	}
+
 	// Use dynamodb.batchWrite to update the status of the items
 	const batchRequests = completedItems.map((item) => {
 		return {
@@ -90,18 +107,6 @@ export const handler = async () => {
 		const error = new InternalError("I002", err.message);
 		return error.getResponse();
 	}
-
-	// For each completed item, retrieve the highest bidder and refund the other bidders
-	for (const item of completedItems) {
-		const highestBidder = item.highestBidder;
-
-		// Refund the other bidders
-		const refundResult = await refundUsers(item.itemId, highestBidder);
-
-		if (refundResult instanceof InternalError) {
-			return refundResult;
-		}
-	}
 };
 
 // scan the bid records table to refund the users except the highest bidder
@@ -120,7 +125,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 	const bidsExceptHighestBidder = bids.filter((bid) => bid.bidderId !== highestBidder);
 
 	// retrieve the users' balance and sum up the total amount to refund
-	const usersResult = await retrieveUsers(bids);
+	const usersResult = await retrieveUsers(bidsExceptHighestBidder);
 
 	if (usersResult instanceof InternalError) {
 		return usersResult;
