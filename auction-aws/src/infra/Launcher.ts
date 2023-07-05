@@ -37,6 +37,7 @@ new ApiStack(app, "AuctionApiStack", {
 	createItemLambdaIntegration: lambdaStack.createItemLambdaIntegration,
 	depositLambdaIntegration: lambdaStack.depositLambdaIntegration,
 	bidItemLambdaIntegration: lambdaStack.bidItemLambdaIntegration,
+	getTotalBidAmountLambdaIntegration: lambdaStack.getTotalBidAmountLambdaIntegration,
 	userPool: authStack.userPool,
 });
 new ScheduleStack(app, "AuctionScheduleStack", {

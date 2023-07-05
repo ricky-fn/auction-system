@@ -19,6 +19,7 @@ export class LambdaStack extends Stack {
 	public readonly getUserLambdaIntegration: LambdaIntegration;
 	public readonly depositLambdaIntegration: LambdaIntegration;
 	public readonly bidItemLambdaIntegration: LambdaIntegration;
+	public readonly getTotalBidAmountLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
@@ -32,6 +33,7 @@ export class LambdaStack extends Stack {
 		this.createItemLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
 		this.depositLambdaIntegration = new LambdaIntegration(this.createDepositLambda(props));
 		this.bidItemLambdaIntegration = new LambdaIntegration(this.createBidItemLambda(props));
+		this.getTotalBidAmountLambdaIntegration = new LambdaIntegration(this.createGetTotalBidAmountLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -225,5 +227,28 @@ export class LambdaStack extends Stack {
 		}));
 
 		return bidItemLambda;
+	}
+
+	private createGetTotalBidAmountLambda(props: LambdaStackProps) {
+		const getTotalBidAmountLambda = this.getLambdaRuntime("GetTotalBidAmountLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "getTotalBidAmount.ts")),
+			environment: {
+				DB_BIDS_TABLE: props.bidsTable.tableName,
+				DB_USERS_TABLE: props.usersTable.tableName,
+				DB_ITEMS_TABLE: props.itemsTable.tableName,
+			}
+		});
+
+		getTotalBidAmountLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.bidsTable.tableArn, props.usersTable.tableArn, props.itemsTable.tableArn],
+			actions: [
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:GetItem",
+			]
+		}));
+
+		return getTotalBidAmountLambda;
 	}
 }

@@ -9,6 +9,7 @@ interface ApiStackProps extends StackProps {
 	createItemLambdaIntegration: LambdaIntegration,
 	depositLambdaIntegration: LambdaIntegration,
 	bidItemLambdaIntegration: LambdaIntegration,
+	getTotalBidAmountLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
 }
 
@@ -53,6 +54,9 @@ export class ApiStack extends Stack {
 
 		const bidItemApiResource = api.root.addResource("bid-item", optionsWithCors); // attach cors to apigateway root
 		bidItemApiResource.addMethod("POST", props.bidItemLambdaIntegration, optionsWithAuth);
+
+		const getTotalBidAmountApiResource = api.root.addResource("get-total-bid-amount", optionsWithCors); // attach cors to apigateway root
+		getTotalBidAmountApiResource.addMethod("GET", props.getTotalBidAmountLambdaIntegration, optionsWithAuth);
 
 		new CfnOutput(this, "AuctionApiUrl", {
 			value: api.url
