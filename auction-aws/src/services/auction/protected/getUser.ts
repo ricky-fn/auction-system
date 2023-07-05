@@ -1,5 +1,5 @@
-import { DynamoDB } from "aws-sdk";
 /**
+ * v 0.1.0
  * Registration function
  * 
  * @example

@@ -1,4 +1,5 @@
 /**
+ * v0.1.0
  * Allows user to bid an item, the price must be higher than current highest price
  * 
  * @example
@@ -9,7 +10,7 @@
  * 
  * Errors:
  * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010
- * Internal Error: I001, I002, I003, I004, I005
+ * Internal Error: I001, I002, I003, I004, I005, I006
  * Authorization Fail: A001
  */
 
