@@ -17,7 +17,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { Item } from "auction-shared/models";
-import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError } from "@/src/services/auction/utils";
+import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError, uuid } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { ApiList } from "auction-shared/api";
 
@@ -41,13 +41,14 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	}
 
 	// Assign a predefined itemId based on your business logic
-	const itemId = assignItemId();
+	const itemId = uuid("item");
 
 	// Get the current timestamp
 	const createdAt = Math.floor(Date.now() / 1000);
 
 	const newItem: Item = {
 		...result,
+		startingPrice: Number(result.startingPrice),
 		itemId,
 		createdAt,
 		createdBy: userId,
@@ -105,11 +106,4 @@ const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | createIt
 	}
 
 	return input;
-};
-
-// Function to generate a unique itemId
-const assignItemId = (): string => {
-	const timestamp = new Date().getTime();
-	const randomId = Math.floor(Math.random() * 10000);
-	return `item-${timestamp}-${randomId}`;
 };

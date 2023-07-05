@@ -7,7 +7,6 @@ import { Bucket, HttpMethods, IBucket, ObjectOwnership } from "aws-cdk-lib/aws-s
 export class DataStack extends Stack {
 	public readonly itemsTable: ITable;
 	public readonly bidsTable: ITable;
-	public readonly depositTable: ITable;
 	public readonly usersTable: ITable;
 	public readonly photosBucket: IBucket;
 
@@ -26,18 +25,10 @@ export class DataStack extends Stack {
 
 		this.bidsTable = new Table(this, "BidsTable", {
 			partitionKey: {
-				name: "id",
+				name: "bidId",
 				type: AttributeType.STRING
 			},
-			tableName: `BidsTable-${suffix}`
-		});
-
-		this.depositTable = new Table(this, "DepositTable", {
-			partitionKey: {
-				name: "id",
-				type: AttributeType.STRING
-			},
-			tableName: `DepositTable-${suffix}`
+			tableName: `BidsRecordTable-${suffix}`
 		});
 
 		this.usersTable = new Table(this, "UsersTable", {

@@ -10,7 +10,6 @@ import { join } from "path";
 interface LambdaStackProps extends StackProps {
 	itemsTable: ITable,
 	bidsTable: ITable,
-	depositTable: ITable,
 	usersTable: ITable
 }
 
@@ -181,15 +180,17 @@ export class LambdaStack extends Stack {
 			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "deposit.ts")),
 			environment: {
 				DB_USERS_TABLE: props.usersTable.tableName,
+				DB_BIDS_TABLE: props.bidsTable.tableName,
 			}
 		});
 
 		depositLambda.addToRolePolicy(new PolicyStatement({
 			effect: Effect.ALLOW,
-			resources: [props.usersTable.tableArn],
+			resources: [props.usersTable.tableArn, props.bidsTable.tableArn],
 			actions: [
 				"dynamodb:GetItem",
 				"dynamodb:UpdateItem",
+				"dynamodb:PutItem",
 			]
 		}));
 

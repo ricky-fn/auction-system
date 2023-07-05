@@ -8,81 +8,95 @@
  * }
  * 
  * Errors:
- * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009
+ * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010
  * Internal Error: I001, I002, I003, I004, I005
  * Authorization Fail: A001
  */
 
-import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
-import { lambdaErrorHelper } from "../utils";
-import { Item, LambdaResponse, User } from "../../../../types";
-import { createLambdaResponse } from "../utils/helpers";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { BidRecord, Item, User } from "auction-shared/models";
+import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError, uuid } from "@/src/services/auction/utils";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { ApiList } from "auction-shared/api";
+import { AttributeMap } from "aws-sdk/clients/dynamodb";
 
-const dynamodb = new DynamoDB();
-const DB_SESSIONS_TABLE = "Sessions";
-const DB_ITEMS_TABLE = "Items";
-const DB_USERS_TABLE = "Users";
+const dbClient = new DynamoDBClient({});
+const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE;
+const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
+const DB_BID_RECORDS_TABLE = process.env.DB_BID_RECORDS_TABLE;
 
-const SECRET_KEY = "Jitera";
-
-type BidItemOutput = {
-	item: Item
+export type BidItemInputParameters = {
+	itemId: string;
+	bidAmount: number;
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: APIGatewayEventRequestContext): Promise<LambdaResponse<BidItemOutput>> => {
-	const error = validateInputParameters(event, context);
-	if (error) {
-		return error;
+export const handler = async (event: APIGatewayProxyEvent) => {
+	const result = parseInputParameter(event);
+
+	if (result instanceof BadRequest) {
+		return result.getResponse();
 	}
 
-	const { itemId, bidAmount } = JSON.parse(event.body || "{}");
+	const userId = event.requestContext.authorizer?.claims["cognito:username"] || null;
 
-	// Get the session token from the Authorization header
-	const sessionToken = event.headers.Authorization ? event.headers.Authorization.split(" ")[1] : null; // Assuming the session token is sent in the Authorization header as a Bearer token
-
-	if (!sessionToken) {
-		return lambdaErrorHelper.handleAuthorizationFail("A001", "session token is required", context);
+	if (!userId) {
+		const error = new AuthorizationFail("A001", "username is required");
+		return error.getResponse();
 	}
 
-	// Verify the session token and retrieve the associated userId
-	let userId;
-	try {
-		userId = await verifySessionToken(sessionToken);
-	} catch (err) {
-		return lambdaErrorHelper.handleInternalError("I001", err, context);
-	}
-
-	let userBalance;
-	try {
-		userBalance = await getUserBalance(userId);
-	} catch (err) {
-		return lambdaErrorHelper.handleInternalError("I005", err, context);
-	}
-
-	// Check user balance against bidAmount
-	if (userBalance < bidAmount) {
-		return lambdaErrorHelper.handleBadRequest("B009", "Insufficient balance to create the item", context);
-	}
+	const { itemId, bidAmount } = result;
 
 	// Check if the item exists
 	let item;
 	try {
 		item = await getItem(itemId);
 	} catch (err) {
-		return lambdaErrorHelper.handleInternalError("I002", err, context);
+		const error = new InternalError("I001", err.message);
+		return error.getResponse();
 	}
 
 	if (!item) {
-		return lambdaErrorHelper.handleBadRequest("B006", "Item not found", context);
+		const error = new BadRequest("B006", "Item not found");
+		return error.getResponse();
+	}
+
+	if (item.status === "completed") {
+		const error = new BadRequest("B007", "auction is completed");
+		return error.getResponse();
+	}
+
+	let userBalance;
+	try {
+		const user = await getUserByUsername(userId);
+		userBalance = user.balance;
+	} catch (err) {
+		const error = new InternalError("I002", err.message);
+		return error.getResponse();
+	}
+
+	// Check user balance against bidAmount
+	if (userBalance < bidAmount) {
+		const error = new BadRequest("B008", "Insufficient balance to bid the item");
+		return error.getResponse();
+	}
+
+	let totalBidAmount;
+	try {
+		totalBidAmount = await getTotalBidAmountByUserAndItem(userId, itemId);
+		totalBidAmount += bidAmount;
+	} catch (err) {
+		const error = new InternalError("I003", err.message);
+		return error.getResponse();
 	}
 
 	// Get the current highest bid
 	const currentHighestBid = item.highestBid ? item.highestBid : item.startingPrice;
 
 	// Check if the bid amount is higher than the current highest bid
-	if (bidAmount <= currentHighestBid) {
-		return lambdaErrorHelper.handleBadRequest("B007", "Bid amount should be higher than the current highest bid", context);
+	if (totalBidAmount <= currentHighestBid) {
+		const error = new BadRequest("B009", "Bid amount should be higher than the current highest bid");
+		return error.getResponse();
 	}
 
 	// Check if enough time has passed since the last bid
@@ -92,149 +106,160 @@ export const handler = async (event: APIGatewayProxyEvent, context: APIGatewayEv
 	const minimumTimeElapsed = 5; // Minimum time (in seconds) required between bids
 
 	if (timeElapsed < minimumTimeElapsed) {
-		return lambdaErrorHelper.handleBadRequest("B008", `Please wait at least ${minimumTimeElapsed} seconds between bids`, context);
+		const error = new BadRequest("B010", `Please wait at least ${minimumTimeElapsed} seconds between bids`);
+		return error.getResponse();
+	}
+
+	// update the user balance
+	try {
+		await updateUserBalance(userId, userBalance - bidAmount);
+	} catch (err) {
+		const error = new InternalError("I004", err.message);
+		return error.getResponse();
 	}
 
 	// Update the item with the new bid
+	let updatedItem;
 	try {
-		await updateItem(itemId, userId, bidAmount, currentTimestamp);
+		updatedItem = await dbClient.send(new UpdateItemCommand({
+			TableName: DB_ITEMS_TABLE,
+			Key: {
+				"itemId": { S: itemId }
+			},
+			UpdateExpression: "SET highestBid = :highestBid, lastBidTimestamp = :lastBidTimestamp, lastBidder = :lastBidder",
+			ExpressionAttributeValues: marshall({
+				":highestBid": totalBidAmount,
+				":lastBidTimestamp": currentTimestamp,
+				":lastBidder": userId
+			}),
+			ReturnValues: "ALL_NEW"
+		}));
 	} catch (err) {
-		lambdaErrorHelper.handleInternalError("I003", err, context);
+		const error = new InternalError("I005", err.message);
+		return error.getResponse();
 	}
 
+	const bidRecord: BidRecord = {
+		bidId: uuid("bid"),
+		itemId: itemId,
+		bidderId: userId,
+		amount: bidAmount,
+		status: "pending",
+		timestamp: currentTimestamp,
+	};
+
 	try {
-		item = await getItem(itemId);
+		await storeBidRecord(bidRecord);
 	} catch (err) {
-		return lambdaErrorHelper.handleInternalError("I004", err, context);
+		const error = new InternalError("I006", err.message);
+		return error.getResponse();
 	}
 
-	return createLambdaResponse<BidItemOutput>(200, { item });
+	return createLambdaResponse<ApiList["bid-item"]>(200, {
+		timestamp: Date.now(),
+		data: updatedItem
+	});
 };
 
-const validateInputParameters = (event: APIGatewayProxyEvent, context: APIGatewayEventRequestContext): APIGatewayProxyResult | void => {
+function parseInputParameter(event: APIGatewayProxyEvent): BadRequest | BidItemInputParameters {
 	if (!event.body) {
-		return lambdaErrorHelper.handleBadRequest("B001", "Input parameter is required", context);
+		return new BadRequest("B001", "Input parameter is required");
 	}
 
-	const input = JSON.parse(event.body);
+	const input = JSON.parse(event.body) as BidItemInputParameters;
 
 	if (!input.itemId) {
-		return lambdaErrorHelper.handleBadRequest("B002", "itemId is required", context);
+		return new BadRequest("B002", "itemId is required");
 	}
 
 	if (!input.bidAmount) {
-		return lambdaErrorHelper.handleBadRequest("B003", "bidAmount is required", context);
+		return new BadRequest("B003", "bidAmount is required");
 	}
 
 	if (isNaN(input.bidAmount)) {
-		return lambdaErrorHelper.handleBadRequest("B004", "bidAmount must be a number", context);
+		return new BadRequest("B004", "bidAmount must be a number");
 	}
 
 	if (input.bidAmount <= 0) {
-		return lambdaErrorHelper.handleBadRequest("B005", "bidAmount must be greater than 0", context);
+		return new BadRequest("B005", "bidAmount must be greater than 0");
 	}
-};
 
-// Function to verify the session token
-const verifySessionToken = (sessionToken: string): Promise<string> => {
-	return new Promise<string>((resolve, reject) => {
-		jwt.verify(sessionToken, SECRET_KEY, (error, decoded) => {
-			if (error) {
-				return reject(error);
-			}
+	return input;
+}
 
-			const payload = decoded as JwtPayload;
-
-			if (!payload || !payload.exp) {
-				return reject("Invalid JWT token");
-			}
-
-			const currentTime = Math.floor(Date.now() / 1000); // Convert to seconds
-
-			if (payload.exp < currentTime) {
-				return reject("Session token has expired");
-			}
-
-			// Retrieve the userId associated with the session from the Sessions table
-			dynamodb.getItem({
-				TableName: DB_SESSIONS_TABLE,
-				Key: { sessionId: { S: sessionToken } }
-			}, (err, data) => {
-				if (err) {
-					console.error("Error retrieving session from Sessions table: ", err);
-					reject(err);
-				} else {
-					const user = AWS.DynamoDB.Converter.unmarshall(data.Item as AWS.DynamoDB.AttributeMap) as User;
-					resolve(user.userId);
-				}
-			});
-		});
-	});
-};
 
 // Function to retrieve an item by itemId
-const getItem = (itemId: string): Promise<Item> => {
-	return dynamodb
-		.getItem({
-			TableName: DB_ITEMS_TABLE,
-			Key: {
-				itemId: { S: itemId }
-			}
+async function getItem(itemId: string): Promise<Item | undefined> {
+	const getItemResponse = await dbClient.send(new GetItemCommand({
+		TableName: DB_ITEMS_TABLE,
+		Key: {
+			"itemId": { S: itemId }
+		}
+	}));
+	if (getItemResponse.Item) {
+		const unmashalledItem = unmarshall(getItemResponse.Item) as Item;
+		return unmashalledItem;
+	}
+}
+
+
+// Function to retrieve user by username from DynamoDB
+async function getUserByUsername(userId: string): Promise<User | undefined> {
+	// Create the parameters for the DynamoDB query
+
+	const getItemResponse = await dbClient.send(new GetItemCommand({
+		TableName: DB_USERS_TABLE,
+		Key: {
+			"id": { S: userId }
+		}
+	}));
+	if (getItemResponse.Item) {
+		const unmashalledItem = unmarshall(getItemResponse.Item) as User;
+		return unmashalledItem;
+	}
+}
+
+async function updateUserBalance(userId: string, newBalance: number): Promise<void> {
+	await dbClient.send(new UpdateItemCommand({
+		TableName: DB_USERS_TABLE,
+		Key: {
+			id: { S: userId }
+		},
+		UpdateExpression: "SET #balance = :newBalance",
+		ExpressionAttributeNames: {
+			"#balance": "balance"
+		},
+		ExpressionAttributeValues: {
+			":newBalance": { N: newBalance.toString() }
+		}
+	}));
+}
+
+async function storeBidRecord(bidRecord: BidRecord): Promise<void> {
+	await dbClient.send(
+		new PutItemCommand({
+			TableName: DB_BID_RECORDS_TABLE,
+			Item: marshall(bidRecord),
 		})
-		.promise()
-		.then((data) => {
-			if (!data || !data.Item) {
-				throw new Error("Item not found");
+	);
+}
 
-			}
-			return AWS.DynamoDB.Converter.unmarshall(data.Item) as Item;
-		});
-};
-
-// Function to retrieve the user balance from the database
-const getUserBalance = (userId: string): Promise<number> => {
-	return new Promise((resolve, reject) => {
-		const params = {
-			TableName: DB_USERS_TABLE,
-			Key: {
-				userId: { S: userId },
-			},
-			ProjectionExpression: "balance"
-		};
-
-		dynamodb.getItem(params, (err, data) => {
-			if (err) {
-				console.error("Error retrieving user balance from the database: ", err);
-				reject(err);
-			} else {
-				if (!data.Item || !data.Item.balance || !data.Item.balance.N) {
-					console.error("User balance not found");
-					return reject("User balance not found");
-				}
-
-				const user = AWS.DynamoDB.Converter.unmarshall(data.Item) as User;
-
-				const userBalance = user.balance;
-				resolve(userBalance);
-			}
-		});
-	});
-};
-
-// Function to update an item with a new bid
-const updateItem = (itemId: string, userId: string, bidAmount: number, currentTimestamp: number): Promise<unknown> => {
-	return dynamodb
-		.updateItem({
-			TableName: DB_ITEMS_TABLE,
-			Key: {
-				itemId: { S: itemId }
-			},
-			UpdateExpression: "SET highestBid = :bidAmount, highestBidder = :userId, lastBidTimestamp = :currentTimestamp",
-			ExpressionAttributeValues: {
-				":bidAmount": { N: bidAmount.toString() },
-				":userId": { S: userId },
-				":currentTimestamp": { N: currentTimestamp.toString() }
-			}
+async function getTotalBidAmountByUserAndItem(userId: string, itemId: string): Promise<number> {
+	const queryResponse = await dbClient.send(new ScanCommand({
+		TableName: DB_BID_RECORDS_TABLE,
+		FilterExpression: "itemId = :itemId AND bidderId = :bidderId",
+		ExpressionAttributeValues: marshall({
+			":itemId": itemId,
+			":bidderId": userId
 		})
-		.promise();
-};
+	}));
+
+	let totalBidAmount = 0;
+	if (queryResponse.Items && queryResponse.Items.length > 0) {
+		totalBidAmount = queryResponse.Items.reduce((total: number, item: AttributeMap) => {
+			return total + Number(item.amount.N);
+		}, 0);
+	}
+
+	return totalBidAmount;
+}

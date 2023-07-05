@@ -22,7 +22,6 @@ const lambdaStack = new LambdaStack(app, "AuctionLambdaStack", {
 	...stackProps,
 	itemsTable: dataStack.itemsTable,
 	bidsTable: dataStack.bidsTable,
-	depositTable: dataStack.depositTable,
 	usersTable: dataStack.usersTable
 });
 const authStack = new AuthStack(app, "AuctionAuthStack", {
