@@ -9,7 +9,7 @@
 import { DynamoDB } from "aws-sdk";
 import { createLambdaResponse, InternalError } from "@/src/services/auction/utils";
 import { Item, Items } from "auction-shared/models";
-import { ApiList } from "auction-shared/api";
+import { ApiResponseList } from "auction-shared/api";
 
 const dynamodb = new DynamoDB();
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
@@ -37,7 +37,7 @@ export const handler = async () => {
 		return DynamoDB.Converter.unmarshall(item) as Item;
 	});
 
-	return createLambdaResponse<ApiList["get-items"]>(200, {
+	return createLambdaResponse<ApiResponseList["get-items"]>(200, {
 		timestamp: Date.now(),
 		data: items
 	});

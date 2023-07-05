@@ -15,14 +15,14 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { User } from "auction-shared/models";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { createLambdaResponse, AuthorizationFail } from "../utils";
-import { ApiList } from "auction-shared/api";
+import { ApiResponseList } from "auction-shared/api";
 
 const dbClient = new DynamoDBClient({});
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
 
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function handler(event: APIGatewayProxyEvent) {
 	const userId = event.requestContext.authorizer?.claims["cognito:username"] || null;
 
 	if (!userId) {
@@ -32,7 +32,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
 	const user = await getUserByUsername(userId);
 
-	return createLambdaResponse<ApiList["get-user"]>(200, {
+	return createLambdaResponse<ApiResponseList["get-user"]>(200, {
 		timestamp: Date.now(),
 		data: user
 	});

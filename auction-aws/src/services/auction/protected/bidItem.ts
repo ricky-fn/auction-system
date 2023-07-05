@@ -19,18 +19,13 @@ import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItem
 import { BidRecord, Item, User } from "auction-shared/models";
 import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError, uuid } from "@/src/services/auction/utils";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { ApiList } from "auction-shared/api";
+import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { AttributeMap } from "aws-sdk/clients/dynamodb";
 
 const dbClient = new DynamoDBClient({});
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE;
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
-const DB_BID_RECORDS_TABLE = process.env.DB_BID_RECORDS_TABLE;
-
-export type BidItemInputParameters = {
-	itemId: string;
-	bidAmount: number;
-}
+const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE;
 
 export const handler = async (event: APIGatewayProxyEvent) => {
 	const result = parseInputParameter(event);
@@ -164,18 +159,18 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
-	return createLambdaResponse<ApiList["bid-item"]>(200, {
+	return createLambdaResponse<ApiResponseList["bid-item"]>(200, {
 		timestamp: Date.now(),
 		data: updatedItem
 	});
 };
 
-function parseInputParameter(event: APIGatewayProxyEvent): BadRequest | BidItemInputParameters {
+function parseInputParameter(event: APIGatewayProxyEvent): BadRequest | ApiRequestParams["bid-item"] {
 	if (!event.body) {
 		return new BadRequest("B001", "Input parameter is required");
 	}
 
-	const input = JSON.parse(event.body) as BidItemInputParameters;
+	const input = JSON.parse(event.body) as ApiRequestParams["bid-item"];
 
 	if (!input.itemId) {
 		return new BadRequest("B002", "itemId is required");
@@ -247,7 +242,7 @@ async function updateUserBalance(userId: string, newBalance: number): Promise<vo
 async function storeBidRecord(bidRecord: BidRecord): Promise<void> {
 	await dbClient.send(
 		new PutItemCommand({
-			TableName: DB_BID_RECORDS_TABLE,
+			TableName: DB_BIDS_TABLE,
 			Item: marshall(bidRecord),
 		})
 	);
@@ -255,7 +250,7 @@ async function storeBidRecord(bidRecord: BidRecord): Promise<void> {
 
 async function getTotalBidAmountByUserAndItem(userId: string, itemId: string): Promise<number> {
 	const queryResponse = await dbClient.send(new ScanCommand({
-		TableName: DB_BID_RECORDS_TABLE,
+		TableName: DB_BIDS_TABLE,
 		FilterExpression: "itemId = :itemId AND bidderId = :bidderId",
 		ExpressionAttributeValues: marshall({
 			":itemId": itemId,
@@ -277,7 +272,7 @@ async function getTotalBidAmountByUserAndItem(userId: string, itemId: string): P
 async function hasEnoughTimePassedSinceLastBid(item: Item, userId: string, seconds: number): Promise<boolean> {
 	// query the bid records table that the timestamp is greater than the current time minus the seconds
 	const queryResponse = await dbClient.send(new ScanCommand({
-		TableName: DB_BID_RECORDS_TABLE,
+		TableName: DB_BIDS_TABLE,
 		FilterExpression: "itemId = :itemId AND bidderId = :bidderId AND #timestamp > :timestamp",
 		ExpressionAttributeNames: {
 			"#timestamp": "timestamp"

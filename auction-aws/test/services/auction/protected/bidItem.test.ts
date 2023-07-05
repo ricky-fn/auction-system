@@ -1,7 +1,8 @@
-import { handler, BidItemInputParameters } from "@/src/services/auction/protected/bidItem";
+import { handler } from "@/src/services/auction/protected/bidItem";
+import { ApiRequestParams } from "auction-shared/api";
 
 async function testGetUserLambdaWithAPIRequest() {
-	const params: BidItemInputParameters = {
+	const params: ApiRequestParams["bid-item"] = {
 		itemId: "item-1688376211848-8681",
 		bidAmount: 500
 	};

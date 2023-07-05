@@ -1,7 +1,8 @@
-import { handler, createItemInputParameters } from "@/src/services/auction/protected/createItem";
+import { handler } from "@/src/services/auction/protected/createItem";
+import { ApiRequestParams } from "auction-shared/api";
 
 async function testGetUserLambdaWithAPIRequest() {
-	const params: createItemInputParameters = {
+	const params: ApiRequestParams["create-item"] = {
 		expirationTime: "2h",
 		name: "first item",
 		startingPrice: 100,

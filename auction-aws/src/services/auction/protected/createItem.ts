@@ -20,12 +20,10 @@ import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { Item } from "auction-shared/models";
 import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError, uuid } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { ApiList } from "auction-shared/api";
+import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 
 const dbClient = new DynamoDBClient({});
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE;
-
-export type createItemInputParameters = Omit<Item, "itemId" | "createdBy" | "highestBid" | "highestBidder" | "lastBidTimestamp" | "timestamp" | "createdAt" | "status">
 
 export const handler = async (event: APIGatewayProxyEvent) => {
 	const result = parseInputParameter(event);
@@ -67,18 +65,18 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
-	return createLambdaResponse<ApiList["create-item"]>(200, {
+	return createLambdaResponse<ApiResponseList["create-item"]>(200, {
 		timestamp: Date.now(),
 		data: newItem
 	});
 };
 
-const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | createItemInputParameters => {
+const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | ApiRequestParams["create-item"] => {
 	if (!event.body) {
 		return new BadRequest("B001", "Input parameter is required");
 	}
 
-	const input = JSON.parse(event.body) as createItemInputParameters;
+	const input = JSON.parse(event.body) as ApiRequestParams["create-item"];
 
 	if (!input.name) {
 		return new BadRequest("B002", "name is required");

@@ -1,7 +1,8 @@
-import { handler, DepositInputParameters } from "@/src/services/auction/protected/deposit";
+import { handler } from "@/src/services/auction/protected/deposit";
+import { ApiRequestParams } from "auction-shared/api";
 
 async function testDepositLambdaWithAPIRequest() {
-	const params: DepositInputParameters = {
+	const params: ApiRequestParams["deposit"] = {
 		amount: 100
 	};
 

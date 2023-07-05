@@ -21,14 +21,10 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import { AuthorizationFail, BadRequest, InternalError, createLambdaResponse } from "../utils";
 import { User } from "auction-shared/models";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { ApiList } from "auction-shared/api";
+import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 
 const dbClient = new DynamoDBClient({});
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
-
-export interface DepositInputParameters {
-	amount: number;
-}
 
 export const handler = async (event: APIGatewayProxyEvent) => {
 	const result = parseInputParameter(event);
@@ -80,17 +76,17 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
-	return createLambdaResponse<ApiList["deposit"]>(200, {
+	return createLambdaResponse<ApiResponseList["deposit"]>(200, {
 		timestamp: Date.now()
 	});
 };
 
-const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | DepositInputParameters => {
+const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | ApiRequestParams["deposit"] => {
 	if (!event.body) {
 		return new BadRequest("B001", "Input parameter is required");
 	}
 
-	const input = JSON.parse(event.body) as DepositInputParameters;
+	const input = JSON.parse(event.body) as ApiRequestParams["deposit"];
 
 	if (!input.amount) {
 		return new BadRequest("B002", "amount is required");
