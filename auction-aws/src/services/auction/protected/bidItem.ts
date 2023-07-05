@@ -1,5 +1,5 @@
 /**
- * v0.1.1
+ * v0.1.2
  * Allows user to bid an item, the price must be higher than current highest price
  * 
  * @example
@@ -9,7 +9,7 @@
  * }
  * 
  * Errors:
- * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010
+ * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010, B011
  * Internal Error: I001, I002, I003, I004, I005, I006
  * Authorization Fail: A001
  */
@@ -49,7 +49,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	const { itemId, bidAmount } = result;
 
 	// Check if the item exists
-	let item;
+	let item: Item;
 	try {
 		item = await getItem(itemId);
 	} catch (err) {
@@ -67,6 +67,11 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
+	if (item.createdBy === userId) {
+		const error = new BadRequest("B008", "You cannot bid your own item");
+		return error.getResponse();
+	}
+
 	let userBalance;
 	try {
 		const user = await getUserByUsername(userId);
@@ -78,7 +83,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 	// Check user balance against bidAmount
 	if (userBalance < bidAmount) {
-		const error = new BadRequest("B008", "Insufficient balance to bid the item");
+		const error = new BadRequest("B009", "Insufficient balance to bid the item");
 		return error.getResponse();
 	}
 
@@ -96,14 +101,14 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 	// Check if the bid amount is higher than the current highest bid
 	if (totalBidAmount <= currentHighestBid) {
-		const error = new BadRequest("B009", "Bid amount should be higher than the current highest bid");
+		const error = new BadRequest("B010", "Bid amount should be higher than the current highest bid");
 		return error.getResponse();
 	}
 
 	// Check if enough time has passed since the last bid
 	const lastBidTimestamp = item.lastBidTimestamp ? item.lastBidTimestamp : 0;
 	if (hasEnoughTimePassedSinceLastBid(5, lastBidTimestamp)) {
-		const error = new BadRequest("B010", "Please wait at least 5 seconds between bids");
+		const error = new BadRequest("B011", "Please wait at least 5 seconds between bids");
 		return error.getResponse();
 	}
 
