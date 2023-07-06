@@ -1,13 +1,14 @@
 import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/protected/deposit";
-import { ApiResponseList } from "auction-shared/api";
+import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { AuthorizationFail, BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "@/test/mocks/fakeData/auth";
+import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
 import { GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { generateFakeUser } from "@/test/mocks/fakeData/user";
-import { sharedAuthTest } from "./shared/auth.test";
+import { sharedAuthTest } from "./shared/auth";
+import { sharedInputTest } from "./shared/input";
 
 describe("Test deposit LambdaFunction", () => {
 	beforeEach(() => {
@@ -19,18 +20,7 @@ describe("Test deposit LambdaFunction", () => {
 		jest.restoreAllMocks();
 	});
 
-	describe("Test the request validation", () => {
-
-		it("should return a BadRequest when no body is provided", async () => {
-			const { body: response, statusCode } = await handler({} as any);
-
-			const error = new BadRequest("B001", "Input parameter is required");
-			const { body: expectedResponse } = error.getResponse();
-
-			expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-			expect(statusCode).toEqual(error.statusCode);
-		});
-
+	sharedInputTest(handler, () => {
 		it("should return a BadRequest when no amount is provided", async () => {
 			const { body: response, statusCode } = await handler({
 				body: JSON.stringify({}),
@@ -74,7 +64,9 @@ describe("Test deposit LambdaFunction", () => {
 		});
 	});
 
-	sharedAuthTest(handler);
+	sharedAuthTest<ApiRequestParams["deposit"]>(handler, {
+		amount: 100,
+	}, "POST");
 
 	describe("Test the deposit process", () => {
 		it("should return InternalError when an error occurs", async () => {

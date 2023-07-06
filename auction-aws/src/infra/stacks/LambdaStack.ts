@@ -141,15 +141,17 @@ export class LambdaStack extends Stack {
 		const getUserLambda = this.getLambdaRuntime("CreateItemLambda", {
 			entry: (join(__dirname, "..", "..", "services", "auction", "protected", "createItem.ts")),
 			environment: {
-				DB_ITEMS_TABLE: props.itemsTable.tableName
+				DB_ITEMS_TABLE: props.itemsTable.tableName,
+				DB_USERS_TABLE: props.usersTable.tableName
 			}
 		});
 
 		getUserLambda.addToRolePolicy(new PolicyStatement({
 			effect: Effect.ALLOW,
-			resources: [props.itemsTable.tableArn],
+			resources: [props.itemsTable.tableArn, props.usersTable.tableArn],
 			actions: [
 				"dynamodb:PutItem",
+				"dynamodb:GetItem",
 			]
 		}));
 

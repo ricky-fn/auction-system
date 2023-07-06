@@ -10,7 +10,7 @@ type LambdaHandler = (
 	context?: Context
 ) => Promise<APIGatewayProxyResult>;
 
-export const sharedAuthTest = <T>(handler: LambdaHandler, requestParams: T, requestType: "GET" | "POST") => {
+export const sharedAuthTest = <T>(handler: LambdaHandler, requestParams?: T, requestType?: "GET" | "POST") => {
 	beforeEach(() => {
 		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
 	});
@@ -37,7 +37,7 @@ export const sharedAuthTest = <T>(handler: LambdaHandler, requestParams: T, requ
 				.on(GetItemCommand)
 				.rejects(new Error("Test"));
 
-			const ApiRequestParams = {
+			const ApiRequestParams = requestParams && {
 				[requestType === "GET" ? "queryStringParameters" : "body"]: requestType === "GET" ? requestParams : JSON.stringify(requestParams),
 			};
 			const { body: response } = await handler({

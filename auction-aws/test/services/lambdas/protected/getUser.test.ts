@@ -7,7 +7,8 @@ import { createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
-import { sharedAuthTest } from "./shared/auth.test";
+import { sharedAuthTest } from "./shared/auth";
+import { generateFakeUser } from "@/test/mocks/fakeData/user";
 
 describe("Test getUser LambdaFunction", () => {
 	beforeEach(() => {
@@ -17,17 +18,7 @@ describe("Test getUser LambdaFunction", () => {
 	sharedAuthTest(handler);
 
 	it("should return the user when a valid userId is provided", async () => {
-		const userId = "testUserId";
-		const mockUser: User = {
-			id: userId,
-			password: "password",
-			email: "test@example.com",
-			balance: 100,
-			create_at: 1626432420000,
-			given_name: "John",
-			family_name: "Doe",
-			picture: "https://example.com/avatar.jpg",
-		};
+		const mockUser: User = generateFakeUser();
 
 		mockDBClient
 			.on(GetItemCommand)
@@ -35,7 +26,7 @@ describe("Test getUser LambdaFunction", () => {
 				Item: marshall(mockUser)
 			});
 
-		const result = await handler(generateCognitoAuthorizerContext(userId) as any);
+		const result = await handler(generateCognitoAuthorizerContext(mockUser.id) as any);
 
 		const expectedResponse = createLambdaResponse<ApiResponseList["get-user"]>(200, {
 			timestamp: Date.now(),
@@ -45,7 +36,7 @@ describe("Test getUser LambdaFunction", () => {
 		expect(result).toEqual(expectedResponse);
 		expect(mockDBClient).toHaveReceivedCommandWith(GetItemCommand, {
 			TableName: undefined,
-			Key: { id: { S: userId } },
+			Key: { id: { S: mockUser.id } },
 		});
 	});
 });

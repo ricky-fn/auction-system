@@ -16,14 +16,15 @@
  */
 
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { Item } from "auction-shared/models";
+import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { Item, User } from "auction-shared/models";
 import { createLambdaResponse, AuthorizationFail, BadRequest, InternalError, uuid } from "@/src/services/auction/utils";
-import { marshall } from "@aws-sdk/util-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 
 const dbClient = new DynamoDBClient({});
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE;
+const DB_USERS_TABLE = process.env.DB_USERS_TABLE;
 
 export const handler = async (event: APIGatewayProxyEvent) => {
 	const result = parseInputParameter(event);
@@ -36,6 +37,19 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 	if (!userId) {
 		const error = new AuthorizationFail("A001", "username is required");
+		return error.getResponse();
+	}
+
+	let user: User | undefined;
+	try {
+		user = await getUserByUsername(userId);
+	} catch (err) {
+		const error = new InternalError("I001", err.message);
+		return error.getResponse();
+	}
+
+	if (!user) {
+		const error = new AuthorizationFail("A002", "User not found");
 		return error.getResponse();
 	}
 
@@ -106,3 +120,20 @@ const parseInputParameter = (event: APIGatewayProxyEvent): BadRequest | ApiReque
 
 	return input;
 };
+
+// Function to retrieve user by username from DynamoDB
+async function getUserByUsername(userId: string): Promise<User | undefined> {
+	// Create the parameters for the DynamoDB query
+
+	const getItemResponse = await dbClient.send(new GetItemCommand({
+		TableName: DB_USERS_TABLE,
+		Key: {
+			"id": { S: userId }
+		}
+	}));
+	if (getItemResponse.Item) {
+		const unmashalledItem = unmarshall(getItemResponse.Item) as User;
+		return unmashalledItem;
+	}
+	return undefined;
+}

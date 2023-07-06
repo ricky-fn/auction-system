@@ -7,8 +7,8 @@ import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
 import { GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { generateFakeUser } from "@/test/mocks/fakeData/user";
-import { sharedAuthTest } from "./shared/auth.test";
-import { sharedInputTest } from "./shared/input.test";
+import { sharedAuthTest } from "./shared/auth";
+import { sharedInputTest } from "./shared/input";
 import { generateFakeBidRecord, generateFakeItem } from "@/test/mocks/fakeData/bid";
 
 describe("Test getTotalBidAmount LambdaFunction", () => {
