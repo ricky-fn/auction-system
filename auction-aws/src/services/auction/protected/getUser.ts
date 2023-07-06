@@ -16,7 +16,7 @@ import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { User } from "auction-shared/models";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { createLambdaResponse, AuthorizationFail } from "../utils";
+import { createLambdaResponse, AuthorizationFail, InternalError } from "../utils";
 import { ApiResponseList } from "auction-shared/api";
 
 const dbClient = new DynamoDBClient({});
@@ -30,7 +30,18 @@ export async function handler(event: APIGatewayProxyEvent) {
 		return error.getResponse();
 	}
 
-	const user = await getUserByUsername(userId);
+	let user: User | undefined;
+	try {
+		user = await getUserByUsername(userId);
+	} catch (err) {
+		const error = new InternalError("I001", err.message);
+		return error.getResponse();
+	}
+
+	if (!user) {
+		const error = new AuthorizationFail("A002", "User not found");
+		return error.getResponse();
+	}
 
 	return createLambdaResponse<ApiResponseList["get-user"]>(200, {
 		timestamp: Date.now(),

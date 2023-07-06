@@ -3,17 +3,18 @@ import { handler } from "@/src/services/auction/protected/getUser";
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { User } from "auction-shared/models";
 import { ApiResponseList } from "auction-shared/api";
-import { AuthorizationFail, createLambdaResponse } from "@/src/services/auction/utils";
+import { createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "@/test/mocks/fakeData/auth";
-
-// Mock the DynamoDB client
+import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import { sharedAuthTest } from "./shared/auth.test";
 
 describe("Test getUser LambdaFunction", () => {
 	beforeEach(() => {
 		mockDBClient.reset();
 	});
+
+	sharedAuthTest(handler);
 
 	it("should return the user when a valid userId is provided", async () => {
 		const userId = "testUserId";
@@ -46,14 +47,5 @@ describe("Test getUser LambdaFunction", () => {
 			TableName: undefined,
 			Key: { id: { S: userId } },
 		});
-	});
-
-	it("should return AuthorizationFail when no userId is provided", async () => {
-		const { body: response } = await handler(generateCognitoAuthorizerWithoutUserName() as any);
-
-		const error = new AuthorizationFail("A001", "username is required");
-		const { body: expectedResponse } = error.getResponse();
-
-		expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
 	});
 });
