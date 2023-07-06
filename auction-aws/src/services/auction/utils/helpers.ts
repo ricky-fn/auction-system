@@ -3,16 +3,11 @@ import { APIGatewayProxyResult } from "aws-lambda";
 export class Response {
 	protected statusCode = 200;
 	public outputResponse(message: string): APIGatewayProxyResult {
-		return {
-			statusCode: this.statusCode,
-			headers: {
-				"Access-Control-Allow-Origin": "*"
-			},
-			body: JSON.stringify({
-				timestamp: Date.now(),
-				error: message,
-			}),
+		const data = {
+			timestamp: Date.now(),
+			error: message,
 		};
+		return createLambdaResponse(this.statusCode, JSON.stringify(data));
 	}
 }
 
@@ -45,7 +40,7 @@ export class AuthorizationFail extends Response {
 		console.log(`Authorization Failure [${errorCode}]: ${errorMessage}`);
 	}
 	public getResponse(): APIGatewayProxyResult {
-		return this.outputResponse(`${this.errorCode} Authorization failed`);
+		return this.outputResponse(`${this.errorCode} Authorization Failed`);
 	}
 }
 
