@@ -3,33 +3,27 @@
  * Retrieve all items from the Items table
  * 
  * Errors:
- * Internal Error: I001, I002
+ * Internal Error: I001
  */
 
 import { DynamoDB } from "aws-sdk";
 import { createLambdaResponse, InternalError } from "@/src/services/auction/utils";
 import { Item, Items } from "auction-shared/models";
 import { ApiResponseList } from "auction-shared/api";
+import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
 
-const dynamodb = new DynamoDB();
+const dbClient = new DynamoDBClient({});
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
 
 export const handler = async () => {
 	// Retrieve all items from the Items table
 	let itemsDBData;
 	try {
-		itemsDBData = await dynamodb
-			.scan({
-				TableName: DB_ITEMS_TABLE
-			})
-			.promise();
+		itemsDBData = await dbClient.send(new ScanCommand({
+			TableName: DB_ITEMS_TABLE
+		}));
 	} catch (err) {
 		const error = new InternalError("I001", err.message);
-		return error.getResponse();
-	}
-
-	if (!itemsDBData.Items) {
-		const error = new InternalError("I002", "Fetch items failed");
 		return error.getResponse();
 	}
 

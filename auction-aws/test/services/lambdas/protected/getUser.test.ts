@@ -1,20 +1,15 @@
 import { handler } from "@/src/services/auction/protected/getUser";
 import { mockClient } from "aws-sdk-client-mock";
-import { AttributeValue, DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { User } from "auction-shared/models";
 import { ApiResponseList } from "auction-shared/api";
 import { AuthorizationFail, createLambdaResponse } from "@/src/services/auction/utils";
-
-type MarshallType<T> = {
-	[K in keyof T]: AttributeValue;
-};
-
-type MarshallUser = MarshallType<User>;
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 // Mock the DynamoDB client
 const ddbMock = mockClient(DynamoDBClient);
 
-describe("getUserByUsername", () => {
+describe("Test getUser LambdaFunction", () => {
 	beforeEach(() => {
 		ddbMock.reset();
 	});
@@ -38,16 +33,7 @@ describe("getUserByUsername", () => {
 				Key: { id: { S: userId } },
 			})
 			.resolves({
-				Item: {
-					id: { S: userId },
-					password: { S: mockUser.password },
-					email: { S: mockUser.email },
-					balance: { N: String(mockUser.balance) },
-					create_at: { N: String(mockUser.create_at) },
-					given_name: { S: mockUser.given_name },
-					family_name: { S: mockUser.family_name },
-					picture: { S: mockUser.picture },
-				} as MarshallUser
+				Item: marshall(mockUser)
 			});
 
 		const result = await handler({
@@ -69,7 +55,7 @@ describe("getUserByUsername", () => {
 	});
 
 	it("should return AuthorizationFail when no userId is provided", async () => {
-		const result = await handler({
+		const { body: response } = await handler({
 			requestContext: {
 				authorizer: {
 					claims: {}
@@ -77,6 +63,10 @@ describe("getUserByUsername", () => {
 			}
 		} as any);
 
-		expect(result.body).toContain("A001 Authorization Failed");
+		const error = new AuthorizationFail("A001", "username is required");
+		const { body: expectedResponse } = error.getResponse();
+
+		expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
+		expect(error.errorMessage).toEqual("username is required");
 	});
 });
