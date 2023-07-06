@@ -2,6 +2,7 @@ import { AuthorizationFail, InternalError } from "@/src/services/auction/utils";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "@/test/mocks/fakeData/auth";
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { ApiRequestParams } from "auction-shared/api";
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
 
 type LambdaHandler = (
@@ -9,7 +10,15 @@ type LambdaHandler = (
 	context?: Context
 ) => Promise<APIGatewayProxyResult>;
 
-export const sharedAuthTest = (handler: LambdaHandler) => {
+export const sharedAuthTest = <T>(handler: LambdaHandler, requestParams: T, requestType: "GET" | "POST") => {
+	beforeEach(() => {
+		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
 	describe("Test the authorization process", () => {
 		it("should return AuthorizationFail when no userId is provided", async () => {
 			const { body: response } = await handler(generateCognitoAuthorizerWithoutUserName() as any);
@@ -28,9 +37,12 @@ export const sharedAuthTest = (handler: LambdaHandler) => {
 				.on(GetItemCommand)
 				.rejects(new Error("Test"));
 
+			const ApiRequestParams = {
+				[requestType === "GET" ? "queryStringParameters" : "body"]: requestType === "GET" ? requestParams : JSON.stringify(requestParams),
+			};
 			const { body: response } = await handler({
 				...generateCognitoAuthorizerContext(userId),
-				body: JSON.stringify({ amount: 100 }),
+				...ApiRequestParams
 			} as any);
 
 			const error = new InternalError("I001", "An error occurred");
