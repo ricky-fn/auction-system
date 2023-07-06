@@ -10,8 +10,8 @@
  * 
  * Errors:
  * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010, B011
- * Internal Error: I001, I002, I003, I004, I005, I006
- * Authorization Fail: A001
+ * Internal Error: I001, I002, I003, I004, I005
+ * Authorization Fail: A001, A002
  */
 
 import { APIGatewayProxyEvent } from "aws-lambda";
@@ -41,6 +41,19 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
+	let user: User | undefined;
+	try {
+		user = await getUserByUsername(userId);
+	} catch (err) {
+		const error = new InternalError("I001", err.message);
+		return error.getResponse();
+	}
+
+	if (!user) {
+		const error = new AuthorizationFail("A002", "User not found");
+		return error.getResponse();
+	}
+
 	const { itemId, bidAmount } = result;
 
 	// Check if the item exists
@@ -67,14 +80,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		return error.getResponse();
 	}
 
-	let userBalance;
-	try {
-		const user = await getUserByUsername(userId);
-		userBalance = user.balance;
-	} catch (err) {
-		const error = new InternalError("I002", err.message);
-		return error.getResponse();
-	}
+	const userBalance = user.balance;
 
 	// Check user balance against bidAmount
 	if (userBalance < bidAmount) {
@@ -87,7 +93,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 		totalBidAmount = await getTotalBidAmountByUserAndItem(userId, itemId);
 		totalBidAmount += bidAmount;
 	} catch (err) {
-		const error = new InternalError("I003", err.message);
+		const error = new InternalError("I002", err.message);
 		return error.getResponse();
 	}
 
@@ -110,7 +116,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	try {
 		await updateUserBalance(userId, userBalance - bidAmount);
 	} catch (err) {
-		const error = new InternalError("I004", err.message);
+		const error = new InternalError("I003", err.message);
 		return error.getResponse();
 	}
 
@@ -139,7 +145,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 			})
 		}));
 	} catch (err) {
-		const error = new InternalError("I005", err.message);
+		const error = new InternalError("I004", err.message);
 		return error.getResponse();
 	}
 
@@ -155,7 +161,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	try {
 		await storeBidRecord(bidRecord);
 	} catch (err) {
-		const error = new InternalError("I006", err.message);
+		const error = new InternalError("I005", err.message);
 		return error.getResponse();
 	}
 

@@ -1,6 +1,6 @@
 import { User } from "auction-shared/models";
 
-export const generateFakeUser = (user?: User) => {
+export const generateFakeUser = (user?: Partial<User>) => {
 	return {
 		id: "testid",
 		password: "password",

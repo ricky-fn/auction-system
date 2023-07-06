@@ -1,7 +1,7 @@
 import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/protected/deposit";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
-import { AuthorizationFail, BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
+import { BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";

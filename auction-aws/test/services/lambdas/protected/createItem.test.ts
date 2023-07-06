@@ -64,11 +64,11 @@ describe("Test createItem LambdaFunction", () => {
 		});
 
 		it("should return a BadRequest when startingPrice is not provided", async () => {
-			const mockRequestParamsWithoutName = { ...mockItemRequestParam };
-			delete mockRequestParamsWithoutName.startingPrice;
+			const mockRequestParamsWithoutStartingPrice = { ...mockItemRequestParam };
+			delete mockRequestParamsWithoutStartingPrice.startingPrice;
 
 			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutName),
+				body: JSON.stringify(mockRequestParamsWithoutStartingPrice),
 			} as any);
 
 			const error = new BadRequest("B003", "name is required");
@@ -81,11 +81,11 @@ describe("Test createItem LambdaFunction", () => {
 		});
 
 		it("should return a BadRequest when startingPrice is not a number", async () => {
-			const mockRequestParamsWithoutName = { ...mockItemRequestParam } as Omit<typeof mockItemRequestParam, "startingPrice"> & { startingPrice: string | number };
-			mockRequestParamsWithoutName.startingPrice = "this is not a number";
+			const mockRequestParamsWithStringTypeStartingPrice = { ...mockItemRequestParam } as Omit<typeof mockItemRequestParam, "startingPrice"> & { startingPrice: string | number };
+			mockRequestParamsWithStringTypeStartingPrice.startingPrice = "this is not a number";
 
 			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutName),
+				body: JSON.stringify(mockRequestParamsWithStringTypeStartingPrice),
 			} as any);
 
 			const error = new BadRequest("B004", "startingPrice must be a number");
@@ -98,11 +98,11 @@ describe("Test createItem LambdaFunction", () => {
 		});
 
 		it("should return a BadRequest when startingPrice is smaller than 1", async () => {
-			const mockRequestParamsWithoutName = { ...mockItemRequestParam };
-			mockRequestParamsWithoutName.startingPrice = -20;
+			const mockRequestParamsWithNegativeStartingPrice = { ...mockItemRequestParam };
+			mockRequestParamsWithNegativeStartingPrice.startingPrice = -20;
 
 			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutName),
+				body: JSON.stringify(mockRequestParamsWithNegativeStartingPrice),
 			} as any);
 
 			const error = new BadRequest("B005", "startingPrice must be greater than 0");
@@ -115,11 +115,11 @@ describe("Test createItem LambdaFunction", () => {
 		});
 
 		it("should return a BadRequest when expirationTime is not provided", async () => {
-			const mockRequestParamsWithoutName = { ...mockItemRequestParam };
-			delete mockRequestParamsWithoutName.expirationTime;
+			const mockRequestParamsWithoutExpirationTime = { ...mockItemRequestParam };
+			delete mockRequestParamsWithoutExpirationTime.expirationTime;
 
 			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutName),
+				body: JSON.stringify(mockRequestParamsWithoutExpirationTime),
 			} as any);
 
 			const error = new BadRequest("B006", "expirationTime is required");
@@ -134,11 +134,11 @@ describe("Test createItem LambdaFunction", () => {
 
 
 		it("should return a BadRequest when expirationTime format is invalid", async () => {
-			const mockRequestParamsWithoutName = { ...mockItemRequestParam };
-			mockRequestParamsWithoutName.expirationTime = "this is not a valid format";
+			const mockRequestParamsWithStringTypeExpirationTime = { ...mockItemRequestParam };
+			mockRequestParamsWithStringTypeExpirationTime.expirationTime = "this is not a valid format";
 
 			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutName),
+				body: JSON.stringify(mockRequestParamsWithStringTypeExpirationTime),
 			} as any);
 
 			const error = new BadRequest("B007", "expirationTime must be in the format of {number}h");
@@ -153,7 +153,7 @@ describe("Test createItem LambdaFunction", () => {
 
 	sharedAuthTest<ApiRequestParams["create-item"]>(handler, mockItemRequestParam, "POST");
 
-	describe.only("Test the item creation process", () => {
+	describe("Test the item creation process", () => {
 		it("should return a InternalError when the item creation fails", async () => {
 			const fakeUser = generateFakeUser();
 
