@@ -1,7 +1,7 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 
 export class Response {
-	protected statusCode = 200;
+	public statusCode = 200;
 	public outputResponse(message: string): APIGatewayProxyResult {
 		const data = {
 			timestamp: Date.now(),
@@ -12,10 +12,10 @@ export class Response {
 }
 
 export class BadRequest extends Response {
-	protected statusCode = 400;
+	public readonly statusCode = 400;
 	constructor(public errorCode: string, public errorMessage: string) {
 		super();
-		console.log(`Bad Request [${errorCode}]: ${errorMessage}`);
+		console.error(`Bad Request [${errorCode}]: ${errorMessage}`);
 	}
 	public getResponse(): APIGatewayProxyResult {
 		return this.outputResponse(`${this.errorCode} Bad Request`);
@@ -23,10 +23,10 @@ export class BadRequest extends Response {
 }
 
 export class InternalError extends Response {
-	protected statusCode = 500;
+	public statusCode = 500;
 	constructor(public errorCode: string, public errorMessage: string) {
 		super();
-		console.log(`Internal Server Error [${errorCode}]: ${errorMessage}`);
+		console.error(`Internal Server Error [${errorCode}]: ${errorMessage}`);
 	}
 	public getResponse(): APIGatewayProxyResult {
 		return this.outputResponse(`${this.errorCode} Internal Server Error`);
@@ -34,10 +34,10 @@ export class InternalError extends Response {
 }
 
 export class AuthorizationFail extends Response {
-	protected statusCode = 401;
+	public statusCode = 401;
 	constructor(public errorCode: string, public errorMessage: string) {
 		super();
-		console.log(`Authorization Failure [${errorCode}]: ${errorMessage}`);
+		console.error(`Authorization Failure [${errorCode}]: ${errorMessage}`);
 	}
 	public getResponse(): APIGatewayProxyResult {
 		return this.outputResponse(`${this.errorCode} Authorization Failed`);

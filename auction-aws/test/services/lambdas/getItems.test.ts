@@ -1,20 +1,18 @@
 import { handler } from "@/src/services/auction/getItems";
-import { mockClient } from "aws-sdk-client-mock";
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { ScanCommand } from "@aws-sdk/client-dynamodb";
 import { ApiResponseList } from "auction-shared/api";
 import { InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { MarshallType } from "@/test/types";
 import { Item } from "auction-shared/models";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 
 type MarshallItem = MarshallType<Item>;
 
 // Mock the DynamoDB client
-const ddbMock = mockClient(DynamoDBClient);
-
 describe("Test getItems LambdaFunction", () => {
 	beforeEach(() => {
-		ddbMock.reset();
+		mockDBClient.reset();
 	});
 
 	const mockItem: Item = {
@@ -31,7 +29,7 @@ describe("Test getItems LambdaFunction", () => {
 
 	it("should return a list of items", async () => {
 		// Mock the DynamoDB client
-		ddbMock.on(ScanCommand).resolves({
+		mockDBClient.on(ScanCommand).resolves({
 			Items: [
 				marshall(mockItem) as MarshallItem
 			]
@@ -47,13 +45,12 @@ describe("Test getItems LambdaFunction", () => {
 	});
 
 	it.only("should return InternalError when an error occurs", async () => {
-		ddbMock.on(ScanCommand).rejects(new Error("test error"));
+		mockDBClient.on(ScanCommand).rejects(new Error("test error"));
 
 		const { body: response } = await handler();
 		const error = new InternalError("I001", "test error");
 		const { body: expectedResponse } = error.getResponse();
 
 		expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-		expect(error.errorMessage).toEqual("test error");
 	});
 });

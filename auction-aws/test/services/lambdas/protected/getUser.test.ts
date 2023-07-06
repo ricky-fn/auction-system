@@ -1,17 +1,18 @@
+import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/protected/getUser";
-import { mockClient } from "aws-sdk-client-mock";
-import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { User } from "auction-shared/models";
 import { ApiResponseList } from "auction-shared/api";
 import { AuthorizationFail, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
+import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "@/test/mocks/fakeData/auth";
 
 // Mock the DynamoDB client
-const ddbMock = mockClient(DynamoDBClient);
 
 describe("Test getUser LambdaFunction", () => {
 	beforeEach(() => {
-		ddbMock.reset();
+		mockDBClient.reset();
 	});
 
 	it("should return the user when a valid userId is provided", async () => {
@@ -27,24 +28,13 @@ describe("Test getUser LambdaFunction", () => {
 			picture: "https://example.com/avatar.jpg",
 		};
 
-		ddbMock
-			.on(GetItemCommand, {
-				TableName: undefined,
-				Key: { id: { S: userId } },
-			})
+		mockDBClient
+			.on(GetItemCommand)
 			.resolves({
 				Item: marshall(mockUser)
 			});
 
-		const result = await handler({
-			requestContext: {
-				authorizer: {
-					claims: {
-						"cognito:username": userId
-					}
-				}
-			}
-		} as any);
+		const result = await handler(generateCognitoAuthorizerContext(userId) as any);
 
 		const expectedResponse = createLambdaResponse<ApiResponseList["get-user"]>(200, {
 			timestamp: Date.now(),
@@ -52,21 +42,18 @@ describe("Test getUser LambdaFunction", () => {
 		});
 
 		expect(result).toEqual(expectedResponse);
+		expect(mockDBClient).toHaveReceivedCommandWith(GetItemCommand, {
+			TableName: undefined,
+			Key: { id: { S: userId } },
+		});
 	});
 
 	it("should return AuthorizationFail when no userId is provided", async () => {
-		const { body: response } = await handler({
-			requestContext: {
-				authorizer: {
-					claims: {}
-				}
-			}
-		} as any);
+		const { body: response } = await handler(generateCognitoAuthorizerWithoutUserName() as any);
 
 		const error = new AuthorizationFail("A001", "username is required");
 		const { body: expectedResponse } = error.getResponse();
 
 		expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-		expect(error.errorMessage).toEqual("username is required");
 	});
 });
