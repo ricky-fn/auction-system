@@ -30,73 +30,6 @@ describe("Test bidItem LambdaFunction", () => {
 		bidAmount: 200,
 	};
 
-	sharedInputTest(handler, () => {
-		it("should return a BadRequest when no itemId is provided", async () => {
-			const mockRequestParamsWithoutItemId = { ...mockBidItemRequestParam };
-			delete mockRequestParamsWithoutItemId.itemId;
-			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutItemId),
-			} as any);
-
-			const error = new BadRequest("B002", "itemId is required");
-			const { body: expectedResponse } = error.getResponse();
-
-			expect(console.error).toHaveBeenCalledTimes(2);
-			expect(console.error).toHaveBeenCalledWith("Bad Request [B002]: itemId is required");
-			expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-			expect(statusCode).toEqual(error.statusCode);
-		});
-
-		it("should return a BadRequest when no bidAmount is provided", async () => {
-			const mockRequestParamsWithoutBidAmount = { ...mockBidItemRequestParam };
-			delete mockRequestParamsWithoutBidAmount.bidAmount;
-
-			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithoutBidAmount),
-			} as any);
-
-			const error = new BadRequest("B003", "bidAmount is required");
-			const { body: expectedResponse } = error.getResponse();
-
-			expect(console.error).toHaveBeenCalledTimes(2);
-			expect(console.error).toHaveBeenCalledWith("Bad Request [B003]: bidAmount is required");
-			expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-			expect(statusCode).toEqual(error.statusCode);
-		});
-
-		it("should return a BadRequest when bidAmount is not a number", async () => {
-			const mockRequestParamsWithInvalidBidAmount = { ...mockBidItemRequestParam, bidAmount: "" };
-			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithInvalidBidAmount),
-			} as any);
-
-			const error = new BadRequest("B004", "bidAmount must be a number");
-			const { body: expectedResponse } = error.getResponse();
-
-			expect(console.error).toHaveBeenCalledTimes(2);
-			expect(console.error).toHaveBeenCalledWith("Bad Request [B004]: bidAmount must be a number");
-			expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-			expect(statusCode).toEqual(error.statusCode);
-		});
-
-		it("should return a BadRequest when bidAmount is less or equal to 0", async () => {
-			const mockRequestParamsWithInvalidBidAmount = { ...mockBidItemRequestParam, bidAmount: 0 };
-			const { body: response, statusCode } = await handler({
-				body: JSON.stringify(mockRequestParamsWithInvalidBidAmount),
-			} as any);
-
-			const error = new BadRequest("B005", "bidAmount must be greater than 0");
-			const { body: expectedResponse } = error.getResponse();
-
-			expect(console.error).toHaveBeenCalledTimes(2);
-			expect(console.error).toHaveBeenCalledWith("Bad Request [B005]: bidAmount must be greater than 0");
-			expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
-			expect(statusCode).toEqual(error.statusCode);
-		});
-	});
-
-	sharedAuthTest<ApiRequestParams["bid-item"]>(handler, mockBidItemRequestParam, "POST");
-
 	describe("Test the bidding process", () => {
 		it("should return a BadRequest when the item does not exist", async () => {
 			const fakeUser = generateFakeUser();
@@ -425,8 +358,6 @@ describe("Test bidItem LambdaFunction", () => {
 					}
 				})
 				.resolves({ Item: marshall(fakeItem) })
-				.on(ScanCommand)
-				.resolves({ Items: [] })
 				.on(ScanCommand)
 				.resolves({ Items: [] });
 

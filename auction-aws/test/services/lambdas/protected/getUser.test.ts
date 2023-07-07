@@ -10,6 +10,8 @@ import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
 import { sharedAuthTest } from "./shared/auth";
 import { generateFakeUser } from "@/test/mocks/fakeData/user";
 
+const DB_USERS_TABLE = process.env.DB_USERS_TABLE as string;
+
 describe("Test getUser LambdaFunction", () => {
 	beforeEach(() => {
 		mockDBClient.reset();
@@ -35,7 +37,7 @@ describe("Test getUser LambdaFunction", () => {
 
 		expect(result).toEqual(expectedResponse);
 		expect(mockDBClient).toHaveReceivedCommandWith(GetItemCommand, {
-			TableName: undefined,
+			TableName: DB_USERS_TABLE,
 			Key: { id: { S: mockUser.id } },
 		});
 	});
