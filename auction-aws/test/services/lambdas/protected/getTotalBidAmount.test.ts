@@ -11,6 +11,9 @@ import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
 import { generateFakeBidRecord, generateFakeItem } from "@/test/mocks/fakeData/bid";
 
+const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
+const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;
+
 describe("Test getTotalBidAmount LambdaFunction", () => {
 	beforeEach(() => {
 		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
@@ -99,7 +102,7 @@ describe("Test getTotalBidAmount LambdaFunction", () => {
 			.on(GetItemCommand)
 			.resolves({ Item: marshall(fakeUser) })
 			.on(GetItemCommand, {
-				TableName: undefined,
+				TableName: DB_ITEMS_TABLE,
 				Key: {
 					"itemId": {
 						S: requestParams.itemId
@@ -121,7 +124,7 @@ describe("Test getTotalBidAmount LambdaFunction", () => {
 		});
 
 		expect(mockDBClient).toHaveReceivedCommandWith(ScanCommand, {
-			TableName: undefined,
+			TableName: DB_BIDS_TABLE,
 			FilterExpression: "itemId = :itemId and bidderId = :bidderId",
 			ExpressionAttributeValues: {
 				":itemId": { S: requestParams.itemId },

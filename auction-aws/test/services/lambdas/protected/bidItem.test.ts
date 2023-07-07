@@ -1,7 +1,7 @@
 import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/protected/bidItem";
-import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
-import { BadRequest, InternalError, createLambdaResponse, uuid } from "@/src/services/auction/utils";
+import { ApiRequestParams } from "auction-shared/api";
+import { BadRequest, uuid } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
@@ -9,8 +9,11 @@ import { GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "
 import { generateFakeUser } from "@/test/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
-import { generateFakeBidRecord, generateFakeBidedItem, generateFakeCompletedItem, generateFakeItem } from "@/test/mocks/fakeData/bid";
-import exp = require("constants");
+import { generateFakeBidRecord, generateFakeCompletedItem, generateFakeItem } from "@/test/mocks/fakeData/bid";
+
+const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
+const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;
+const DB_USERS_TABLE = process.env.DB_USERS_TABLE as string;
 
 describe("Test bidItem LambdaFunction", () => {
 	beforeEach(() => {
@@ -99,14 +102,14 @@ describe("Test bidItem LambdaFunction", () => {
 			const fakeUser = generateFakeUser();
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: {
 						"id": { S: fakeUser.id },
 					}
 				})
 				.resolves({ Item: marshall(fakeUser) })
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_ITEMS_TABLE,
 					Key: {
 						"itemId": { S: mockBidItemRequestParam.itemId },
 					}
@@ -136,14 +139,14 @@ describe("Test bidItem LambdaFunction", () => {
 			});
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: {
 						"id": { S: fakeUser.id },
 					}
 				})
 				.resolves({ Item: marshall(fakeUser) })
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_ITEMS_TABLE,
 					Key: {
 						"itemId": { S: mockBidItemRequestParam.itemId },
 					}
@@ -172,14 +175,14 @@ describe("Test bidItem LambdaFunction", () => {
 			});
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: {
 						"id": { S: fakeUser.id },
 					}
 				})
 				.resolves({ Item: marshall(fakeUser) })
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_ITEMS_TABLE,
 					Key: {
 						"itemId": { S: mockBidItemRequestParam.itemId },
 					}
@@ -211,14 +214,14 @@ describe("Test bidItem LambdaFunction", () => {
 			};
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: {
 						"id": { S: fakeUser.id },
 					}
 				})
 				.resolves({ Item: marshall(fakeUser) })
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_ITEMS_TABLE,
 					Key: {
 						"itemId": { S: mockBidItemRequestParam.itemId },
 					}
@@ -252,14 +255,14 @@ describe("Test bidItem LambdaFunction", () => {
 
 				mockDBClient
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_USERS_TABLE,
 						Key: {
 							"id": { S: fakeBidder.id },
 						}
 					})
 					.resolves({ Item: marshall(fakeBidder) })
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_ITEMS_TABLE,
 						Key: {
 							"itemId": { S: mockBidItemRequestParam.itemId },
 						}
@@ -308,14 +311,14 @@ describe("Test bidItem LambdaFunction", () => {
 
 				mockDBClient
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_USERS_TABLE,
 						Key: {
 							"id": { S: fakeBidder.id },
 						}
 					})
 					.resolves({ Item: marshall(fakeBidder) })
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_ITEMS_TABLE,
 						Key: {
 							"itemId": { S: mockBidItemRequestParam.itemId },
 						}
@@ -363,14 +366,14 @@ describe("Test bidItem LambdaFunction", () => {
 
 				mockDBClient
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_USERS_TABLE,
 						Key: {
 							"id": { S: fakeBidder.id },
 						}
 					})
 					.resolves({ Item: marshall(fakeBidder) })
 					.on(GetItemCommand, {
-						TableName: undefined,
+						TableName: DB_ITEMS_TABLE,
 						Key: {
 							"itemId": { S: mockBidItemRequestParam.itemId },
 						}
@@ -409,14 +412,14 @@ describe("Test bidItem LambdaFunction", () => {
 
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: {
 						"id": { S: fakeBidder.id },
 					}
 				})
 				.resolves({ Item: marshall(fakeBidder) })
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_ITEMS_TABLE,
 					Key: {
 						"itemId": { S: mockBidItemRequestParam.itemId },
 					}
@@ -434,7 +437,7 @@ describe("Test bidItem LambdaFunction", () => {
 
 			// expect user's balance to be updated
 			expect(mockDBClient).toHaveReceivedCommandWith(UpdateItemCommand, {
-				TableName: undefined,
+				TableName: DB_USERS_TABLE,
 				Key: {
 					"id": { S: fakeBidder.id },
 				},
@@ -449,7 +452,7 @@ describe("Test bidItem LambdaFunction", () => {
 
 			// expect item's highest bid to be updated
 			expect(mockDBClient).toHaveReceivedCommandWith(UpdateItemCommand, {
-				TableName: undefined,
+				TableName: DB_ITEMS_TABLE,
 				Key: {
 					"itemId": { S: mockBidItemRequestParam.itemId },
 				},
@@ -468,7 +471,7 @@ describe("Test bidItem LambdaFunction", () => {
 
 			// expect bid record to be stored
 			expect(mockDBClient).toHaveReceivedCommandWith(PutItemCommand, {
-				TableName: undefined,
+				TableName: DB_BIDS_TABLE,
 				Item: {
 					"bidId": { S: expect.any(String) },
 					"itemId": { S: mockBidItemRequestParam.itemId },

@@ -1,16 +1,15 @@
 import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/protected/createItem";
-import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
-import { AuthorizationFail, BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
+import { ApiRequestParams } from "auction-shared/api";
+import { BadRequest, InternalError } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
 import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
-import { GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { generateFakeUser } from "@/test/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
 import { generateFakeItem } from "@/test/mocks/fakeData/bid";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
 describe("Test createItem LambdaFunction", () => {
 	beforeEach(() => {

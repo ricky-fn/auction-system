@@ -10,6 +10,8 @@ import { generateFakeUser } from "@/test/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
 
+const DB_USERS_TABLE = process.env.DB_USERS_TABLE as string;
+
 describe("Test deposit LambdaFunction", () => {
 	beforeEach(() => {
 		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
@@ -96,7 +98,7 @@ describe("Test deposit LambdaFunction", () => {
 
 			mockDBClient
 				.on(GetItemCommand, {
-					TableName: undefined,
+					TableName: DB_USERS_TABLE,
 					Key: { id: { S: fakeUser.id } },
 				})
 				.resolves({ Item: marshall(fakeUser) });
@@ -113,7 +115,7 @@ describe("Test deposit LambdaFunction", () => {
 			expect(result).toEqual(expectedResponse);
 
 			expect(mockDBClient).toHaveReceivedCommandWith(UpdateItemCommand, {
-				TableName: undefined,
+				TableName: DB_USERS_TABLE,
 				Key: { id: { S: fakeUser.id } },
 				UpdateExpression: "SET #balance = :newBalance",
 				ExpressionAttributeNames: { "#balance": "balance" },
