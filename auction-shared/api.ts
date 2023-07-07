@@ -16,7 +16,7 @@ export interface ApiResponseList {
 
 export interface ApiRequestParams {
   'get-user': undefined;
-  'create-item': Omit<Item, "itemId" | "createdBy" | "highestBid" | "highestBidder" | "lastBidTimestamp" | "timestamp" | "createdAt" | "status">;
+  'create-item': Pick<Item, "expirationTime" | "name" | "startingPrice" | "about" | "photo">;
   'get-items': undefined;
   'deposit': { amount: number };
   'bid-item': { itemId: string, bidAmount: number };
