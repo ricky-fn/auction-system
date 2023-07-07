@@ -1,6 +1,53 @@
 import NextAuth, { AuthOptions, User } from "next-auth";
-import CognitoProvider from "next-auth/providers/cognito";
 import CDKStack from 'auction-shared/outputs.json';
+import CognitoProvider from "next-auth/providers/cognito";
+
+async function refreshAccessToken(token) {
+  try {
+    const url =
+      "https://" + CDKStack.AuctionAuthStack.AuctionUserPoolDomain + "/oauth2/token?" +
+      new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
+        client_secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
+        refresh_token: token.refreshToken,
+      });
+
+
+    // Base 64 encode authentication string
+    const headerString = CDKStack.AuctionAuthStack.AuctionUserPoolClientId + ':' + CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret;
+    const buff = Buffer.from(headerString, 'utf-8');
+    const authHeader = buff.toString('base64');
+
+    const refreshedTokensResponse = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": "Basic " + authHeader
+      },
+      method: "POST",
+    })
+
+    const refreshedTokens = await refreshedTokensResponse.json();
+
+    if (!refreshedTokensResponse.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    };
+
+  } catch (error) {
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -13,18 +60,37 @@ export const authOptions: AuthOptions = {
   ],
   secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/',
   },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.idToken = account.id_token;
+    async jwt({ token, account, user, profile }) {
+      // Initial sign in
+      if (account && user) {
+        // Max 4096 bytes
+        return {
+          accessToken: account.access_token,
+          idToken: account.id_token, // Too long
+          accessTokenExpires: account.expires_at,
+          refreshToken: account.refresh_token,
+          user, // Too long
+          profile, // Too long
+        };
       }
-      return token;
+
+      // Return previous token if the access token has not expired yet
+      if (Date.now() / 1000 < (token.accessTokenExpires as number)) {
+        return token;
+      }
+
+      // Access token has expired, try to update it
+      return refreshAccessToken(token);
     },
-    async session({ session, token, user }) {
-      session.idToken = token.idToken;
-      return session;
+    async session({ session, token }) {
+      const sessionToken = session;
+      sessionToken.accessToken = token.accessToken;
+      sessionToken.idToken = token.idToken;
+      sessionToken.profile = token.profile;
+      return sessionToken;
     }
   },
 }
