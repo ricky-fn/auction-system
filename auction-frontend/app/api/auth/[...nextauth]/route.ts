@@ -1,8 +1,8 @@
-import NextAuth, { AuthOptions, User } from "next-auth";
+import NextAuth, { AuthOptions, JWT, User } from "next-auth";
 import CDKStack from 'auction-shared/outputs.json';
 import CognitoProvider from "next-auth/providers/cognito";
 
-async function refreshAccessToken(token) {
+async function refreshAccessToken(token: JWT) {
   try {
     const url =
       "https://" + CDKStack.AuctionAuthStack.AuctionUserPoolDomain + "/oauth2/token?" +
@@ -10,7 +10,7 @@ async function refreshAccessToken(token) {
         grant_type: "refresh_token",
         client_id: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
         client_secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
-        refresh_token: token.refreshToken,
+        refresh_token: token.refreshToken!,
       });
 
 
@@ -83,13 +83,13 @@ export const authOptions: AuthOptions = {
       }
 
       // Access token has expired, try to update it
-      return refreshAccessToken(token);
+      return refreshAccessToken(token as JWT);
     },
     async session({ session, token }) {
       const sessionToken = session;
-      sessionToken.accessToken = token.accessToken;
-      sessionToken.idToken = token.idToken;
-      sessionToken.profile = token.profile;
+      sessionToken.accessToken = (token as JWT).accessToken;
+      sessionToken.idToken = (token as JWT).idToken;
+      sessionToken.profile = (token as JWT).profile;
       return sessionToken;
     }
   },
