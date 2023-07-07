@@ -17,45 +17,27 @@ const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE as string;
 
 export const handler = async () => {
-	// Retrieve all items from the Items table
-	let itemsDBData;
-	try {
-		itemsDBData = await dbClient.send(
-			new ScanCommand({
-				TableName: DB_ITEMS_TABLE,
-				FilterExpression: "#status = :statusValue",
-				ExpressionAttributeNames: {
-					"#status": "status",
-				},
-				ExpressionAttributeValues: {
-					":statusValue": {
-						S: "ongoing" as ItemStatus,
-					},
-				},
-			})
-		);
-	} catch (err) {
-		const error = new InternalError("I001", err.message);
-		return error.getResponse();
+	const itemsDBData = await retrieveOngoingItems();
+
+	if (itemsDBData instanceof InternalError) {
+		return itemsDBData.getResponse();
 	}
 
-	if (itemsDBData.Items.length === 0) {
+	if (itemsDBData.length === 0) {
 		return;
 	}
 
-	const items: Items = itemsDBData.Items.map((item) => {
-		return unmarshall(item) as Item;
-	});
+	const items: Items = itemsDBData;
 
 	// Filter out the items that are completed
-	const completedItems = items.filter((item) => {
+	const expiredItems = items.filter((item) => {
 		const match = item.expirationTime.match(/^(\d+)h$/);
 		if (!match) {
 			return false;
 		} else {
 			const hours = parseInt(match[1]);
-			const seconds = hours * 3600;
-			const now = Math.floor(Date.now() / 1000);
+			const seconds = hours * 3600 * 1000;
+			const now = Date.now();
 			const expirationTime = item.createdAt + seconds;
 			return now > expirationTime;
 		}
@@ -67,12 +49,12 @@ export const handler = async () => {
 	});
 
 	// If there is no completed auction, end the function
-	if (completedItems.length === 0) {
+	if (expiredItems.length === 0) {
 		return;
 	}
 
 	// For each completed item, retrieve the highest bidder and refund the other bidders
-	for (const item of completedItems) {
+	for (const item of expiredItems) {
 		const highestBidder = item.highestBidder;
 
 		// Refund the other bidders
@@ -84,7 +66,7 @@ export const handler = async () => {
 	}
 
 	// Use dynamodb.batchWrite to update the status of the items
-	const batchRequests = completedItems.map((item) => {
+	const batchRequests = expiredItems.map((item) => {
 		return {
 			PutRequest: {
 				Item: marshall(item),
@@ -102,7 +84,7 @@ export const handler = async () => {
 		);
 
 		// console log the item ids
-		console.log(`${completedItems.length} items are completed:`, completedItems.map((item) => item.itemId));
+		console.log(`${expiredItems.length} items are completed:`, expiredItems.map((item) => item.itemId));
 	} catch (err) {
 		const error = new InternalError("I002", err.message);
 		return error.getResponse();
@@ -188,7 +170,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 	}
 
 	// Use dynamodb.batchWrite to refund the users
-	const refundBatchRequests = bidsExceptHighestBidder.map((bid) => {
+	const refundedRecordBatchWrite = bidsExceptHighestBidder.map((bid) => {
 		const item: BidRecord = {
 			...bid,
 			status: "refunded",
@@ -205,7 +187,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 		await dbClient.send(
 			new BatchWriteItemCommand({
 				RequestItems: {
-					[DB_BIDS_TABLE]: refundBatchRequests,
+					[DB_BIDS_TABLE]: refundedRecordBatchWrite,
 				},
 			})
 		);
@@ -280,4 +262,31 @@ async function retrieveUsers(bids: BidRecord[]): Promise<User[] | InternalError>
 	});
 
 	return users;
+}
+
+async function retrieveOngoingItems(): Promise<Item[] | InternalError> {
+	let itemsDBData, items;
+	try {
+		// retrieve all items and unmashall them
+		itemsDBData = await dbClient.send(
+			new ScanCommand({
+				TableName: DB_ITEMS_TABLE,
+				FilterExpression: "#status = :statusValue",
+				ExpressionAttributeNames: {
+					"#status": "status",
+				},
+				ExpressionAttributeValues: {
+					":statusValue": {
+						S: "ongoing",
+					},
+				},
+			})
+		);
+		items = itemsDBData.Items.map((item) => {
+			return unmarshall(item) as Item;
+		});
+	} catch (err) {
+		return new InternalError("I001", err.message);
+	}
+	return items;
 }

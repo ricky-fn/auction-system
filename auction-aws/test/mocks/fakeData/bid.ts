@@ -18,6 +18,29 @@ export const generateFakeItem = (item?: Partial<Item>) => {
 	return mockItem;
 };
 
+export const generateFakeOngoingItem = (item?: Partial<Item>) => {
+	const mockItem: Item = {
+		...generateFakeItem(),
+		status: "ongoing",
+		createdAt: Date.now(),
+		expirationTime: "5h",
+		...item
+	};
+
+	return mockItem;
+};
+
+export const generateFakeExpiredItem = (item?: Partial<Item>) => {
+	const mockItem: Item = {
+		...generateFakeItem(),
+		status: "ongoing",
+		createdAt: Date.now() - 1000 * 60 * 60 * 6,
+		expirationTime: "5h",
+		...item
+	};
+	return mockItem;
+};
+
 export const generateFakeBidedItem = (highestBid: number, highestBidder: string, lastBidTimestamp: number = Date.now()) => {
 	const basicItem = generateFakeItem();
 	const mockItem: Item = {

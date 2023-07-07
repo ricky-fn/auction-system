@@ -1,8 +1,9 @@
+import { uuid } from "@/src/services/auction/utils";
 import { User } from "auction-shared/models";
 
 export const generateFakeUser = (user?: Partial<User>) => {
 	return {
-		id: "testid",
+		id: uuid("user"),
 		password: "password",
 		email: "test@example.com",
 		balance: 100,

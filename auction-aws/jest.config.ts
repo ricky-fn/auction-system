@@ -10,6 +10,7 @@ const config: JestConfigWithTsJest = {
 		"^@/(.*)$": "<rootDir>/$1",
 		"^auction-shared/(.*)$": "../auction-shared/*"
 	},
+	setupFiles: ["./jest.setup.ts"],
 };
 
 export default config;
