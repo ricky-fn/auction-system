@@ -4,17 +4,26 @@
 // https://github.com/cypress-io/eslint-plugin-cypress
 
 // Cypress E2E Test
+import { generateFakeJWT } from 'auction-shared/mocks/fakeData/user'
+import { rest } from 'msw';
+import CDKStack from 'auction-shared/outputs.json';
+import { generateFakeUser } from 'auction-shared/mocks/fakeData/user'
+import { ApiResponseList } from 'auction-shared/api';;
+
 describe('Navigation', () => {
   it('should navigate to the about page', () => {
-    const user = {
-      accessToken: 'eyJraWQiOiJYQ2ZmbTR3UExXa3pkalBRcjZMOCtaanlKUVR1RW5TTFRVY0hQc0dNY2hFPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjMTczOWQ4YS0yMGQxLTcwOTktZDZiNi01NjIyZmE0YmQ2ZTciLCJjb2duaXRvOmdyb3VwcyI6WyJhcC1zb3V0aC0xX0c5S2d2ZkNvSF9Hb29nbGUiXSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGgtMV9HOUtndmZDb0giLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiIybzkyYWxodHZyZWlncHByZTFvNDBmM2xpMCIsIm9yaWdpbl9qdGkiOiI2NDA1OGUzMS00NTU3LTQzMjMtYWIwMS1hNDNmYTg1YzE4MTMiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI…joxNjg4NzI2ODQ1LCJpYXQiOjE2ODg3MjMyNDUsImp0aSI6IjRiMmYwOGU4LWE0N2MtNGY4Ny1hOTg2LWVkN2FkZTU3OWFjNSIsInVzZXJuYW1lIjoiR29vZ2xlXzEwODEyNjMxOTExMTM4MjI0NTQ4NiJ9.HQ6_X0tffIswugYPCOMM6FirMN59hWhOuBGS5np6JJqr7Kx2Tf7U1Cgn1KkEAY0xehLoBTfx_5NfkaImJQPTs_KDmuXJT6kCrh38SE7iUrowWYMjOvyxOCUDICXDDi2_FPdyXM7q_JX40Wu9XYenjawVaqkHggicxo3w6RzqIM0pncDU4938J2pzT7fQIBYWQTQcUddotF-Gfs1CH9mUJqEsu7taqXsP1yz4zVOMA4RpHCo4aCnHwONr0CC-WMyf41xacarZAMw95xUey6qheQSKYoVIhYKefy6o1f7sRg3nW2EENw4tL_oQ-Fl3YUArAxTpd6Ok4pjfTzkGHYTUDA',
-      accessTokenExpires: 1688726845,
-      exp: 1691315723,
-      iat: 1688723723,
-      idToken: 'eyJraWQiOiJHcVhwZHI4ckQxQUNabGg0MjhvY21XQzVWNnBBS2JJR1owUWRmXC9vNjB5Yz0iLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoiLUNIUDhZaHYzbWE2UXZMakZQbTFkUSIsInN1YiI6ImMxNzM5ZDhhLTIwZDEtNzA5OS1kNmI2LTU2MjJmYTRiZDZlNyIsImNvZ25pdG86Z3JvdXBzIjpbImFwLXNvdXRoLTFfRzlLZ3ZmQ29IX0dvb2dsZSJdLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGgtMV9HOUtndmZDb0giLCJjb2duaXRvOnVzZXJuYW1lIjoiR29vZ2xlXzEwODEyNjMxOTExMTM4MjI0NTQ4NiIsImdpdmVuX25hbWUiOiJSaWNreSIsIm5vbm…aWF0IjoxNjg4NzIzMjQ1LCJmYW1pbHlfbmFtZSI6IkppYW5nIiwianRpIjoiNTg4YmUyNDYtMDk3NC00YjhiLWEwZDYtYzNhMTFmYmYwYjI1IiwiZW1haWwiOiJyaWNreS5qYzIwMjJAZ21haWwuY29tIn0.Bi3saF_IuLtnZKj9U0EIODUKhAb1aRHX_-SmODQGyynql7Dd1VffWRmd7QJUjUc6eZd_4iV6ZDTXbXDms1Z6Af1tXaQ6TBL_mjIGD3hXTagCuDfGKWqhx8RtrPZqIHltPpVqxlb5cW_iUxmWu9xwuDXy8OllKU8DUNImAajM2RTL5fTiHAe3-BtCy2l5_m2oFgpMGaEURBvK7CBk6fmQatvTH6C-OptVXGPSXzeIlj2cAZVwv_Cz1FBEHT6bjh80rkuu7-eWTDRGuDnua4SFn7zW-s2lgfmBehgzD8RV6s8onUVKRPr--2sYnYGL99E4CCWXIruKL9R7z9gBeBoCyA',
-      jti: 'dc10f897-40b7-4750-82fb-a85667d2ae67',
-    };
-    cy.login(user);
+    const userObj = generateFakeJWT();
+    cy.login(userObj);
+
+    // const handler = rest.post(CDKStack.AuctionApiStack.AuctionApiUrl + 'get-user', (_req, res, ctx) => {
+    //   return res(
+    //     ctx.status(200),
+    //     ctx.json<ApiResponseList["get-user"]>({
+    //       timestamp: Date.now(),
+    //       data: generateFakeUser()
+    //     })
+    //   );
+    // });
     // Start from the index page
     cy.visit('http://localhost:3000/')
   })

@@ -1,5 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": "../",
+    "paths": {
+      "auction-shared/*": [
+        "../auction-shared/*"
+      ],
+      "@/*": [
+        "./*"
+      ],
+    },
     "target": "es5",
     "lib": [
       "es5",

@@ -4,7 +4,6 @@ import { ApiResponseList } from "auction-shared/api";
 
 export default async function Page() {
   const { data } = await axiosInstance.get<ApiResponseList['get-items']>('/get-items')
-  console.info('updated items data')
   return (
     <div className="min-h-full">
       <header className="bg-white shadow">

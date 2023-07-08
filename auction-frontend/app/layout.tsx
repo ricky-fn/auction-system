@@ -9,6 +9,10 @@ import { User } from "auction-shared/models";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+  import('@/__tests__/mocks')
+}
+
 export default async function RootLayout({
   children,
 
