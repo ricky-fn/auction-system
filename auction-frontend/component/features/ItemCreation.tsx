@@ -113,6 +113,7 @@ export default function ItemCreation() {
   const [fields, setFields] = useState<Field[]>([...initialFields]);
   const { dataService } = useServices();
   const { data: session } = useSession();
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -188,10 +189,10 @@ export default function ItemCreation() {
         message: 'You Have Created An Item'
       }))
 
+      // Reset form fields and errors
+      setFields(initialFields);
       router.push('/')
-
     } catch (error) {
-      console.log(error)
       dispatch(showToast({
         type: 'error',
         message: 'Oops Something Wrong...'
@@ -199,8 +200,6 @@ export default function ItemCreation() {
     }
 
     dispatch(setLoading(false))
-    // Reset form fields and errors
-    setFields(initialFields);
   };
 
   const getFieldValue = (name: keyof typeof initialFieldValues) => {
@@ -234,6 +233,7 @@ export default function ItemCreation() {
                     getFieldError("name") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
                     "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
                   )}
+                  data-cy="input-item-name"
                 />
               </div>
               {getFieldError("name") && (
@@ -256,6 +256,7 @@ export default function ItemCreation() {
                     getFieldError("startingPrice") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
                     "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
                   )}
+                  data-cy="input-starting-price"
                 />
               </div>
               {getFieldError("startingPrice") && (
@@ -279,6 +280,7 @@ export default function ItemCreation() {
                     getFieldError("expirationTime") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
                     "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
                   )}
+                  data-cy="input-time-window"
                 />
               </div>
               {getFieldError("expirationTime") && (
@@ -302,6 +304,7 @@ export default function ItemCreation() {
                     getFieldError("about") ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
                     "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
                   )}
+                  data-cy="input-about"
                 />
               </div>
               {getFieldError("about") && (
@@ -332,6 +335,7 @@ export default function ItemCreation() {
         <button
           type="submit"
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          data-cy="submit-button"
         >
           Save
         </button>

@@ -32,7 +32,7 @@ const PhotoDropzone = ({ updateFile, fieldName, selectedFile, fieldError }: Phot
           {
             selectedFile instanceof File && !fieldError ?
               (
-                <img src={URL.createObjectURL(selectedFile)} className="block w-40 h-40 rounded" />
+                <img src={URL.createObjectURL(selectedFile)} className="block w-40 h-40 rounded" data-cy="photo-preview" />
               ) : (
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <PhotoIcon className="mx-auto h-12 w-12 mb-4 text-gray-300" aria-hidden="true" />
@@ -41,7 +41,7 @@ const PhotoDropzone = ({ updateFile, fieldName, selectedFile, fieldError }: Phot
                 </div>
               )
           }
-          <input id="dropzone-file" type="file" name={fieldName} className="hidden" {...getInputProps()} />
+          <input id="dropzone-file" type="file" name={fieldName} className="hidden" {...getInputProps()} data-cy="input-photo" />
         </label>
       </div>
       {fieldError && (

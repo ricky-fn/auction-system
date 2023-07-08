@@ -20,9 +20,9 @@ type Categories = {
 }
 
 export default function ItemListContainer({ items }: { items: Items }) {
-  const { status } = useSession();
   const dispatch = useDispatch();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
   const categories: Categories = {
     ongoing: items.filter((item) => item.status === 'ongoing'),
     completed: items.filter((item) => item.status === 'completed'),
@@ -47,7 +47,7 @@ export default function ItemListContainer({ items }: { items: Items }) {
   }
 
   const openBidModal = (item: Item) => {
-    if (status !== 'authenticated') {
+    if (status === 'unauthenticated') {
       return signIn('cognito')
     }
 
@@ -56,6 +56,7 @@ export default function ItemListContainer({ items }: { items: Items }) {
   }
 
   const handleBid = async (amount: number) => {
+
     if (!selectedItem) {
       return;
     }
@@ -64,9 +65,13 @@ export default function ItemListContainer({ items }: { items: Items }) {
       return;
     }
 
-    dispatch(setLoading(true));
+    if (!session) {
+      console.log('session is null')
+      return
+    }
 
-    const authorizedAxios = createAuthorizedAxios(session!);
+    dispatch(setLoading(true));
+    const authorizedAxios = createAuthorizedAxios(session);
 
     try {
       const { data: { data: totalBidAmount } } = await authorizedAxios.get<
@@ -97,7 +102,6 @@ export default function ItemListContainer({ items }: { items: Items }) {
         itemId: selectedItem.itemId,
         bidAmount: amount,
       })
-
       dispatch(showToast({
         type: 'success',
         message: 'You Have Placed A Bid'

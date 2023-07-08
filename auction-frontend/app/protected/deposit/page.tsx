@@ -14,7 +14,6 @@ export default function DepositPage() {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
   const { data: session } = useSession();
-  const authorizedAxios = createAuthorizedAxios(session!);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -49,6 +48,7 @@ export default function DepositPage() {
 
     try {
       dispatch(setLoading(true))
+      const authorizedAxios = createAuthorizedAxios(session!);
       await authorizedAxios.post<
         ApiResponseList['deposit'],
         AxiosResponse<ApiResponseList['deposit']>,
@@ -102,6 +102,7 @@ export default function DepositPage() {
                           amountError ? 'bg-red-50 border border-red-500 text-red-900' : 'border-0 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
                           "block w-full rounded-md py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6"
                         )}
+                        data-cy="amount-input"
                       />
                     </div>
                     {amountError && (
@@ -119,6 +120,7 @@ export default function DepositPage() {
               <button
                 type="submit"
                 className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                data-cy="deposit-button"
               >
                 Deposit
               </button>

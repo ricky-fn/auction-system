@@ -56,6 +56,7 @@ const ToastMessage = () => {
     >
       <div
         className="fixed top-20 left-4 flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        data-cy="toast-message"
       >
         <div className={classNames(
           appData.toastType ? variant[appData.toastType] : '',

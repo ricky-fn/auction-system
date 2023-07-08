@@ -1,10 +1,9 @@
 import axios, { AxiosHeaders, AxiosInstance, AxiosRequestConfig } from "axios";
-import { useSession } from "next-auth/react";
 import CDKStack from 'auction-shared/outputs.json';
 import { Session } from "next-auth";
 
 const config: AxiosRequestConfig = {
-  baseURL: CDKStack.AuctionApiStack.AuctionApiUrl
+  baseURL: process.env.ENABLE_MOCKS ? process.env.BASE_URL : CDKStack.AuctionApiStack.AuctionApiUrl,
 };
 
 export const axiosInstance = axios.create(config);

@@ -22,6 +22,7 @@ export default function ListItem({ onClick, item }: ListItemProps) {
           </td>
           <td className="px-6 py-4 text-right w-1/4">
             <button
+              data-cy="item-bid-button"
               className={classNames(
                 "bg-blue-500 text-white font-bold py-2 px-4 rounded",
                 item.status === "completed" ? "opacity-50" : "hover:bg-blue-700"

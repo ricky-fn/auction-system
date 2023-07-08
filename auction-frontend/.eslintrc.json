@@ -1,10 +1,12 @@
 {
   "root": true,
   "extends": [
-    "next/core-web-vitals"
+    "next/core-web-vitals",
+    "plugin:cypress/recommended"
   ],
   "plugins": [
-    "testing-library"
+    "testing-library",
+    "cypress"
   ],
   "overrides": [
     // Only uses Testing Library lint rules in test files
@@ -17,5 +19,16 @@
         "plugin:testing-library/react"
       ]
     }
-  ]
+  ],
+  "rules": {
+    "cypress/no-assigning-return-values": "error",
+    "cypress/no-unnecessary-waiting": "error",
+    "cypress/assertion-before-screenshot": "warn",
+    "cypress/no-force": "warn",
+    "cypress/no-async-tests": "error",
+    "cypress/no-pause": "error"
+  },
+  "env": {
+    "cypress/globals": true
+  }
 }

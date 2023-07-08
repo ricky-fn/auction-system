@@ -11,6 +11,9 @@ export class DataService {
   }
 
   public async uploadPhoto(file: File) {
+    if (process.env.ENABLE_MOCKS) {
+      return file.name;
+    }
     const credentials = await this.authService.getTemporaryCredentials();
     if (!this.s3Client) {
       this.s3Client = new S3Client({
