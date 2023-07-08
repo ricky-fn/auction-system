@@ -11,7 +11,7 @@ describe('Test the item creation workflow', () => {
     cy.url().should('eq', Cypress.env("BASE_URL"))
   });
 
-  it.only("should navigate to home page after the item creation is successful", () => {
+  it("should navigate to home page after the item creation is successful", () => {
     const userObj = generateFakeJWT();
     cy.login(userObj);
 

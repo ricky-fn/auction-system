@@ -7,7 +7,7 @@ describe('Test the deposit workflow', () => {
     cy.url().should('eq', Cypress.env("BASE_URL"))
   });
 
-  it.only("should navigate to home page after the deposit is successful", () => {
+  it("should navigate to home page after the deposit is successful", () => {
     const userObj = generateFakeJWT();
     cy.login(userObj);
 

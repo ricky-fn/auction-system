@@ -27,7 +27,7 @@ describe('Test the bidding workflow', () => {
     cy.get('[data-cy="bid-button"]').click()
   });
 
-  it.only('should send a bid request when clicking on the submit button', () => {
+  it('should send a bid request when clicking on the submit button', () => {
     cy.get('[data-cy="item-bid-button"]').first().click()
 
     cy.get('[data-cy="bid-amount-input"]').type('200')
