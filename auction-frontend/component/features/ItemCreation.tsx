@@ -1,5 +1,5 @@
 'use client'
-import useAuthorizedAxios from '@/lib/api/axiosInstance';
+import { createAuthorizedAxios } from '@/lib/api/axiosInstance';
 import { classNames } from '@/lib/utils/styles';
 import { ApiRequestParams, ApiResponseList } from 'auction-shared/api';
 import { Item } from 'auction-shared/models';
@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import PhotoDropzone from './PhotoDropzone';
 import { useRouter } from 'next/navigation'
 import { AxiosResponse } from 'axios';
+import { useSession } from 'next-auth/react';
 
 interface Field {
   name: keyof Item;
@@ -110,8 +111,8 @@ const initialFields: Field[] = [
 
 export default function ItemCreation() {
   const [fields, setFields] = useState<Field[]>([...initialFields]);
-  const authorizedAxios = useAuthorizedAxios();
   const { dataService } = useServices();
+  const { data: session } = useSession();
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -173,6 +174,8 @@ export default function ItemCreation() {
         }
         return obj;
       }, {} as any);
+
+      const authorizedAxios = createAuthorizedAxios(session!);
 
       await authorizedAxios.post<
         ApiResponseList['create-item'],

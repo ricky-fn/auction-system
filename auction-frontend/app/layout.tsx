@@ -3,14 +3,14 @@ import Provider from "../component/Provider"
 import "./globals.css";
 import Loading from "@/component/spinner/Loading";
 import Nav from "@/component/nav/Nav";
-import useAuthorizedAxios from "@/lib/api/axiosInstance";
+import { createAuthorizedAxios } from "@/lib/api/axiosInstance";
 import { ApiResponseList } from "auction-shared/api";
 import { User } from "auction-shared/models";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 
-if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
-  import('@/__tests__/mocks')
+if (process.env.ENABLE_MOCKS) {
+  import("@/__tests__/mocks")
 }
 
 export default async function RootLayout({
@@ -22,8 +22,7 @@ export default async function RootLayout({
   let user: (undefined | User)
   const session = await getServerSession(authOptions)
   if (session) {
-    const axios = useAuthorizedAxios(session)
-
+    const axios = createAuthorizedAxios(session)
     try {
       const { data } = await axios.get<ApiResponseList['get-user']>('get-user')
 

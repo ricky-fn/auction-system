@@ -7,7 +7,7 @@ import ListItem from './ListItem'
 import BidModal from '../features/BidItem'
 import { Item, Items } from 'auction-shared/models'
 import { signIn, useSession } from 'next-auth/react'
-import useAuthorizedAxios from '@/lib/api/axiosInstance'
+import { createAuthorizedAxios } from '@/lib/api/axiosInstance'
 import { ApiRequestParams, ApiResponseList } from 'auction-shared/api'
 import { useDispatch } from 'react-redux'
 import { setLoading, showToast } from '@/store/actions/appActions'
@@ -22,7 +22,7 @@ type Categories = {
 export default function ItemListContainer({ items }: { items: Items }) {
   const { status } = useSession();
   const dispatch = useDispatch();
-  const authorizedAxios = useAuthorizedAxios();
+  const { data: session } = useSession();
   const categories: Categories = {
     ongoing: items.filter((item) => item.status === 'ongoing'),
     completed: items.filter((item) => item.status === 'completed'),
@@ -65,6 +65,8 @@ export default function ItemListContainer({ items }: { items: Items }) {
     }
 
     dispatch(setLoading(true));
+
+    const authorizedAxios = createAuthorizedAxios(session!);
 
     try {
       const { data: { data: totalBidAmount } } = await authorizedAxios.get<
