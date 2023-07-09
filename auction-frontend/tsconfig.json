@@ -31,10 +31,6 @@
       {
         "name": "next"
       }
-    ],
-    "types": [
-      "cypress",
-      "@testing-library/cypress"
     ]
   },
   "include": [
@@ -45,6 +41,9 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./cypress.config.ts",
+    "cypress",
+    "**/*.cy.tsx"
   ]
 }

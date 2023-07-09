@@ -9,13 +9,15 @@
         "./*"
       ],
     },
-    "target": "es5",
+    "target": "es6",
     "lib": [
-      "es5",
-      "dom"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
     "types": [
       "cypress",
+      "@testing-library/cypress",
       "node"
     ]
   },
