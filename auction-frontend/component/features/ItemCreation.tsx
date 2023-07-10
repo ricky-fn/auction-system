@@ -7,11 +7,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import useServices from '@/lib/hooks/useServices';
 import { setLoading, showToast } from '@/store/actions/appActions';
-import { useDispatch } from 'react-redux';
 import PhotoDropzone from './PhotoDropzone';
 import { useRouter } from 'next/navigation'
 import { AxiosResponse } from 'axios';
 import { useSession } from 'next-auth/react';
+import { useAppDispatch } from '@/lib/hooks/useRedux';
 
 interface Field {
   name: keyof Item;
@@ -28,7 +28,7 @@ const initialFieldValues = {
   photo: undefined,
 } as const;
 
-const validateItemName = (value: string): string | null => {
+const validateItemNameField = (value: string): string | null => {
   if (!value.trim()) {
     return 'Item name cannot be empty.';
   }
@@ -36,7 +36,15 @@ const validateItemName = (value: string): string | null => {
   return null;
 };
 
-const validateStartingPrice = (price: string): string | null => {
+const validateAboutField = (value: string): string | null => {
+  if (!value.trim()) {
+    return 'About cannot be empty.';
+  }
+
+  return null;
+};
+
+const validateStartingPriceField = (price: string): string | null => {
   const parsedPrice = parseInt(price, 10);
 
   if (!price.trim()) {
@@ -81,13 +89,13 @@ const initialFields: Field[] = [
     name: 'name',
     value: initialFieldValues.name,
     error: null,
-    validationFn: validateItemName,
+    validationFn: validateItemNameField,
   },
   {
     name: 'startingPrice',
     value: initialFieldValues.startingPrice,
     error: null,
-    validationFn: validateStartingPrice,
+    validationFn: validateStartingPriceField,
   },
   {
     name: 'expirationTime',
@@ -99,7 +107,7 @@ const initialFields: Field[] = [
     name: 'about',
     value: initialFieldValues.about,
     error: null,
-    validationFn: validateItemName,
+    validationFn: validateAboutField,
   },
   {
     name: 'photo',
@@ -114,7 +122,7 @@ export default function ItemCreation() {
   const { dataService } = useServices();
   const { data: session } = useSession();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const updateFields = (name: string, value: string | File) => {

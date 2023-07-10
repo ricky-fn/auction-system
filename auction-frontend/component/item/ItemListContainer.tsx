@@ -9,10 +9,10 @@ import { Item, Items } from 'auction-shared/models'
 import { signIn, useSession } from 'next-auth/react'
 import { createAuthorizedAxios } from '@/lib/api/axiosInstance'
 import { ApiRequestParams, ApiResponseList } from 'auction-shared/api'
-import { useDispatch } from 'react-redux'
 import { setLoading, showToast } from '@/store/actions/appActions'
 import { AxiosResponse } from 'axios'
 import { useRouter, usePathname } from 'next/navigation'
+import { useAppDispatch } from '@/lib/hooks/useRedux'
 
 type Categories = {
   completed: Items,
@@ -20,8 +20,8 @@ type Categories = {
 }
 
 export default function ItemListContainer({ items }: { items: Items }) {
-  const dispatch = useDispatch();
-  const { data: session, status } = useSession();
+  const dispatch = useAppDispatch();
+  const session = useSession();
 
   const categories: Categories = {
     ongoing: items.filter((item) => item.status === 'ongoing'),
@@ -47,7 +47,7 @@ export default function ItemListContainer({ items }: { items: Items }) {
   }
 
   const openBidModal = (item: Item) => {
-    if (status === 'unauthenticated') {
+    if (session.status === 'unauthenticated') {
       return signIn('cognito')
     }
 
@@ -65,13 +65,13 @@ export default function ItemListContainer({ items }: { items: Items }) {
       return;
     }
 
-    if (!session) {
+    if (!session.data) {
       console.log('session is null')
       return
     }
 
     dispatch(setLoading(true));
-    const authorizedAxios = createAuthorizedAxios(session);
+    const authorizedAxios = createAuthorizedAxios(session.data);
 
     try {
       const { data: { data: totalBidAmount } } = await authorizedAxios.get<

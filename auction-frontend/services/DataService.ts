@@ -1,8 +1,8 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { AuthService } from "./AuthService";
+import AuthService from "./AuthService";
 import CDKStack from 'auction-shared/outputs.json';
 
-export class DataService {
+export default class DataService {
   private authService: AuthService;
   private s3Client: S3Client | undefined;
 

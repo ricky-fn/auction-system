@@ -3,11 +3,10 @@
 import { hideToast } from "@/store/actions/appActions";
 import { RootState } from "@/store/reducers";
 import { Transition } from "@headlessui/react";
-import { useEffect } from "react";
 import { XMarkIcon, CheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
-import { useDispatch, useSelector } from "react-redux";
 import { classNames } from "@/lib/utils/styles";
 import { ToastVariant } from "@/store/reducers/appReducer";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/useRedux";
 
 const variant: Record<ToastVariant, string> = {
   'success': 'text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200',
@@ -15,7 +14,7 @@ const variant: Record<ToastVariant, string> = {
   'warning': 'text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200',
 }
 
-const ToastIcon = (type: keyof typeof variant) => {
+export const ToastIcon = (type: keyof typeof variant) => {
   switch (type) {
     case 'success':
       return CheckIcon
@@ -29,8 +28,8 @@ const ToastIcon = (type: keyof typeof variant) => {
 };
 
 const ToastMessage = () => {
-  const appData = useSelector((state: RootState) => state.app)
-  const dispatch = useDispatch();
+  const appData = useAppSelector((state: RootState) => state.app)
+  const dispatch = useAppDispatch();
 
   // useEffect(() => {
   //   if (appData.showToast) {
@@ -62,12 +61,12 @@ const ToastMessage = () => {
           appData.toastType ? variant[appData.toastType] : '',
           "inline-flex items-center justify-center flex-shrink-0 w-8 h-8",
         )}>
-          {Icon && <Icon type="error" className="w-5 h-5" />}
+          {Icon && <Icon type="error" className="w-5 h-5" data-testid="icon" />}
         </div>
         <div className="ml-3 text-sm font-normal">{appData.toastMessage}</div>
-        <button type="button" className="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">
+        <button type="button" onClick={handleHideToast} className="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">
           <span className="sr-only">Close</span>
-          <XMarkIcon onClick={handleHideToast} />
+          <XMarkIcon />
         </button>
       </div>
     </Transition>

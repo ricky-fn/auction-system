@@ -2,7 +2,7 @@ import CDKStack from 'auction-shared/outputs.json';
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 
-export class AuthService {
+export default class AuthService {
   private temporaryCredentials: Object | undefined;
   constructor(private jwtToken: string) {
     this.jwtToken = jwtToken;

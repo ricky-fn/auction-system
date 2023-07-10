@@ -1,10 +1,9 @@
 'use client'
-import { useSelector } from "react-redux"
-import { RootState } from "@/store/reducers"
 import { Transition } from "@headlessui/react"
+import { useAppSelector } from "@/lib/hooks/useRedux"
 
 const Loading = () => {
-  const appState = useSelector((state: RootState) => state.app)
+  const appState = useAppSelector((state) => state.app)
   return (
     <Transition
       show={appState.isLoading}

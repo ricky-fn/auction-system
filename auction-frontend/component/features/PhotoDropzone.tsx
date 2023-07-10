@@ -3,7 +3,7 @@ import { classNames } from "@/lib/utils/styles";
 import { PhotoIcon } from "@heroicons/react/24/solid"
 import { useDropzone } from "react-dropzone";
 
-type PhotoDropzoneProps = {
+export type PhotoDropzoneProps = {
   selectedFile: File | string | undefined;
   updateFile: (fieldName: string, value: File) => void;
   fieldName: string;
@@ -41,7 +41,7 @@ const PhotoDropzone = ({ updateFile, fieldName, selectedFile, fieldError }: Phot
                 </div>
               )
           }
-          <input id="dropzone-file" type="file" name={fieldName} className="hidden" {...getInputProps()} data-cy="input-photo" />
+          <input id="dropzone-file" type="file" name={fieldName} className="hidden" {...getInputProps()} data-cy="input-photo" data-testid="input-photo" />
         </label>
       </div>
       {fieldError && (

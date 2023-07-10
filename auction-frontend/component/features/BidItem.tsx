@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Item } from 'auction-shared/models'
 import { Fragment, useState } from 'react'
 
-interface BidModalProps {
+export interface BidModalProps {
   isOpen: boolean
   closeModal: () => void,
   item: Item | null,

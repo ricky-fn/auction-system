@@ -1,5 +1,6 @@
 'use client';
 import { createAuthorizedAxios } from "@/lib/api/axiosInstance";
+import { useAppDispatch } from "@/lib/hooks/useRedux";
 import { classNames } from "@/lib/utils/styles";
 import { setLoading, showToast } from "@/store/actions/appActions";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
@@ -8,13 +9,12 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 
 export default function DepositPage() {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
   const { data: session } = useSession();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const validateAmount = (amount: string): string | null => {

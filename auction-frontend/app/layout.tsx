@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 
 if (process.env.ENABLE_MOCKS) {
-  import("@/__tests__/mocks")
+  import("@/__tests__/mocks/msw")
 }
 
 export default async function RootLayout({
@@ -28,7 +28,7 @@ export default async function RootLayout({
 
       user = data.data
     } catch (error) {
-      console.error(error)
+      console.error(error instanceof Error ? error.message : error)
     }
   }
   return (

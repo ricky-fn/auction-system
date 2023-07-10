@@ -7,7 +7,7 @@ import { User } from 'auction-shared/models';
 import NavbarMenu from './NavbarMenu';
 import Logo from "@/public/logo.svg"
 
-const userNavigation = [
+export const userNavigation = [
   { name: 'Create New Item', href: '/protected/create' },
   { name: 'Deposit', href: '/protected/deposit' },
 ]

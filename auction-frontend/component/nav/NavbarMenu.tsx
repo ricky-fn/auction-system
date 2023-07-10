@@ -3,13 +3,13 @@ import { Menu, Transition } from "@headlessui/react";
 import { User } from "auction-shared/models";
 import { Fragment } from "react";
 
-interface Props {
+export interface NavbarMenuProps {
   user: User,
   signOut: () => void,
   userNavigation: { name: string, href: string }[]
 }
 
-export default function NavbarMenu({ signOut, userNavigation, user }: Props) {
+export default function NavbarMenu({ signOut, userNavigation, user }: NavbarMenuProps) {
   return (
     <Menu as="div" className="relative ml-3">
       <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">

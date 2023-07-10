@@ -9,6 +9,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  testRegex: "\\.test\\.[jt]sx?$",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
     "^auction-shared/(.*)$": "../auction-shared/*"
