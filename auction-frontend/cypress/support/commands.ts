@@ -23,7 +23,7 @@ export async function encode(
   return await new EncryptJWT(token)
     .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .setIssuedAt()
-    .setExpirationTime(Math.round(Date.now() / 1000 + maxAge))
+    .setExpirationTime(Date.now() + maxAge * 1000)
     .setJti("test")
     .encrypt(encryptionSecret);
 }
@@ -40,6 +40,7 @@ Cypress.Commands.add("login", (userObj: JWTPayload) => {
   // Generate and set a valid cookie from the fixture that next-auth can decrypt
   cy.wrap(null)
     .then(() => {
+      debugger;
       return encode(userObj, Cypress.env("NEXTAUTH_JWT_SECRET"));
     })
     .then((encryptedToken) =>
