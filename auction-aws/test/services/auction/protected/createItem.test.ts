@@ -3,13 +3,13 @@ import { handler } from "@/src/services/auction/protected/createItem";
 import { ApiRequestParams } from "auction-shared/api";
 import { BadRequest, InternalError } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext } from "auction-shared/mocks/fakeData/auth";
 import { GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
-import { generateFakeItem } from "@/test/mocks/fakeData/bid";
+import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 
 describe("Test createItem LambdaFunction", () => {
 	beforeEach(() => {

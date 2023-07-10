@@ -1,6 +1,6 @@
 import { JestConfigWithTsJest } from "ts-jest";
 
-const baseTestDir = "<rootDir>/test/services/lambdas";
+const baseTestDir = "<rootDir>/test/services";
 
 const config: JestConfigWithTsJest = {
 	preset: "ts-jest",
@@ -8,7 +8,7 @@ const config: JestConfigWithTsJest = {
 	testMatch: [`${baseTestDir}/**/*.test.ts`],
 	moduleNameMapper: {
 		"^@/(.*)$": "<rootDir>/$1",
-		"^auction-shared/(.*)$": "../auction-shared/*"
+		"^auction-shared/(.*)$": "<rootDir>/../auction-shared/$1",
 	},
 	setupFiles: ["./jest.setup.ts"],
 };

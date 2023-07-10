@@ -3,13 +3,11 @@ import { handler } from "@/src/services/auction/protected/bidItem";
 import { ApiRequestParams } from "auction-shared/api";
 import { BadRequest, uuid } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext } from "auction-shared/mocks/fakeData/auth";
 import { GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
-import { sharedAuthTest } from "./shared/auth";
-import { sharedInputTest } from "./shared/input";
-import { generateFakeBidRecord, generateFakeCompletedItem, generateFakeItem } from "@/test/mocks/fakeData/bid";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
+import { generateFakeBidRecord, generateFakeCompletedItem, generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
 const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;

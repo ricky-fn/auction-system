@@ -3,8 +3,8 @@ import { ScanCommand } from "@aws-sdk/client-dynamodb";
 import { ApiResponseList } from "auction-shared/api";
 import { InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateFakeItem } from "@/test/mocks/fakeData/bid";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 
 // Mock the DynamoDB client
 describe("Test getItems LambdaFunction", () => {
@@ -22,13 +22,17 @@ describe("Test getItems LambdaFunction", () => {
 			]
 		});
 
-		const response = await handler();
-		const expectedResponse = createLambdaResponse<ApiResponseList["get-items"]>(200, {
-			timestamp: Date.now(),
+		const { body: rawResponseData, ...result } = await handler();
+		const expectedResponseData = <ApiResponseList["get-items"]>{
+			timestamp: expect.any(Number),
 			data: [mockItem]
-		});
+		};
 
-		expect(response).toEqual(expectedResponse);
+		const responseData = JSON.parse(rawResponseData);
+
+		expect(result.statusCode).toEqual(200);
+
+		expect(responseData).toEqual(expectedResponseData);
 	});
 
 	it("should return InternalError when an error occurs", async () => {

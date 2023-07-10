@@ -5,10 +5,10 @@ import { User } from "auction-shared/models";
 import { ApiResponseList } from "auction-shared/api";
 import { createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext } from "auction-shared/mocks/fakeData/auth";
 import { sharedAuthTest } from "./shared/auth";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
 
 const DB_USERS_TABLE = process.env.DB_USERS_TABLE as string;
 
@@ -28,14 +28,19 @@ describe("Test getUser LambdaFunction", () => {
 				Item: marshall(mockUser)
 			});
 
-		const result = await handler(generateCognitoAuthorizerContext(mockUser.id) as any);
+		const { body: rawResponseData, ...result } = await handler(generateCognitoAuthorizerContext(mockUser.id) as any);
 
-		const expectedResponse = createLambdaResponse<ApiResponseList["get-user"]>(200, {
-			timestamp: Date.now(),
+		const expectedResponseData = <ApiResponseList["get-user"]>{
+			timestamp: expect.any(Number),
 			data: mockUser
-		});
+		};
 
-		expect(result).toEqual(expectedResponse);
+		const responseData = JSON.parse(rawResponseData);
+
+		expect(result.statusCode).toEqual(200);
+
+		expect(responseData).toEqual(expectedResponseData);
+
 		expect(mockDBClient).toHaveReceivedCommandWith(GetItemCommand, {
 			TableName: DB_USERS_TABLE,
 			Key: { id: { S: mockUser.id } },

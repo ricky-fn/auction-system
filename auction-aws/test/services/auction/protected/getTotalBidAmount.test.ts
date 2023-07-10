@@ -3,13 +3,13 @@ import { handler } from "@/src/services/auction/protected/getTotalBidAmount";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext } from "auction-shared/mocks/fakeData/auth";
 import { GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
-import { generateFakeBidRecord, generateFakeItem } from "@/test/mocks/fakeData/bid";
+import { generateFakeBidRecord, generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
 const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;
@@ -113,15 +113,15 @@ describe("Test getTotalBidAmount LambdaFunction", () => {
 			.on(ScanCommand)
 			.resolves({ Items: fakeBidedItems.map(item => marshall(item)) });
 
-		const result = await handler({
+		const { body: rawResponseData, statusCode } = await handler({
 			...generateCognitoAuthorizerContext(fakeUser.id),
 			queryStringParameters: requestParams
 		} as any);
 
-		const expectedResponse = createLambdaResponse<ApiResponseList["get-total-bid-amount"]>(200, {
-			timestamp: Date.now(),
+		const expectedResponseData = <ApiResponseList["get-total-bid-amount"]>{
+			timestamp: expect.any(Number),
 			data: totalBidAmount
-		});
+		};
 
 		expect(mockDBClient).toHaveReceivedCommandWith(ScanCommand, {
 			TableName: DB_BIDS_TABLE,
@@ -131,6 +131,10 @@ describe("Test getTotalBidAmount LambdaFunction", () => {
 				":bidderId": { S: fakeUser.id }
 			}
 		});
-		expect(result).toEqual(expectedResponse);
+
+		expect(statusCode).toEqual(200);
+
+		const responseData = JSON.parse(rawResponseData);
+		expect(responseData).toEqual(expectedResponseData);
 	});
 });

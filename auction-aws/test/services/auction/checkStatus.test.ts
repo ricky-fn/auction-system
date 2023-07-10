@@ -2,9 +2,9 @@ import "aws-sdk-client-mock-jest";
 import { handler } from "@/src/services/auction/checkStatus";
 import { BatchGetItemCommand, BatchWriteItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateFakeBidRecord, generateFakeExpiredItem } from "@/test/mocks/fakeData/bid";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateFakeBidRecord, generateFakeExpiredItem } from "auction-shared/mocks/fakeData/bid";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
 
 const DB_ITEMS_TABLE = process.env.DB_ITEMS_TABLE as string;
 const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;

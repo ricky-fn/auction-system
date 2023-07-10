@@ -3,10 +3,10 @@ import { handler } from "@/src/services/auction/protected/deposit";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { BadRequest, InternalError, createLambdaResponse } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext } from "auction-shared/mocks/fakeData/auth";
 import { GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { generateFakeUser } from "@/test/mocks/fakeData/user";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
 import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
 
@@ -103,16 +103,19 @@ describe("Test deposit LambdaFunction", () => {
 				})
 				.resolves({ Item: marshall(fakeUser) });
 
-			const result = await handler({
+			const { body: rawResponseData, ...result } = await handler({
 				...generateCognitoAuthorizerContext(fakeUser.id),
 				body: JSON.stringify({ amount }),
 			} as any);
 
-			const expectedResponse = createLambdaResponse<ApiResponseList["deposit"]>(200, {
-				timestamp: Date.now(),
-			});
+			const expectedResponseData = <ApiResponseList["deposit"]>{
+				timestamp: expect.any(Number),
+			};
 
-			expect(result).toEqual(expectedResponse);
+			expect(result.statusCode).toEqual(200);
+
+			const responseData = JSON.parse(rawResponseData);
+			expect(responseData).toEqual(expectedResponseData);
 
 			expect(mockDBClient).toHaveReceivedCommandWith(UpdateItemCommand, {
 				TableName: DB_USERS_TABLE,

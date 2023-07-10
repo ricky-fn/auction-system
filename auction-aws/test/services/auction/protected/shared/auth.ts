@@ -1,6 +1,6 @@
 import { AuthorizationFail, InternalError } from "@/src/services/auction/utils";
-import mockDBClient from "@/test/mocks/db/utils/mockDBClient";
-import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "@/test/mocks/fakeData/auth";
+import mockDBClient from "@/test/lib/db/mockDBClient";
+import { generateCognitoAuthorizerContext, generateCognitoAuthorizerWithoutUserName } from "auction-shared/mocks/fakeData/auth";
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { ApiRequestParams } from "auction-shared/api";
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
