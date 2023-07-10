@@ -3,50 +3,47 @@ import CDKStack from 'auction-shared/outputs.json';
 import CognitoProvider from "next-auth/providers/cognito";
 
 async function refreshAccessToken(token: JWT) {
-  try {
-    const url =
-      "https://" + CDKStack.AuctionAuthStack.AuctionUserPoolDomain + "/oauth2/token?" +
-      new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
-        client_secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
-        refresh_token: token.refreshToken!,
-      });
+  // try {
+  // Base 64 encode authentication string
+  const headerString = CDKStack.AuctionAuthStack.AuctionUserPoolClientId + ':' + CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret;
+  const buff = Buffer.from(headerString, 'utf-8');
+  const authHeader = buff.toString('base64');
 
+  const refreshedTokensResponse = await fetch("https://" + CDKStack.AuctionAuthStack.AuctionUserPoolDomain + "/oauth2/token", {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Basic " + authHeader
+    },
+    method: "POST",
+    body: Object.entries({
+      grant_type: "refresh_token",
+      client_id: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
+      client_secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
+      refresh_token: token.refreshToken!,
+    }).map(([k, v]) => `${k}=${v}`).join("&"),
+  })
 
-    // Base 64 encode authentication string
-    const headerString = CDKStack.AuctionAuthStack.AuctionUserPoolClientId + ':' + CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret;
-    const buff = Buffer.from(headerString, 'utf-8');
-    const authHeader = buff.toString('base64');
+  const refreshedTokens = await refreshedTokensResponse.json();
 
-    const refreshedTokensResponse = await fetch(url, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Basic " + authHeader
-      },
-      method: "POST",
-    })
-
-    const refreshedTokens = await refreshedTokensResponse.json();
-
-    if (!refreshedTokensResponse.ok) {
-      throw refreshedTokens;
-    }
-
-    return {
-      ...token,
-      accessToken: refreshedTokens.access_token,
-      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
-    };
-
-  } catch (error) {
-
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
+  if (!refreshedTokensResponse.ok) {
+    throw refreshedTokens;
   }
+
+  return {
+    ...token,
+    accessToken: refreshedTokens.access_token,
+    idToken: refreshedTokens.id_token,
+    accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+    refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+  };
+
+  // } catch (error) {
+
+  //   return {
+  //     ...token,
+  //     error: "RefreshAccessTokenError",
+  //   };
+  // }
 }
 
 export const authOptions: AuthOptions = {
@@ -78,12 +75,14 @@ export const authOptions: AuthOptions = {
       }
 
       // Return previous token if the access token has not expired yet
-      if (Date.now() / 1000 < (token.accessTokenExpires as number)) {
+      if (Date.now() < (token.accessTokenExpires as number)) {
         return token;
       }
 
       // Access token has expired, try to update it
-      return refreshAccessToken(token as JWT);
+      const refreshedTokens = await refreshAccessToken(token as JWT);
+
+      return refreshedTokens;
     },
     async session({ session, token }) {
       const sessionToken = session;
