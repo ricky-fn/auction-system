@@ -10,6 +10,7 @@
     "ExportsOutputRefBidsTableE1AD1632086B90CC": "BidsRecordTable-0a554d71a646"
   },
   "AuctionLambdaStack": {
+    "ExportsOutputFnGetAttGetTotalBidAmountLambdaF49BCF9BArn90316287": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetTotalBidAmountLambdaF49BCF9B-pAiPDuEC3e8D",
     "ExportsOutputFnGetAttCheckStatusLambda66E1DC5DArnE35723E5": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CheckStatusLambda66E1DC5D-cfdkCzp9VZ1q",
     "ExportsOutputFnGetAttGetUserLambda881D1138Arn7B461E1F": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetUserLambda881D1138-U1Rg5lxUAkPf",
     "ExportsOutputFnGetAttUserSignInLambda90E6C625Arn47C117D6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambda90E6C625-4waPnHvyWRE1",
@@ -18,6 +19,9 @@
     "ExportsOutputFnGetAttBidItemLambdaD01AFD89ArnB2CA1AEF": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-BidItemLambdaD01AFD89-YWrwJeVyOtBk",
     "ExportsOutputFnGetAttUserSignUpLambdaF06CE815Arn3CDDCF91": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaF06CE815-Ts0gX2UhGJrL",
     "ExportsOutputFnGetAttDepositLambdaDE532884Arn80C3BB01": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-DepositLambdaDE532884-h6OMFetZqfRF"
+  },
+  "AuctionAmplifyStack": {
+    "appId": "d1tywrwo86r4jv"
   },
   "AuctionAuthStack": {
     "ExportsOutputFnGetAttAuctionUserPool5D793815Arn7D60F36A": "arn:aws:cognito-idp:ap-south-1:399759979072:userpool/ap-south-1_G9KgvfCoH",
