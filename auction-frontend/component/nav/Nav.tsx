@@ -19,7 +19,9 @@ const Nav = ({ user }: { user: undefined | User }) => {
   }
   const handleSignIn = () => {
     if (user) return
-    signIn('cognito')
+    signIn('cognito', {
+      callbackUrl: `${window.location.origin}/`,
+    })
   }
   return (
     <>
