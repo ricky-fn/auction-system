@@ -26,7 +26,7 @@ export class CdkCicdStack extends cdk.Stack {
 
 		stage.addPre(new CodeBuildStep("unit-test", {
 			commands: [
-				"cd cdk-cicd",
+				"cd auction-aws",
 				"npm ci",
 				"npm run test",
 			]
