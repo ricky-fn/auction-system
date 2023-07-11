@@ -87,7 +87,7 @@ export class LambdaStack extends Stack {
 				"dynamodb:Scan",
 				"dynamodb:GetItem",
 				"dynamodb:UpdateItem",
-			]
+			],
 		}));
 
 		return userSignUpLambda;

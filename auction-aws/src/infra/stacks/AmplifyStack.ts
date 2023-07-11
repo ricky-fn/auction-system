@@ -13,7 +13,8 @@ import { environmentVariables } from "../../environmentVariables";
 // todo create staging branch
 export class AmplifyStack extends Stack {
 	public amplifyApp: App;
-	public hostDomains: string[];
+	public prodDomain: string;
+	public devDomain: string;
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
@@ -54,7 +55,8 @@ export class AmplifyStack extends Stack {
 		const mainBranchDomain = `${mainBranch.branchName}.${this.amplifyApp.defaultDomain}`;
 		const devBranchDomain = `${devBranch.branchName}.${this.amplifyApp.defaultDomain}`;
 
-		this.hostDomains = [mainBranchDomain, devBranchDomain];
+		this.prodDomain = mainBranchDomain;
+		this.devDomain = devBranchDomain;
 	}
 	private createAmplifyApp(): App {
 		const amplifyRole = this.createAmplifyRole();
