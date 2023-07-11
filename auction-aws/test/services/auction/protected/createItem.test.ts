@@ -11,14 +11,20 @@ import { sharedAuthTest } from "./shared/auth";
 import { sharedInputTest } from "./shared/input";
 import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 
+
 describe("Test createItem LambdaFunction", () => {
 	beforeEach(() => {
-		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
 		mockDBClient.reset();
+		jest.spyOn(console, "error");
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockImplementation(() => null);
 	});
 
 	afterEach(() => {
-		jest.restoreAllMocks();
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockRestore();
 	});
 
 	const mockItemRequestParam: ApiRequestParams["create-item"] = {

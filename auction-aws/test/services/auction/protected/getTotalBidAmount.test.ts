@@ -16,12 +16,17 @@ const DB_BIDS_TABLE = process.env.DB_BIDS_TABLE as string;
 
 describe("Test getTotalBidAmount LambdaFunction", () => {
 	beforeEach(() => {
-		jest.spyOn(console, "error").mockImplementationOnce(jest.fn());
 		mockDBClient.reset();
+		jest.spyOn(console, "error");
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockImplementation(() => null);
 	});
 
 	afterEach(() => {
-		jest.restoreAllMocks();
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockRestore();
 	});
 
 	sharedAuthTest<ApiRequestParams["get-total-bid-amount"]>(handler, {

@@ -1,7 +1,7 @@
 import { handler } from "@/src/services/auction/getItems";
 import { ScanCommand } from "@aws-sdk/client-dynamodb";
 import { ApiResponseList } from "auction-shared/api";
-import { InternalError, createLambdaResponse } from "@/src/services/auction/utils";
+import { InternalError } from "@/src/services/auction/utils";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import mockDBClient from "@/test/lib/db/mockDBClient";
 import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
@@ -10,6 +10,16 @@ import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 describe("Test getItems LambdaFunction", () => {
 	beforeEach(() => {
 		mockDBClient.reset();
+		jest.spyOn(console, "error");
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockImplementation(() => null);
+	});
+
+	afterEach(() => {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore jest.spyOn adds this functionality
+		console.error.mockRestore();
 	});
 
 	const mockItem = generateFakeItem();
@@ -35,13 +45,14 @@ describe("Test getItems LambdaFunction", () => {
 		expect(responseData).toEqual(expectedResponseData);
 	});
 
-	it("should return InternalError when an error occurs", async () => {
+	it.only("should return InternalError when an error occurs", async () => {
 		mockDBClient.on(ScanCommand).rejects(new Error("test error"));
 
 		const { body: response } = await handler();
 		const error = new InternalError("I001", "test error");
 		const { body: expectedResponse } = error.getResponse();
 
+		expect(console.error).toBeCalledWith("Internal Server Error [I001]: test error");
 		expect(JSON.parse(response).error).toEqual(JSON.parse(expectedResponse).error);
 	});
 });
