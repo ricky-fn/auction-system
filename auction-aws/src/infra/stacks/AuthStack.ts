@@ -9,6 +9,7 @@ interface AuthStackProps extends StackProps {
 	userSignUpLambda: NodejsFunction
 	userSignInLambda: NodejsFunction
 	photosBucket: IBucket
+	appDomains: string[]
 }
 
 export class AuthStack extends Stack {
@@ -23,7 +24,7 @@ export class AuthStack extends Stack {
 		super(scope, id, props);
 
 		this.createUserPool();
-		this.createUserPoolClient();
+		this.createUserPoolClient(props);
 		this.createGoogleIdentityPool();
 		this.createAuthTriggers(props);
 		this.createIdentityPool();
@@ -57,7 +58,7 @@ export class AuthStack extends Stack {
 			value: this.userPool.userPoolId
 		});
 	}
-	private createUserPoolClient() {
+	private createUserPoolClient(props: AuthStackProps) {
 		this.userPoolClient = this.userPool.addClient("AuctionUserPoolClient", {
 			userPoolClientName: "AuctionCognitoGoogle",
 			authFlows: {
@@ -76,7 +77,11 @@ export class AuthStack extends Stack {
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"], // ! read from env file
+				callbackUrls: props.appDomains.reduce((acc, domain) => {
+					return [...acc, `https://${domain}/api/auth/callback/cognito`];
+				}, [
+					"http://localhost:3000/api/auth/callback/cognito",
+				])
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});

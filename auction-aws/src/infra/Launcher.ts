@@ -4,6 +4,7 @@ import { DataStack } from "./stacks/DataStack";
 import { AuthStack } from "./stacks/AuthStack";
 import { ApiStack } from "./stacks/ApiStack";
 import { ScheduleStack } from "./stacks/ScheduleStack";
+import { AmplifyStack } from "./stacks/AmplifyStack";
 
 const app = new App({
 	context: {
@@ -24,11 +25,13 @@ const lambdaStack = new LambdaStack(app, "AuctionLambdaStack", {
 	bidsTable: dataStack.bidsTable,
 	usersTable: dataStack.usersTable
 });
+const amplifyStack = new AmplifyStack(app, "AuctionAmplifyStack", stackProps);
 const authStack = new AuthStack(app, "AuctionAuthStack", {
 	...stackProps,
 	userSignUpLambda: lambdaStack.userSignUpLambda,
 	userSignInLambda: lambdaStack.userSignInLambda,
-	photosBucket: dataStack.photosBucket
+	photosBucket: dataStack.photosBucket,
+	appDomains: amplifyStack.hostDomains
 });
 new ApiStack(app, "AuctionApiStack", {
 	...stackProps,
