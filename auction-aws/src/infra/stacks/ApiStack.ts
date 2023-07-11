@@ -11,6 +11,7 @@ interface ApiStackProps extends StackProps {
 	bidItemLambdaIntegration: LambdaIntegration,
 	getTotalBidAmountLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
+	appDomains: string[];
 }
 
 export class ApiStack extends Stack {
@@ -35,8 +36,8 @@ export class ApiStack extends Stack {
 
 		const optionsWithCors: ResourceOptions = { // define cors for all methods and origins
 			defaultCorsPreflightOptions: {
-				allowOrigins: Cors.ALL_ORIGINS, // ! do not use this in production
-				allowMethods: Cors.ALL_METHODS // ! do not use this in production
+				allowOrigins: props.appDomains,
+				allowMethods: Cors.ALL_METHODS
 			}
 		};
 

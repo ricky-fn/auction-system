@@ -2,7 +2,6 @@ import { StackProps, Stage, StageProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { DataStack } from "../stacks/DataStack";
 import { LambdaStack } from "../stacks/LambdaStack";
-import { AmplifyStack } from "../stacks/AmplifyStack";
 import { AuthStack } from "../stacks/AuthStack";
 import { ApiStack } from "../stacks/ApiStack";
 import { ScheduleStack } from "../stacks/ScheduleStack";
@@ -48,6 +47,7 @@ export class PipelineStage extends Stage {
 			bidItemLambdaIntegration: lambdaStack.bidItemLambdaIntegration,
 			getTotalBidAmountLambdaIntegration: lambdaStack.getTotalBidAmountLambdaIntegration,
 			userPool: authStack.userPool,
+			appDomains: props.appDomains
 		});
 		new ScheduleStack(this, "AuctionScheduleStack", {
 			...stackProps,
