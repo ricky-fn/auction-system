@@ -5,7 +5,6 @@ import { Construct } from "constructs";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { GitHubSourceCodeProvider } from "@aws-cdk/aws-amplify-alpha/lib/source-code-providers";
 import { SecretValue } from "aws-cdk-lib";
-import { AutoBranchCreation } from "@aws-cdk/aws-amplify-alpha";
 import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { environmentVariables } from "../../environmentVariables";
 
