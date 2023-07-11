@@ -12,7 +12,7 @@ export class CdkCicdStack extends cdk.Stack {
 			synth: new ShellStep("Synth", {
 				input: CodePipelineSource.gitHub("ricky-fn/auction-system", "main"),
 				commands: [
-					"cd cdk-cicd",
+					"cd auction-aws",
 					"npm ci",
 					"npx cdk synth"
 				],
