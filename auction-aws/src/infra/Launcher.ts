@@ -16,12 +16,12 @@ const appRoot = "auction-aws";
 const appStageConfig: IAuctionStageConfig[] = [
 	{
 		branch: "main",
-		stageName: "prod",
+		stageName: "PRODUCTION",
 		stageDomainParamName: "prod-domain",
 	},
 	{
 		branch: "dev",
-		stageName: "dev",
+		stageName: "DEVELOPMENT",
 		stageDomainParamName: "dev-domain",
 	},
 ];

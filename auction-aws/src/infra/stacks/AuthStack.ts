@@ -64,7 +64,7 @@ export class AuthStack extends Stack {
 			parameterName: stageConfig.stageDomainParamName
 		}).stringValue;
 
-		const callbackUrls = stageConfig.stageName === "dev" ? ["http://localhost:3000/api/auth/callback/cognito"] : [];
+		const callbackUrls = stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000/api/auth/callback/cognito"] : [];
 		callbackUrls.push(`https://${stageDomain}/api/auth/callback/cognito`);
 
 		this.userPoolClient = this.userPool.addClient("AuctionUserPoolClient", {

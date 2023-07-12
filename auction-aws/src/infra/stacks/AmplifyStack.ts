@@ -48,7 +48,7 @@ export class AmplifyStack extends Stack {
 			const branch = this.amplifyApp.addBranch(stageConfig.branch, {
 				autoBuild: false, // set to true to automatically build the app on new pushes
 				stage: stageConfig.stageName,
-				performanceMode: stageConfig.stageName === "dev"
+				performanceMode: stageConfig.stageName === "DEVELOPMENT"
 			});
 
 			const branchDomain = `${branch.branchName}.${this.amplifyApp.defaultDomain}`;

@@ -41,7 +41,7 @@ export class ApiStack extends Stack {
 			parameterName: props.stageConfig.stageDomainParamName
 		}).stringValue;
 
-		const origins = props.stageConfig.stageName === "dev" ? ["http://localhost:3000/"] : [];
+		const origins = props.stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000/"] : [];
 		origins.push(`https://${stageDomain}/`);
 
 		const optionsWithCors: ResourceOptions = { // define cors for all methods and origins

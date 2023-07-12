@@ -1,6 +1,6 @@
 import { StackProps } from "aws-cdk-lib";
 
-export type IAuctionStages = "dev" | "prod" | string;
+export type IAuctionStages = "PRODUCTION" | "BETA" | "DEVELOPMENT" | "EXPERIMENTAL" | "PULL_REQUEST"
 
 export type IAuctionStageConfig = {
   branch: string;
