@@ -16,7 +16,7 @@ export class DataStack extends Stack {
 
 		const { stageName } = props.stageConfig;
 
-		const suffix = `${stageName.toLocaleLowerCase()}-${getSuffixFromStack(this)}`;
+		const suffix = `${stageName.toLowerCase()}-${getSuffixFromStack(this)}`;
 
 		this.itemsTable = new Table(this, "ItemsTable", {
 			partitionKey: {
