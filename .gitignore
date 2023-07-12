@@ -3,3 +3,5 @@ auction-aws/cdk.out/
 
 auction-frontend/node_modules/
 auction-frontend/.next/
+
+auction-shared/output.json
