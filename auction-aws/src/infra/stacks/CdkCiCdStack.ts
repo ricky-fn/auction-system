@@ -10,7 +10,6 @@ interface CdkCicdStackProps extends cdk.StackProps {
 	stageName: IAuctionStages;
 	repoString: string;
 	appRoot: string;
-	appDomains: string[];
 }
 
 export class CdkCicdStack extends cdk.Stack {
@@ -33,7 +32,6 @@ export class CdkCicdStack extends cdk.Stack {
 		const stage = pipeline.addStage(new PipelineStage(this, `AuctionPipeline${capitalizeFirstLetter(props.stageName)}`, {
 			env: props.env,
 			stageName: props.stageName,
-			appDomains: props.appDomains
 		}));
 
 		stage.addPre(new CodeBuildStep("unit-test", {

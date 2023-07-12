@@ -9,7 +9,6 @@ import { IAuctionStages } from "@/src/types";
 
 interface PipelineStageProps extends StageProps {
 	stageName: IAuctionStages;
-	appDomains: string[];
 }
 
 export class PipelineStage extends Stage {
@@ -35,8 +34,6 @@ export class PipelineStage extends Stage {
 			userSignUpLambda: lambdaStack.userSignUpLambda,
 			userSignInLambda: lambdaStack.userSignInLambda,
 			photosBucket: dataStack.photosBucket,
-			// appDomains: [amplifyStack.hostDomains]
-			appDomains: ["http://localhost:3000"]
 		});
 		new ApiStack(this, "AuctionApiStack", {
 			...stackProps,
@@ -47,7 +44,7 @@ export class PipelineStage extends Stage {
 			bidItemLambdaIntegration: lambdaStack.bidItemLambdaIntegration,
 			getTotalBidAmountLambdaIntegration: lambdaStack.getTotalBidAmountLambdaIntegration,
 			userPool: authStack.userPool,
-			appDomains: props.appDomains
+			// appDomains: props.appDomains
 		});
 		new ScheduleStack(this, "AuctionScheduleStack", {
 			...stackProps,

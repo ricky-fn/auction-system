@@ -25,6 +25,5 @@ new CdkCicdStack(app, "AuctionProdCdkCiCdStack", {
 	stageName: "prod",
 	repoString,
 	appRoot,
-	appDomains: [amplifyStack.prodDomain]
 });
 

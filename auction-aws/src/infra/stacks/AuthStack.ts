@@ -9,7 +9,7 @@ interface AuthStackProps extends StackProps {
 	userSignUpLambda: NodejsFunction
 	userSignInLambda: NodejsFunction
 	photosBucket: IBucket
-	appDomains: string[]
+	// appDomains: string[]
 }
 
 export class AuthStack extends Stack {
@@ -77,11 +77,12 @@ export class AuthStack extends Stack {
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				callbackUrls: props.appDomains.reduce((acc, domain) => {
-					return [...acc, `https://${domain}/api/auth/callback/cognito`];
-				}, [
-					"http://localhost:3000/api/auth/callback/cognito",
-				])
+				// callbackUrls: props.appDomains.reduce((acc, domain) => {
+				// 	return [...acc, `https://${domain}/api/auth/callback/cognito`];
+				// }, [
+				// 	"http://localhost:3000/api/auth/callback/cognito",
+				// ])
+				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"]
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});

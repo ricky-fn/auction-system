@@ -7,6 +7,7 @@ import { GitHubSourceCodeProvider } from "@aws-cdk/aws-amplify-alpha/lib/source-
 import { SecretValue } from "aws-cdk-lib";
 import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "aws-cdk-lib/custom-resources";
 import { environmentVariables } from "../../environmentVariables";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
 
 
 // todo export domain names
@@ -21,6 +22,16 @@ export class AmplifyStack extends Stack {
 		this.amplifyApp = this.createAmplifyApp();
 
 		this.createBranches();
+
+		new StringParameter(this, "prod-domain", {
+			parameterName: "prod-domain",
+			stringValue: this.prodDomain,
+		});
+
+		new StringParameter(this, "dev-domain", {
+			parameterName: "dev-domain",
+			stringValue: this.devDomain,
+		});
 
 		new AwsCustomResource(this, "aws-custom", {
 			onCreate: {
