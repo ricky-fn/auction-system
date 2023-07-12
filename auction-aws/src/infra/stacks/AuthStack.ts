@@ -1,15 +1,16 @@
+import { IAppStackProps, IAuctionStageConfig } from "../../types";
 import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
 import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { IBucket } from "aws-cdk-lib/aws-s3";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
-interface AuthStackProps extends StackProps {
+interface AuthStackProps extends IAppStackProps {
 	userSignUpLambda: NodejsFunction
 	userSignInLambda: NodejsFunction
 	photosBucket: IBucket
-	// appDomains: string[]
 }
 
 export class AuthStack extends Stack {
@@ -24,7 +25,7 @@ export class AuthStack extends Stack {
 		super(scope, id, props);
 
 		this.createUserPool();
-		this.createUserPoolClient(props);
+		this.createUserPoolClient(props.stageConfig);
 		this.createGoogleIdentityPool();
 		this.createAuthTriggers(props);
 		this.createIdentityPool();
@@ -58,7 +59,14 @@ export class AuthStack extends Stack {
 			value: this.userPool.userPoolId
 		});
 	}
-	private createUserPoolClient(props: AuthStackProps) {
+	private createUserPoolClient(stageConfig: IAuctionStageConfig) {
+		const stageDomain = StringParameter.fromStringParameterAttributes(this, "StageDomain", {
+			parameterName: stageConfig.stageDomainParamName
+		}).stringValue;
+
+		const callbackUrls = stageConfig.stageName === "dev" ? ["http://localhost:3000/api/auth/callback/cognito"] : [];
+		callbackUrls.push(`https://${stageDomain}/api/auth/callback/cognito`);
+
 		this.userPoolClient = this.userPool.addClient("AuctionUserPoolClient", {
 			userPoolClientName: "AuctionCognitoGoogle",
 			authFlows: {
@@ -67,7 +75,7 @@ export class AuthStack extends Stack {
 				userPassword: true,
 				userSrp: true,
 			},
-			generateSecret: true, // ! turn it on for production
+			generateSecret: true,
 			// refer to https://next-auth.js.org/providers/cognito
 			oAuth: {
 				flows: {
@@ -77,12 +85,7 @@ export class AuthStack extends Stack {
 				scopes: [
 					OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE
 				],
-				// callbackUrls: props.appDomains.reduce((acc, domain) => {
-				// 	return [...acc, `https://${domain}/api/auth/callback/cognito`];
-				// }, [
-				// 	"http://localhost:3000/api/auth/callback/cognito",
-				// ])
-				callbackUrls: ["http://localhost:3000/api/auth/callback/cognito"]
+				callbackUrls
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
@@ -99,13 +102,13 @@ export class AuthStack extends Stack {
 		this.userPool.addTrigger(UserPoolOperation.PRE_AUTHENTICATION, props.userSignInLambda);
 	}
 
-	private createAdminsGroup() {
-		new CfnUserPoolGroup(this, "AuctionAdmins", {
-			userPoolId: this.userPool.userPoolId,
-			groupName: "admins",
-			// roleArn: this.adminRole.roleArn // add the admin role to the group
-		});
-	}
+	// private createAdminsGroup() {
+	// 	new CfnUserPoolGroup(this, "AuctionAdmins", {
+	// 		userPoolId: this.userPool.userPoolId,
+	// 		groupName: "admins",
+	// 		// roleArn: this.adminRole.roleArn // add the admin role to the group
+	// 	});
+	// }
 
 	// reference: https://aws-cdk.com/cognito-google
 	private createGoogleIdentityPool() {

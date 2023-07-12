@@ -1,3 +1,4 @@
+import { IAppStackProps, IAuctionStages } from "../../types";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { LambdaIntegration } from "aws-cdk-lib/aws-apigateway";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
@@ -6,14 +7,17 @@ import { Runtime, Tracing } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import { join } from "path";
+import { capitalizeFirstLetter } from "../Utils";
 
-interface LambdaStackProps extends StackProps {
+interface LambdaStackProps extends IAppStackProps {
 	itemsTable: ITable,
 	bidsTable: ITable,
-	usersTable: ITable
+	usersTable: ITable,
 }
 
 export class LambdaStack extends Stack {
+	private suffix: string;
+
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
 	public readonly createItemLambdaIntegration: LambdaIntegration;
 	public readonly getUserLambdaIntegration: LambdaIntegration;
@@ -28,6 +32,8 @@ export class LambdaStack extends Stack {
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
 
+		this.suffix = capitalizeFirstLetter(props.stageConfig.stageName);
+
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
 		this.createItemLambdaIntegration = new LambdaIntegration(this.createCreateItemLambda(props));
@@ -41,7 +47,7 @@ export class LambdaStack extends Stack {
 	}
 
 	private getLambdaRuntime(name: string, props: NodejsFunctionProps) {
-		return new NodejsFunction(this, name, {
+		return new NodejsFunction(this, name + this.suffix, {
 			runtime: Runtime.NODEJS_16_X,
 			handler: "handler",
 			tracing: Tracing.ACTIVE,

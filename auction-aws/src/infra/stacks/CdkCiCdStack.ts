@@ -3,23 +3,24 @@ import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from "aws-
 import { Construct } from "constructs";
 import { PipelineStage } from "./../stages/PipelineStage";
 import { capitalizeFirstLetter } from "../Utils";
-import { IAuctionStages } from "@/src/types";
+import { IAuctionStageConfig } from "../../types";
 
 interface CdkCicdStackProps extends cdk.StackProps {
-	branch: string;
-	stageName: IAuctionStages;
 	repoString: string;
 	appRoot: string;
+	stageConfig: IAuctionStageConfig;
 }
 
 export class CdkCicdStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props: CdkCicdStackProps) {
 		super(scope, id, props);
 
-		const pipeline = new CodePipeline(this, "AuctionPipeline", {
-			pipelineName: "AuctionPipeline",
+		const { stageName, branch } = props.stageConfig;
+
+		const pipeline = new CodePipeline(this, `AuctionPipeline${capitalizeFirstLetter(stageName)}`, {
+			pipelineName: `AuctionPipeline${capitalizeFirstLetter(stageName)}`,
 			synth: new ShellStep("Synth", {
-				input: CodePipelineSource.gitHub(props.repoString, props.branch),
+				input: CodePipelineSource.gitHub(props.repoString, branch),
 				commands: [
 					`cd ${props.appRoot}`,
 					"npm ci",
@@ -29,9 +30,9 @@ export class CdkCicdStack extends cdk.Stack {
 			})
 		});
 
-		const stage = pipeline.addStage(new PipelineStage(this, `AuctionPipeline${capitalizeFirstLetter(props.stageName)}`, {
+		const stage = pipeline.addStage(new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
 			env: props.env,
-			stageName: props.stageName,
+			stageConfig: props.stageConfig
 		}));
 
 		stage.addPre(new CodeBuildStep("unit-test", {

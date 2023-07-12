@@ -3,6 +3,7 @@ import { AttributeType, ITable, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { getSuffixFromStack } from "../Utils";
 import { Bucket, HttpMethods, IBucket, ObjectOwnership } from "aws-cdk-lib/aws-s3";
+import { IAppStackProps } from "../../types";
 
 export class DataStack extends Stack {
 	public readonly itemsTable: ITable;
@@ -10,17 +11,19 @@ export class DataStack extends Stack {
 	public readonly usersTable: ITable;
 	public readonly photosBucket: IBucket;
 
-	constructor(scope: Construct, id: string, props?: StackProps) {
+	constructor(scope: Construct, id: string, props: IAppStackProps) {
 		super(scope, id, props);
 
 		const suffix = getSuffixFromStack(this);
+
+		const { stageName } = props.stageConfig;
 
 		this.itemsTable = new Table(this, "ItemsTable", {
 			partitionKey: {
 				name: "itemId",
 				type: AttributeType.STRING
 			},
-			tableName: `ItemsTable-${suffix}`
+			tableName: `ItemsTable-${stageName}-${suffix}`
 		});
 
 		this.bidsTable = new Table(this, "BidsTable", {
@@ -28,7 +31,7 @@ export class DataStack extends Stack {
 				name: "bidId",
 				type: AttributeType.STRING
 			},
-			tableName: `BidsRecordTable-${suffix}`
+			tableName: `BidsRecordTable-${stageName}-${suffix}`
 		});
 
 		this.usersTable = new Table(this, "UsersTable", {
@@ -36,12 +39,12 @@ export class DataStack extends Stack {
 				name: "id",
 				type: AttributeType.STRING
 			},
-			tableName: `UsersTable-${suffix}`
+			tableName: `UsersTable-${stageName}-${suffix}`
 		});
 
 
 		this.photosBucket = new Bucket(this, "AuctionPhotos", {
-			bucketName: `auction-photos-${suffix}`,
+			bucketName: `auction-photos-${stageName}-${suffix}`,
 			cors: [
 				{
 					allowedMethods: [

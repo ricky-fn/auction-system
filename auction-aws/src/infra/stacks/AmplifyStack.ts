@@ -1,3 +1,4 @@
+import { IAuctionStageConfig } from "./../../types/app";
 import { App } from "@aws-cdk/aws-amplify-alpha";
 import { aws_iam, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
 import { BuildSpec } from "aws-cdk-lib/aws-codebuild";
@@ -9,29 +10,20 @@ import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from "
 import { environmentVariables } from "../../environmentVariables";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 
+interface IAmplifyStackProps extends StackProps {
+	appStageConfig: IAuctionStageConfig[];
+}
 
 // todo export domain names
 // todo create staging branch
 export class AmplifyStack extends Stack {
 	public amplifyApp: App;
-	public prodDomain: string;
-	public devDomain: string;
-	constructor(scope: Construct, id: string, props?: StackProps) {
+	constructor(scope: Construct, id: string, props: IAmplifyStackProps) {
 		super(scope, id, props);
 
 		this.amplifyApp = this.createAmplifyApp();
 
-		this.createBranches();
-
-		new StringParameter(this, "prod-domain", {
-			parameterName: "prod-domain",
-			stringValue: this.prodDomain,
-		});
-
-		new StringParameter(this, "dev-domain", {
-			parameterName: "dev-domain",
-			stringValue: this.devDomain,
-		});
+		this.createBranches(props.appStageConfig);
 
 		new AwsCustomResource(this, "aws-custom", {
 			onCreate: {
@@ -51,23 +43,21 @@ export class AmplifyStack extends Stack {
 			}),
 		});
 	}
-	private createBranches(): void {
-		const mainBranch = this.amplifyApp.addBranch("main", {
-			autoBuild: false, // set to true to automatically build the app on new pushes
-			stage: "PRODUCTION",
+	private createBranches(appStageConfig: IAuctionStageConfig[]): void {
+		appStageConfig.forEach((stageConfig) => {
+			const branch = this.amplifyApp.addBranch(stageConfig.branch, {
+				autoBuild: false, // set to true to automatically build the app on new pushes
+				stage: stageConfig.stageName,
+				performanceMode: stageConfig.stageName === "dev"
+			});
+
+			const branchDomain = `${branch.branchName}.${this.amplifyApp.defaultDomain}`;
+
+			new StringParameter(this, stageConfig.stageDomainParamName, {
+				parameterName: stageConfig.stageDomainParamName,
+				stringValue: branchDomain,
+			});
 		});
-
-		const devBranch = this.amplifyApp.addBranch("dev", {
-			autoBuild: false, // set to true to automatically build the app on new pushes
-			performanceMode: true,
-			// todo add build spec
-		});
-
-		const mainBranchDomain = `${mainBranch.branchName}.${this.amplifyApp.defaultDomain}`;
-		const devBranchDomain = `${devBranch.branchName}.${this.amplifyApp.defaultDomain}`;
-
-		this.prodDomain = mainBranchDomain;
-		this.devDomain = devBranchDomain;
 	}
 	private createAmplifyApp(): App {
 		const amplifyRole = this.createAmplifyRole();

@@ -1,6 +1,8 @@
 import { App, StackProps } from "aws-cdk-lib";
 import { AmplifyStack } from "./stacks/AmplifyStack";
 import { CdkCicdStack } from "./stacks/CdkCiCdStack";
+import { IAuctionStageConfig } from "../types";
+import { capitalizeFirstLetter } from "./Utils";
 
 const app = new App({
 	context: {
@@ -8,22 +10,39 @@ const app = new App({
 	}
 });
 
+const repoString = "ricky-fn/auction-system";
+const appRoot = "auction-aws";
+
+const appStageConfig: IAuctionStageConfig[] = [
+	{
+		branch: "main",
+		stageName: "prod",
+		stageDomainParamName: "prod-domain",
+	},
+	{
+		branch: "dev",
+		stageName: "dev",
+		stageDomainParamName: "dev-domain",
+	},
+];
+
 const stackProps: StackProps = {
 	env: {
 		region: app.node.tryGetContext("region")
 	},
 };
 
-const amplifyStack = new AmplifyStack(app, "AuctionAmplifyStack", stackProps);
-
-const repoString = "ricky-fn/auction-system";
-const appRoot = "auction-aws";
-
-new CdkCicdStack(app, "AuctionProdCdkCiCdStack", {
+new AmplifyStack(app, "AuctionAmplifyStack", {
 	...stackProps,
-	branch: "main",
-	stageName: "prod",
-	repoString,
-	appRoot,
+	appStageConfig
+});
+
+appStageConfig.forEach((stageConfig) => {
+	new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
+		...stackProps,
+		repoString,
+		appRoot,
+		stageConfig
+	});
 });
 
