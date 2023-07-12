@@ -19,11 +19,11 @@ const appStageConfig: IAuctionStageConfig[] = [
 		stageName: "PRODUCTION",
 		stageDomainParamName: "prod-domain",
 	},
-	{
-		branch: "dev",
-		stageName: "DEVELOPMENT",
-		stageDomainParamName: "dev-domain",
-	},
+	// {
+	// 	branch: "dev",
+	// 	stageName: "DEVELOPMENT",
+	// 	stageDomainParamName: "dev-domain",
+	// },
 ];
 
 const stackProps: StackProps = {
