@@ -1,5 +1,6 @@
 import { StackProps } from "aws-cdk-lib";
 
+// reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-amplify-branch.html
 export type IAuctionStages = "PRODUCTION" | "BETA" | "DEVELOPMENT" | "EXPERIMENTAL" | "PULL_REQUEST"
 
 export type IAuctionStageConfig = {

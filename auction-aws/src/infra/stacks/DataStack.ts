@@ -44,7 +44,7 @@ export class DataStack extends Stack {
 
 
 		this.photosBucket = new Bucket(this, "AuctionPhotos", {
-			bucketName: `auction-photos-${suffix}`,
+			bucketName: `auction-photos-${stageName.toLowerCase()}`,
 			cors: [
 				{
 					allowedMethods: [
