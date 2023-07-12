@@ -25,8 +25,8 @@ export class AuthStack extends Stack {
 		super(scope, id, props);
 
 		this.createUserPool();
-		this.createUserPoolClient(props.stageConfig);
 		this.createGoogleIdentityPool();
+		this.createUserPoolClient(props.stageConfig);
 		this.createAuthTriggers(props);
 		this.createIdentityPool();
 		this.createRoles(props.photosBucket);
