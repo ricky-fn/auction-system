@@ -21,7 +21,7 @@ export class CdkCicdStack extends cdk.Stack {
 			synth: new ShellStep("Synth", {
 				input: CodePipelineSource.gitHub(props.repoString, props.branch),
 				commands: [
-					`cd ${props.appRoot}}`,
+					`cd ${props.appRoot}`,
 					"npm ci",
 					"npx cdk synth"
 				],
