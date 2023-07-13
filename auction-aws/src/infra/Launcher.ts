@@ -15,11 +15,11 @@ const repoString = "ricky-fn/auction-system";
 const appRoot = "auction-aws";
 
 const appStageConfig: IAuctionStageConfig[] = [
-	// {
-	// 	branch: "main",
-	// 	stageName: "PRODUCTION",
-	// 	stageDomainParamName: "prod-domain",
-	// },
+	{
+		branch: "beta",
+		stageName: "BETA",
+		stageDomainParamName: "beta-domain",
+	},
 	{
 		branch: "dev",
 		stageName: "DEVELOPMENT",
@@ -39,16 +39,16 @@ new AmplifyStack(app, "AuctionAmplifyStack", {
 });
 
 appStageConfig.forEach((stageConfig) => {
-	if (stageConfig.stageName === "PRODUCTION") {
+	if (stageConfig.stageName === "DEVELOPMENT") {
+		createCloudformationStacks(app, {
+			...stackProps,
+			stageConfig
+		});
+	} else {
 		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
 			...stackProps,
 			repoString,
 			appRoot,
-			stageConfig
-		});
-	} else if (stageConfig.stageName === "DEVELOPMENT") {
-		createCloudformationStacks(app, {
-			...stackProps,
 			stageConfig
 		});
 	}

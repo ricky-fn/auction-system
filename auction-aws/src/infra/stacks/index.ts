@@ -6,7 +6,7 @@ import { ApiStack } from "./ApiStack";
 import { ScheduleStack } from "./ScheduleStack";
 import { Construct } from "constructs";
 
-const createCloudformationStacks = (scope: Construct, props: any): { [key: string]: IStackCfnOutputObject } => {
+const createCloudformationStacks = (scope: Construct, props: any): { updateEnvVariableEndpoint: string, assets: { [key: string]: IStackCfnOutputObject } } => {
 	const stackProps: IAppStackProps = {
 		env: {
 			region: props.env.region,
@@ -44,11 +44,14 @@ const createCloudformationStacks = (scope: Construct, props: any): { [key: strin
 	});
 
 	return {
-		[dataStack.stackId]: dataStack.envFromCfnOutputs,
-		[lambdaStack.stackId]: lambdaStack.envFromCfnOutputs,
-		[authStack.stackId]: authStack.envFromCfnOutputs,
-		[apiStack.stackId]: apiStack.envFromCfnOutputs,
-		[scheduleStack.stackId]: scheduleStack.envFromCfnOutputs,
+		updateEnvVariableEndpoint: apiStack.getEnvFromCfnOutputValue("UpdateEnvVariablesEndpoint"),
+		assets: {
+			[dataStack.stackId]: dataStack.envFromCfnOutputs,
+			[lambdaStack.stackId]: lambdaStack.envFromCfnOutputs,
+			[authStack.stackId]: authStack.envFromCfnOutputs,
+			[apiStack.stackId]: apiStack.envFromCfnOutputs,
+			[scheduleStack.stackId]: scheduleStack.envFromCfnOutputs,
+		}
 	};
 };
 

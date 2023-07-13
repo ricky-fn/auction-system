@@ -2,7 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
 import { PipelineStage } from "./../stages/PipelineStage";
-import { capitalizeFirstLetter } from "../Utils";
+import { capitalizeFirstLetter, convertObjectToString, flattenObject } from "../Utils";
 import { IAuctionStageConfig } from "../../types";
 
 interface CdkCicdStackProps extends cdk.StackProps {
@@ -45,11 +45,18 @@ export class CdkCicdStack extends cdk.Stack {
 			]
 		}));
 
+		console.log(flattenObject(stage.stackCfnOutputs));
+		console.log(convertObjectToString(stage.stackCfnOutputs));
 		pipelineStage.addPost(new ShellStep("Output", {
 			envFromCfnOutputs: {
-				// ! todo convert the cfn outputs here
+				...flattenObject(stage.stackCfnOutputs)
 			},
-			commands: ["curl -Ssf $URL"],
+			commands: [`
+				curl --header "Content-Type: application/json"
+					--request POST
+					--data {"params":'${convertObjectToString(stage.stackCfnOutputs)}}'
+				${stage.updateEnvVariableEndpoint}"
+			`]
 		}));
 	}
 }

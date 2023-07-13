@@ -19,3 +19,39 @@ export function createEnvCfnOutputs(scope: Construct, id: string, props: CfnOutp
 		[id]: output,
 	};
 }
+
+type NestedObject = {
+	[key: string]: any;
+};
+
+export function flattenObject<T extends NestedObject>(obj: T): Record<string, any> {
+	const flattenedObj: Record<string, any> = {};
+
+	for (const key in obj) {
+		if (typeof obj[key] === "object" && obj[key] !== null) {
+			for (const nestedKey in obj[key]) {
+				flattenedObj[nestedKey] = obj[key][nestedKey];
+			}
+		}
+	}
+
+	return flattenedObj;
+}
+
+export function convertObjectToString(obj: NestedObject): string {
+	const convertedObj = {};
+
+	for (const key in obj) {
+		if (typeof obj[key] === "object" && obj[key] !== null) {
+			const nestedObj = {};
+
+			for (const nestedKey in obj[key]) {
+				nestedObj[nestedKey] = `$${nestedKey}`;
+			}
+
+			convertedObj[key] = nestedObj;
+		}
+	}
+
+	return JSON.stringify(convertedObj);
+}

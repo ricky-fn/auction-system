@@ -78,6 +78,7 @@ export class ApiStack extends BaseStack {
 			}
 		}); // attach cors to apigateway root
 		updateEnvVariablesApiResource.addMethod("POST", props.updateEnvVariablesLambdaIntegration);
+		this.addEnvFromCfnOutputs("UpdateEnvVariablesEndpoint", api.url + "/update-env-variables");
 
 		this.addEnvFromCfnOutputs("AuctionApiUrl", api.url);
 	}

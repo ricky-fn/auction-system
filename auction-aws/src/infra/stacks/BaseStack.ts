@@ -13,6 +13,22 @@ class BaseStack extends Stack {
 			value
 		} as CfnOutputProps);
 	}
+
+	public getEnvFromCfnOutput(id: string): CfnOutput {
+		if (!this.envFromCfnOutputs[id]) {
+			return;
+		}
+
+		return this.envFromCfnOutputs[id];
+	}
+
+	public getEnvFromCfnOutputValue(id: string): string {
+		if (!this.envFromCfnOutputs[id]) {
+			return;
+		}
+
+		return this.envFromCfnOutputs[id].value;
+	}
 }
 
 export default BaseStack;

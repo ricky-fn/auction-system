@@ -1,6 +1,6 @@
 import { Stage, StageProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { IAuctionStageConfig, IAppStackProps } from "../../types";
+import { IAuctionStageConfig, IAppStackProps, IStackCfnOutputObject } from "../../types";
 import createCloudformationStacks from "../stacks";
 
 interface PipelineStageProps extends StageProps {
@@ -8,6 +8,8 @@ interface PipelineStageProps extends StageProps {
 }
 
 export class PipelineStage extends Stage {
+	public readonly stackCfnOutputs: { [key: string]: IStackCfnOutputObject };
+	public readonly updateEnvVariableEndpoint: string;
 	constructor(scope: Construct, id: string, props: PipelineStageProps) {
 		super(scope, id, props);
 
@@ -18,6 +20,9 @@ export class PipelineStage extends Stage {
 			stageConfig: props.stageConfig,
 		};
 
-		createCloudformationStacks(this, stackProps);
+		const result = createCloudformationStacks(this, stackProps);
+
+		this.updateEnvVariableEndpoint = result.updateEnvVariableEndpoint;
+		this.stackCfnOutputs = result.assets;
 	}
 }

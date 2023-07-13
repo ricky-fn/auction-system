@@ -21,4 +21,5 @@ export interface ApiRequestParams {
   'deposit': { amount: number };
   'bid-item': { itemId: string, bidAmount: number };
   'get-total-bid-amount': { itemId: string };
+  'update-amplify-env': { params: { [key: string]: string } };
 }
