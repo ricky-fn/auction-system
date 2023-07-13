@@ -4,6 +4,7 @@ import { Construct } from "constructs";
 import { PipelineStage } from "./../stages/PipelineStage";
 import { capitalizeFirstLetter, convertObjectToString, flattenObject } from "../Utils";
 import { IAuctionStageConfig } from "../../types";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
 
 interface CdkCicdStackProps extends cdk.StackProps {
 	repoString: string;
@@ -30,9 +31,14 @@ export class CdkCicdStack extends cdk.Stack {
 			})
 		});
 
+		new StringParameter(this, `stage-${props.stageConfig.stageName}-config`, {
+			parameterName: `stage-${props.stageConfig.stageName}-config`,
+			stringValue: JSON.stringify(props.stageConfig),
+		});
+
 		const stage = new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
 			env: props.env,
-			stageConfig: props.stageConfig
+			stageName,
 		});
 
 		const pipelineStage = pipeline.addStage(stage);
@@ -45,8 +51,6 @@ export class CdkCicdStack extends cdk.Stack {
 			]
 		}));
 
-		console.log(flattenObject(stage.stackCfnOutputs));
-		console.log(convertObjectToString(stage.stackCfnOutputs));
 		pipelineStage.addPost(new ShellStep("Output", {
 			envFromCfnOutputs: {
 				...flattenObject(stage.stackCfnOutputs)

@@ -58,7 +58,7 @@ export class AmplifyStack extends Stack {
 				stringValue: branchDomain,
 			});
 
-			new StringParameter(this, "amplify-branch-arn", {
+			new StringParameter(this, `auction-amplify-${stageConfig.branch}-branch-arn`, {
 				parameterName: `auction-amplify-${stageConfig.branch}-branch-arn`,
 				stringValue: branch.arn,
 			});
