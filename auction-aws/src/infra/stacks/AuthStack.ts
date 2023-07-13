@@ -1,11 +1,12 @@
-import { IAppStackProps, IAuctionStageConfig } from "../../types";
-import { Aws, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
+import { Aws } from "aws-cdk-lib";
+import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { IBucket } from "aws-cdk-lib/aws-s3";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
+import BaseStack from "./BaseStack";
+import { IAppStackProps, IAuctionStageConfig, IStackCfnOutputObject } from "../../types";
 
 interface AuthStackProps extends IAppStackProps {
 	userSignUpLambda: NodejsFunction
@@ -13,18 +14,20 @@ interface AuthStackProps extends IAppStackProps {
 	photosBucket: IBucket
 }
 
-export class AuthStack extends Stack {
+export class AuthStack extends BaseStack {
+	public envFromCfnOutputs: IStackCfnOutputObject;
 
 	public userPool: UserPool;
 	private userPoolClient: UserPoolClient;
 	private identityPool: CfnIdentityPool;
 	private authenticatedRole: Role;
 	private unAuthenticatedRole: Role;
+	private googleIdentityProvider: UserPoolIdentityProviderGoogle;
 
 	constructor(scope: Construct, id: string, props: AuthStackProps) {
 		super(scope, id, props);
 
-		this.createUserPool();
+		this.createUserPool(props.stageConfig);
 		this.createGoogleIdentityPool();
 		this.createUserPoolClient(props.stageConfig);
 		this.createAuthTriggers(props);
@@ -32,12 +35,11 @@ export class AuthStack extends Stack {
 		this.createRoles(props.photosBucket);
 		this.attachRoles(); // attach roles to the identity pool
 
-		new CfnOutput(this, "AuctionAuthRegion", {
-			value: Aws.REGION
-		});
+
+		this.addEnvFromCfnOutputs("AuctionAuthRegion", Aws.REGION);
 	}
 
-	private createUserPool() {
+	private createUserPool(stageConfig: IAuctionStageConfig) {
 		this.userPool = new UserPool(this, "AuctionUserPool", {
 			selfSignUpEnabled: true,
 			signInAliases: {
@@ -47,17 +49,13 @@ export class AuthStack extends Stack {
 
 		const CognitoDomain = this.userPool.addDomain("AuctionUserPoolDomain", {
 			cognitoDomain: {
-				domainPrefix: "auction"
+				domainPrefix: `auction-${stageConfig.stageName.toLowerCase()}`
 			}
 		});
 
-		new CfnOutput(this, "AuctionUserPoolDomain", {
-			value: `${CognitoDomain.domainName}.auth.${Aws.REGION}.amazoncognito.com`
-		});
+		this.addEnvFromCfnOutputs("AuctionUserPoolDomain", `${CognitoDomain.domainName}.auth.${Aws.REGION}.amazoncognito.com`);
 
-		new CfnOutput(this, "AuctionUserPoolId", {
-			value: this.userPool.userPoolId
-		});
+		this.addEnvFromCfnOutputs("AuctionUserPoolId", this.userPool.userPoolId);
 	}
 	private createUserPoolClient(stageConfig: IAuctionStageConfig) {
 		const stageDomain = StringParameter.fromStringParameterAttributes(this, "StageDomain", {
@@ -89,12 +87,11 @@ export class AuthStack extends Stack {
 			},
 			supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE, UserPoolClientIdentityProvider.COGNITO]
 		});
-		new CfnOutput(this, "AuctionUserPoolClientSecret", {
-			value: this.userPoolClient.userPoolClientSecret.toString()
-		});
-		new CfnOutput(this, "AuctionUserPoolClientId", {
-			value: this.userPoolClient.userPoolClientId
-		});
+
+		this.userPoolClient.node.addDependency(this.googleIdentityProvider);
+
+		this.addEnvFromCfnOutputs("AuctionUserPoolClientSecret", this.userPoolClient.userPoolClientSecret.toString());
+		this.addEnvFromCfnOutputs("AuctionUserPoolClientId", this.userPoolClient.userPoolClientId);
 	}
 
 	private createAuthTriggers(props: AuthStackProps) {
@@ -112,7 +109,7 @@ export class AuthStack extends Stack {
 
 	// reference: https://aws-cdk.com/cognito-google
 	private createGoogleIdentityPool() {
-		new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
+		this.googleIdentityProvider = new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
 			userPool: this.userPool,
 			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com", // ! read from env file
 			clientSecret: "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", // ! read from env file
@@ -138,9 +135,7 @@ export class AuthStack extends Stack {
 				providerName: this.userPool.userPoolProviderName
 			}]
 		});
-		new CfnOutput(this, "AuctionIdentityPoolId", {
-			value: this.identityPool.ref // output the identity pool id
-		});
+		this.addEnvFromCfnOutputs("AuctionIdentityPoolId", this.identityPool.ref);
 	}
 
 	private createRoles(photosBucket: IBucket) {

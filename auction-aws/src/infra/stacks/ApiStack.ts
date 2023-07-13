@@ -5,6 +5,7 @@ import { IUserPool } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 import { capitalizeFirstLetter } from "../Utils";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import BaseStack from "./BaseStack";
 
 interface ApiStackProps extends IAppStackProps {
 	getItemsLambdaIntegration: LambdaIntegration,
@@ -13,10 +14,11 @@ interface ApiStackProps extends IAppStackProps {
 	depositLambdaIntegration: LambdaIntegration,
 	bidItemLambdaIntegration: LambdaIntegration,
 	getTotalBidAmountLambdaIntegration: LambdaIntegration,
+	updateEnvVariablesLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
 }
 
-export class ApiStack extends Stack {
+export class ApiStack extends BaseStack {
 
 	constructor(scope: Construct, id: string, props: ApiStackProps) {
 		super(scope, id, props);
@@ -41,8 +43,8 @@ export class ApiStack extends Stack {
 			parameterName: props.stageConfig.stageDomainParamName
 		}).stringValue;
 
-		const origins = props.stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000/"] : [];
-		origins.push(`https://${stageDomain}/`);
+		const origins = props.stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000"] : [];
+		origins.push(`https://${stageDomain}`);
 
 		const optionsWithCors: ResourceOptions = { // define cors for all methods and origins
 			defaultCorsPreflightOptions: {
@@ -69,8 +71,14 @@ export class ApiStack extends Stack {
 		const getTotalBidAmountApiResource = api.root.addResource("get-total-bid-amount", optionsWithCors); // attach cors to apigateway root
 		getTotalBidAmountApiResource.addMethod("GET", props.getTotalBidAmountLambdaIntegration, optionsWithAuth);
 
-		new CfnOutput(this, "AuctionApiUrl", {
-			value: api.url
-		});
+		const updateEnvVariablesApiResource = api.root.addResource("update-env-variables", {
+			defaultCorsPreflightOptions: {
+				allowOrigins: Cors.ALL_ORIGINS, // todo change to CodePipeline domain
+				allowMethods: Cors.ALL_METHODS
+			}
+		}); // attach cors to apigateway root
+		updateEnvVariablesApiResource.addMethod("POST", props.updateEnvVariablesLambdaIntegration);
+
+		this.addEnvFromCfnOutputs("AuctionApiUrl", api.url);
 	}
 }

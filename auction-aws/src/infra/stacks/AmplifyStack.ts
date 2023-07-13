@@ -57,6 +57,11 @@ export class AmplifyStack extends Stack {
 				parameterName: stageConfig.stageDomainParamName,
 				stringValue: branchDomain,
 			});
+
+			new StringParameter(this, "amplify-branch-arn", {
+				parameterName: `auction-amplify-${stageConfig.branch}-branch-arn`,
+				stringValue: branch.arn,
+			});
 		});
 	}
 	private createAmplifyApp(): App {
@@ -74,6 +79,12 @@ export class AmplifyStack extends Stack {
 			autoBranchDeletion: true,
 			environmentVariables,
 		});
+
+		new StringParameter(this, "amplify-app-id", {
+			parameterName: "auction-amplify-app-id",
+			stringValue: amplifyApp.appId,
+		});
+
 		return amplifyApp;
 	}
 	private createAmplifyRole(): Role {
@@ -118,6 +129,7 @@ export class AmplifyStack extends Stack {
 									// Allow Next.js to access environment variables
 									// See https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
 									`env | grep -E '${Object.keys(environmentVariables).join("|")}' >> .env.production`,
+									"echo $CDK_RESOURCES >> ../auction-shared/outputs.json",
 									// Build Next.js app
 									"npx next build --no-lint",
 								],

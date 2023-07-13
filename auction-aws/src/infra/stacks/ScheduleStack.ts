@@ -5,12 +5,13 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { IAppStackProps } from "../../types";
 import { capitalizeFirstLetter } from "../Utils";
+import BaseStack from "./BaseStack";
 
 interface ScheduleStackProps extends IAppStackProps {
 	checkStatusLambda: NodejsFunction,
 }
 
-export class ScheduleStack extends Stack {
+export class ScheduleStack extends BaseStack {
 	private rule: Rule;
 	private suffix: string;
 	constructor(scope: Construct, id: string, props: ScheduleStackProps) {

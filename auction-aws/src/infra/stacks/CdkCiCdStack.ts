@@ -30,17 +30,26 @@ export class CdkCicdStack extends cdk.Stack {
 			})
 		});
 
-		const stage = pipeline.addStage(new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
+		const stage = new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
 			env: props.env,
 			stageConfig: props.stageConfig
-		}));
+		});
 
-		stage.addPre(new CodeBuildStep("unit-test", {
+		const pipelineStage = pipeline.addStage(stage);
+
+		pipelineStage.addPre(new CodeBuildStep("unit-test", {
 			commands: [
 				`cd ${props.appRoot}`,
 				"npm ci",
 				"npm run test",
 			]
+		}));
+
+		pipelineStage.addPost(new ShellStep("Output", {
+			envFromCfnOutputs: {
+				// ! todo convert the cfn outputs here
+			},
+			commands: ["curl -Ssf $URL"],
 		}));
 	}
 }

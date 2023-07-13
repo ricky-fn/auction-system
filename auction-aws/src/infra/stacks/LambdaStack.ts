@@ -1,5 +1,4 @@
 import { IAppStackProps, IAuctionStages } from "../../types";
-import { Stack, StackProps } from "aws-cdk-lib";
 import { LambdaIntegration } from "aws-cdk-lib/aws-apigateway";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
@@ -8,6 +7,8 @@ import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-node
 import { Construct } from "constructs";
 import { join } from "path";
 import { capitalizeFirstLetter } from "../Utils";
+import BaseStack from "./BaseStack";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
 
 interface LambdaStackProps extends IAppStackProps {
 	itemsTable: ITable,
@@ -15,7 +16,7 @@ interface LambdaStackProps extends IAppStackProps {
 	usersTable: ITable,
 }
 
-export class LambdaStack extends Stack {
+export class LambdaStack extends BaseStack {
 	private suffix: string;
 
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
@@ -24,6 +25,7 @@ export class LambdaStack extends Stack {
 	public readonly depositLambdaIntegration: LambdaIntegration;
 	public readonly bidItemLambdaIntegration: LambdaIntegration;
 	public readonly getTotalBidAmountLambdaIntegration: LambdaIntegration;
+	public readonly updateEnvVariablesLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
@@ -40,6 +42,7 @@ export class LambdaStack extends Stack {
 		this.depositLambdaIntegration = new LambdaIntegration(this.createDepositLambda(props));
 		this.bidItemLambdaIntegration = new LambdaIntegration(this.createBidItemLambda(props));
 		this.getTotalBidAmountLambdaIntegration = new LambdaIntegration(this.createGetTotalBidAmountLambda(props));
+		this.updateEnvVariablesLambdaIntegration = new LambdaIntegration(this.createUpdateEnvVariablesLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -258,5 +261,35 @@ export class LambdaStack extends Stack {
 		}));
 
 		return getTotalBidAmountLambda;
+	}
+
+	private createUpdateEnvVariablesLambda(props: LambdaStackProps) {
+		const amplifyBranchArn = StringParameter.fromStringParameterAttributes(this, "amplify-branch-arn", {
+			parameterName: `auction-amplify-${props.stageConfig.branch}-branch-arn`
+		}).stringValue;
+
+		const amplifyAppId = StringParameter.fromStringParameterAttributes(this, "amplify-app-id", {
+			parameterName: "auction-amplify-app-id"
+		}).stringValue;
+
+		const updateEnvVariablesLambda = this.getLambdaRuntime("UpdateEnvVariablesLambda", {
+			entry: (join(__dirname, "..", "..", "services", "amplify", "updateEnvVariables.ts")),
+			environment: {
+				BRANCH: props.stageConfig.branch,
+				REGION: props.env.region,
+				APP_ID: amplifyAppId,
+			}
+		});
+
+		updateEnvVariablesLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [amplifyBranchArn],
+			actions: [
+				"amplify:GetBranch",
+				"amplify:UpdateBranch",
+			]
+		}));
+
+		return updateEnvVariablesLambda;
 	}
 }

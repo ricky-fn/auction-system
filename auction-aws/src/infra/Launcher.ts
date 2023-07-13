@@ -3,6 +3,7 @@ import { AmplifyStack } from "./stacks/AmplifyStack";
 import { CdkCicdStack } from "./stacks/CdkCiCdStack";
 import { IAuctionStageConfig } from "../types";
 import { capitalizeFirstLetter } from "./Utils";
+import createCloudformationStacks from "./stacks";
 
 const app = new App({
 	context: {
@@ -14,16 +15,16 @@ const repoString = "ricky-fn/auction-system";
 const appRoot = "auction-aws";
 
 const appStageConfig: IAuctionStageConfig[] = [
-	{
-		branch: "main",
-		stageName: "PRODUCTION",
-		stageDomainParamName: "prod-domain",
-	},
 	// {
-	// 	branch: "dev",
-	// 	stageName: "DEVELOPMENT",
-	// 	stageDomainParamName: "dev-domain",
+	// 	branch: "main",
+	// 	stageName: "PRODUCTION",
+	// 	stageDomainParamName: "prod-domain",
 	// },
+	{
+		branch: "dev",
+		stageName: "DEVELOPMENT",
+		stageDomainParamName: "dev-domain",
+	}
 ];
 
 const stackProps: StackProps = {
@@ -38,11 +39,17 @@ new AmplifyStack(app, "AuctionAmplifyStack", {
 });
 
 appStageConfig.forEach((stageConfig) => {
-	new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
-		...stackProps,
-		repoString,
-		appRoot,
-		stageConfig
-	});
+	if (stageConfig.stageName === "PRODUCTION") {
+		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
+			...stackProps,
+			repoString,
+			appRoot,
+			stageConfig
+		});
+	} else if (stageConfig.stageName === "DEVELOPMENT") {
+		createCloudformationStacks(app, {
+			...stackProps,
+			stageConfig
+		});
+	}
 });
-

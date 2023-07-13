@@ -1,15 +1,16 @@
-import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
 import { AttributeType, ITable, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
-import { getSuffixFromStack } from "../Utils";
+import { createEnvCfnOutputs, getSuffixFromStack } from "../Utils";
 import { Bucket, HttpMethods, IBucket, ObjectOwnership } from "aws-cdk-lib/aws-s3";
-import { IAppStackProps } from "../../types";
+import { IAppStackProps, IStackCfnOutputObject } from "../../types";
+import BaseStack from "./BaseStack";
 
-export class DataStack extends Stack {
+export class DataStack extends BaseStack {
 	public readonly itemsTable: ITable;
 	public readonly bidsTable: ITable;
 	public readonly usersTable: ITable;
 	public readonly photosBucket: IBucket;
+	public envFromCfnOutputs: IStackCfnOutputObject;
 
 	constructor(scope: Construct, id: string, props: IAppStackProps) {
 		super(scope, id, props);
@@ -44,7 +45,7 @@ export class DataStack extends Stack {
 
 
 		this.photosBucket = new Bucket(this, "AuctionPhotos", {
-			bucketName: `auction-photos-${stageName.toLowerCase()}`,
+			bucketName: `auction-photos-${suffix}`,
 			cors: [
 				{
 					allowedMethods: [
@@ -64,8 +65,7 @@ export class DataStack extends Stack {
 				restrictPublicBuckets: false
 			}
 		});
-		new CfnOutput(this, "AuctionPhotosBucketName", {
-			value: this.photosBucket.bucketName
-		});
+
+		this.addEnvFromCfnOutputs("AuctionPhotosBucketName", this.photosBucket.bucketName);
 	}
 }
