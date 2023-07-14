@@ -8,8 +8,9 @@ dotenvExtended.load({
 });
 
 export default defineConfig({
+  env: { ...process.env },
   e2e: {
-    env: process.env
+    baseUrl: process.env.BASE_URL,
   },
   component: {
     devServer: {
