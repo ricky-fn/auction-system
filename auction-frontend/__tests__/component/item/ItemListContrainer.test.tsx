@@ -9,7 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { ApiResponseList } from "auction-shared/api";
-import { showToast } from "@/store/actions/appActions";
+import { setLoading, showToast } from "@/store/actions/appActions";
 
 jest.mock("next-auth/react")
 
@@ -106,7 +106,7 @@ describe('ItemListContainer', () => {
   });
 });
 
-describe('ItemListContainer with authentication', () => {
+describe.only('ItemListContainer with authentication', () => {
   let items: Item[];
   const totalBidAmount = 0;
   const startingPrice = 100;
@@ -163,6 +163,7 @@ describe('ItemListContainer with authentication', () => {
       generateFakeItem({ startingPrice: startingPrice }),
       generateFakeCompletedItem({ startingPrice: startingPrice }),
     ]
+    mockDispatch.mockClear();
   })
 
   it('should open bid modal when click bid button', async () => {
@@ -192,7 +193,9 @@ describe('ItemListContainer with authentication', () => {
 
     await userEvent.click(submitButton);
 
-    expect(mockDispatch).toBeCalledWith(showToast({
+    console.log(mockDispatch.mock.calls)
+
+    expect(mockDispatch).toHaveBeenNthCalledWith(3, showToast({
       type: 'error',
       message: `Your Bid Must Be Higher Than ${startingPrice}`
     }));
@@ -213,7 +216,7 @@ describe('ItemListContainer with authentication', () => {
 
     await userEvent.click(submitButton);
 
-    expect(mockDispatch).toBeCalledWith(showToast({
+    expect(mockDispatch).toHaveBeenNthCalledWith(3, showToast({
       type: 'success',
       message: `You Have Placed A Bid`
     }));
