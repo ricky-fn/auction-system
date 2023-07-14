@@ -1,18 +1,17 @@
-import * as cdk from "aws-cdk-lib";
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
 import { PipelineStage } from "./../stages/PipelineStage";
-import { capitalizeFirstLetter, convertObjectToString, flattenObject } from "../Utils";
+import { capitalizeFirstLetter } from "../Utils";
 import { IAuctionStageConfig } from "../../types";
-import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import { SecretValue, Stack, StackProps } from "aws-cdk-lib";
 
-interface CdkCicdStackProps extends cdk.StackProps {
+interface CdkCicdStackProps extends StackProps {
 	repoString: string;
 	appRoot: string;
 	stageConfig: IAuctionStageConfig;
 }
 
-export class CdkCicdStack extends cdk.Stack {
+export class CdkCicdStack extends Stack {
 	constructor(scope: Construct, id: string, props: CdkCicdStackProps) {
 		super(scope, id, props);
 
@@ -21,7 +20,9 @@ export class CdkCicdStack extends cdk.Stack {
 		const pipeline = new CodePipeline(this, `AuctionPipeline${capitalizeFirstLetter(stageName)}`, {
 			pipelineName: `AuctionPipeline${capitalizeFirstLetter(stageName)}`,
 			synth: new ShellStep("Synth", {
-				input: CodePipelineSource.gitHub(props.repoString, branch),
+				input: CodePipelineSource.gitHub(props.repoString, branch, {
+					authentication: SecretValue.secretsManager("GITHUB_TOKEN_KEY")
+				}),
 				commands: [
 					`cd ${props.appRoot}`,
 					"npm ci",
@@ -29,11 +30,6 @@ export class CdkCicdStack extends cdk.Stack {
 				],
 				primaryOutputDirectory: `${props.appRoot}/cdk.out`
 			})
-		});
-
-		new StringParameter(this, `stage-${props.stageConfig.stageName}-config`, {
-			parameterName: `stage-${props.stageConfig.stageName}-config`,
-			stringValue: JSON.stringify(props.stageConfig),
 		});
 
 		const stage = new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
