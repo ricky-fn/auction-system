@@ -2,7 +2,7 @@ import { generateFakeJWT } from 'auction-shared/mocks/fakeData/user'
 
 describe('Test the deposit workflow', () => {
   it('should navigate to home page if the user is not logged in', () => {
-    cy.visit('/protected/deposit')
+    cy.visit(Cypress.env("BASE_URL") + 'protected/deposit')
 
     cy.url().should('eq', Cypress.env("BASE_URL"))
   });
@@ -11,11 +11,11 @@ describe('Test the deposit workflow', () => {
     const userObj = generateFakeJWT();
     cy.login(userObj);
 
-    cy.intercept('POST', '/deposit', {
+    cy.intercept('POST', Cypress.env("BASE_URL") + 'deposit', {
       statusCode: 200,
     }).as('deposit')
 
-    cy.visit('/protected/deposit')
+    cy.visit(Cypress.env("BASE_URL") + 'protected/deposit')
 
     cy.get('[data-cy="amount-input"]').type('1000')
 

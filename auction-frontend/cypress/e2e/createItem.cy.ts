@@ -3,7 +3,7 @@ import { generateFakeItem } from 'auction-shared/mocks/fakeData/bid';
 import { generateFakeJWT } from 'auction-shared/mocks/fakeData/user'
 
 describe('Test the item creation workflow', () => {
-  const path = '/protected/create'
+  const path = Cypress.env("BASE_URL") + 'protected/create'
 
   it('should navigate to home page if the user is not logged in', () => {
     cy.visit(path)
@@ -30,7 +30,7 @@ describe('Test the item creation workflow', () => {
       })
     };
 
-    cy.intercept('POST', 'create-item', fakeResponse).as('create-item');
+    cy.intercept('POST', Cypress.env("BASE_URL") + 'create-item', fakeResponse).as('create-item');
 
     cy.visit(path);
 

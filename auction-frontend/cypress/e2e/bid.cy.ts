@@ -6,7 +6,7 @@ describe('Test the bidding workflow', () => {
   beforeEach(() => {
     const userObj = generateFakeJWT();
     cy.login(userObj);
-    cy.visit('/')
+    cy.visit(Cypress.env("BASE_URL"))
   })
 
   it('should show a modal when clicking on the bid button', () => {
@@ -18,7 +18,7 @@ describe('Test the bidding workflow', () => {
 
     cy.get('[data-cy="bid-amount-input"]').type('100')
 
-    cy.intercept('POST', process.env.BASE_URL + '/create-item', {
+    cy.intercept('POST', Cypress.env("BASE_URL") + 'create-item', {
       statusCode: 200,
       body: generateFakeItem()
     }).as('bid')
@@ -38,9 +38,9 @@ describe('Test the bidding workflow', () => {
       timestamp: Date.now(),
       data: 0
     }
-    cy.intercept('GET', '/get-total-bid-amount**', getTotalBidAmountResponse)
+    cy.intercept('GET', Cypress.env("BASE_URL") + 'get-total-bid-amount**', getTotalBidAmountResponse)
 
-    cy.intercept('POST', '/bid-item', {
+    cy.intercept('POST', Cypress.env("BASE_URL") + 'bid-item', {
       statusCode: 200,
       body: generateFakeItem()
     }).as('bid')
