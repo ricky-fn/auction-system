@@ -1,8 +1,8 @@
 [
 	{
-		"branch": "beta",
-		"stageName": "BETA",
-		"stageDomainParamName": "beta-domain"
+		"branch": "main",
+		"stageName": "PRODUCTION",
+		"stageDomainParamName": "prod-domain"
 	},
 	{
 		"branch": "dev",
