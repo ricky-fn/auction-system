@@ -1,10 +1,11 @@
 import { defineConfig } from "cypress";
-import dotenv from 'dotenv'
-import { resolve } from "path";
+import dotenvExtended from 'dotenv-extended';
 
-dotenv.config({
-  path: resolve(__dirname, '.env.test')
-})
+dotenvExtended.load({
+  path: '.env.test.local',
+  defaults: '.env.test',
+  silent: true,
+});
 
 export default defineConfig({
   e2e: {
