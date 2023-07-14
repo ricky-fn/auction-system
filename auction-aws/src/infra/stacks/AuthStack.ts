@@ -111,8 +111,9 @@ export class AuthStack extends BaseStack {
 	private createGoogleIdentityPool() {
 		this.googleIdentityProvider = new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
 			userPool: this.userPool,
-			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com", // ! read from env file
-			clientSecret: "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", // ! read from env file
+			// for security reasons, we should read these from ssm parameters
+			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com",
+			clientSecret: "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",
 			scopes: ["email", "openid", "profile"],
 			attributeMapping: {
 				email: ProviderAttribute.GOOGLE_EMAIL,
