@@ -19,9 +19,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
   }
   const handleSignIn = () => {
     if (user) return
-    signIn('cognito', {
-      callbackUrl: `${window.location.origin}/`,
-    })
+    signIn('cognito')
   }
   return (
     <>
@@ -32,11 +30,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <img
-                      className="w-17"
-                      src={Logo.src}
-                      alt="Jitera"
-                    />
+                    <img className="w-17" src={Logo.src} alt="Jitera" />
                   </div>
                 </div>
                 {user ? (
