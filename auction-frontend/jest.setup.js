@@ -9,7 +9,7 @@ import dotenvExtended from 'dotenv-extended';
 dotenvExtended.load({
   path: '.env.test.local',
   defaults: '.env.test',
-  silent: true,
+  overrideProcessEnv: true,
 });
 
 // src/setupTests.js
