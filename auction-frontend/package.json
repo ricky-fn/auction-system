@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:test": "export NODE_ENV=\"test\" && next build",
     "start": "next start",
+    "start:test": "export NODE_ENV=\"test\" && next start",
     "lint": "next lint",
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "e2e": "cross-env NODE_ENV=test start-server-and-test 'npm run dev' http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "cross-env NODE_ENV=test start-server-and-test dev http://localhost:3000 \"cypress run --e2e\""
+    "e2e:headless": "cross-env NODE_ENV=test start-server-and-test 'npm run start:test' http://localhost:3000 \"cypress run --e2e\""
   },
   "author": "",
   "license": "ISC",
