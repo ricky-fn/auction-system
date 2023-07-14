@@ -54,8 +54,6 @@ describe('ItemListContainer', () => {
       generateFakeItem(),
       generateFakeCompletedItem(),
     ]
-
-    renderWithProviders(<ItemListContainer items={items} />);
   })
 
   afterEach(() => {
@@ -63,6 +61,7 @@ describe('ItemListContainer', () => {
   });
 
   it('should render a tab with ongoing and completed', () => {
+    renderWithProviders(<ItemListContainer items={items} />);
 
     const ongoingTab = screen.getByRole('tab', { name: /ongoing/i });
     const completedTab = screen.getByRole('tab', { name: /completed/i });
@@ -72,6 +71,8 @@ describe('ItemListContainer', () => {
   });
 
   it('should render 2 ongoing items', () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const ongoingTabPanel = screen.getByRole('tabpanel', { name: /ongoing/i });
 
     const ongoingItems = ongoingTabPanel.querySelectorAll('table');
@@ -80,6 +81,8 @@ describe('ItemListContainer', () => {
   });
 
   it('should render 1 completed item', async () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const completedTab = screen.getByRole('tab', { name: /completed/i });
 
     await userEvent.click(completedTab);
@@ -92,6 +95,8 @@ describe('ItemListContainer', () => {
   });
 
   it('should redirect to login page when click bid button', async () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const bidButtons = screen.getAllByRole('button', { name: /bid/i });
 
     // click the first button
@@ -158,11 +163,11 @@ describe('ItemListContainer with authentication', () => {
       generateFakeItem({ startingPrice: startingPrice }),
       generateFakeCompletedItem({ startingPrice: startingPrice }),
     ]
-
-    renderWithProviders(<ItemListContainer items={items} />);
   })
 
   it('should open bid modal when click bid button', async () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const bidButtons = screen.getAllByRole('button', { name: /bid/i });
 
     await userEvent.click(bidButtons[0]);
@@ -173,6 +178,8 @@ describe('ItemListContainer with authentication', () => {
   });
 
   it('should dispatch error when bid amount is less than starting price', async () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const bidButtons = screen.getAllByRole('button', { name: /bid/i });
     const bidAmount = startingPrice - totalBidAmount - 1;
     await userEvent.click(bidButtons[0]);
@@ -192,6 +199,8 @@ describe('ItemListContainer with authentication', () => {
   });
 
   it('should dispatch success when bid amount is higher than starting price', async () => {
+    renderWithProviders(<ItemListContainer items={items} />);
+
     const bidButtons = screen.getAllByRole('button', { name: /bid/i });
     const bidAmount = startingPrice + 1;
     await userEvent.click(bidButtons[0]);
