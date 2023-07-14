@@ -1,0 +1,38 @@
+{
+  "AuctionDataStack": {
+    "ExportsOutputFnGetAttBidsTableE1AD1632Arn920A85E0": "arn:aws:dynamodb:ap-south-1:399759979072:table/bids-record-table-development-06409bed3a88",
+    "ExportsOutputFnGetAttItemsTable5AAC2C46ArnC2DB7822": "arn:aws:dynamodb:ap-south-1:399759979072:table/items-table-development-06409bed3a88",
+    "AuctionPhotosBucketName": "auction-photos-development-06409bed3a88",
+    "ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99": "arn:aws:dynamodb:ap-south-1:399759979072:table/users-table-development-06409bed3a88",
+    "ExportsOutputRefItemsTable5AAC2C4611DBACFF": "items-table-development-06409bed3a88",
+    "ExportsOutputFnGetAttAuctionPhotos210EF05EArn12090A3A": "arn:aws:s3:::auction-photos-development-06409bed3a88",
+    "ExportsOutputRefUsersTable9725E9C857961836": "users-table-development-06409bed3a88",
+    "ExportsOutputRefBidsTableE1AD1632086B90CC": "bids-record-table-development-06409bed3a88"
+  },
+  "AuctionLambdaStack": {
+    "ExportsOutputFnGetAttGetUserLambdaDEVELOPMENT82BD1B09Arn79F3B64E": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetUserLambdaDEVELOPMENT82BD1B0-IL6cBihQ3yST",
+    "ExportsOutputFnGetAttUserSignUpLambdaDEVELOPMENT322282CFArnE096F877": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaDEVELOPMENT3222-kLpa9fBCHCOe",
+    "ExportsOutputFnGetAttGetItemsLambdaDEVELOPMENT9AABDCC7ArnD20E96D4": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemsLambdaDEVELOPMENT9AABDC-E3E6mh6ogRnO",
+    "ExportsOutputFnGetAttDepositLambdaDEVELOPMENT59944939Arn11E6BD24": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-DepositLambdaDEVELOPMENT5994493-yYqCI7ZGFobp",
+    "ExportsOutputFnGetAttUserSignInLambdaDEVELOPMENTDF2535B0Arn5A29B166": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambdaDEVELOPMENTDF25-GVG27XNF6jaR",
+    "ExportsOutputFnGetAttCreateItemLambdaDEVELOPMENT024E3652Arn85E791DA": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CreateItemLambdaDEVELOPMENT024E-YAEbjV6A8cFp",
+    "ExportsOutputFnGetAttBidItemLambdaDEVELOPMENT67D78454Arn83C96EE6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-BidItemLambdaDEVELOPMENT67D7845-PvighJuPl50O",
+    "ExportsOutputFnGetAttCheckStatusLambdaDEVELOPMENTF29CA273Arn6C7C370F": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CheckStatusLambdaDEVELOPMENTF29-tWaCuncySBb8",
+    "ExportsOutputFnGetAttGetTotalBidAmountLambdaDEVELOPMENT675ED4CAArnD9115299": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetTotalBidAmountLambdaDEVELOPM-yJSPloVCGShm",
+    "ExportsOutputFnGetAttUpdateEnvVariablesLambdaDEVELOPMENT18DF2212ArnFE65546B": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UpdateEnvVariablesLambdaDEVELOP-WfJIlxrmvvXU"
+  },
+  "AuctionAuthStack": {
+    "ExportsOutputFnGetAttAuctionUserPool5D793815Arn7D60F36A": "arn:aws:cognito-idp:ap-south-1:399759979072:userpool/ap-south-1_oawIMK4Z7",
+    "AuctionIdentityPoolId": "ap-south-1:7d331a4d-a970-4f56-9d7b-789d287b0762",
+    "AuctionAuthRegion": "ap-south-1",
+    "AuctionUserPoolDomain": "auction-development.auth.ap-south-1.amazoncognito.com",
+    "AuctionUserPoolId": "ap-south-1_oawIMK4Z7",
+    "AuctionUserPoolClientSecret": "u1ei6jihhuhsjetrup8e7m3efh2viat19arjmt8esh6d6cabik3",
+    "AuctionUserPoolClientId": "5lelok87quafoes2ec79cp4hrh"
+  },
+  "AuctionApiStack": {
+    "AuctionApiEndpointD888402B": "https://475fyzlta5.execute-api.ap-south-1.amazonaws.com/prod/",
+    "UpdateEnvVariablesEndpoint": "https://475fyzlta5.execute-api.ap-south-1.amazonaws.com/prod//update-env-variables",
+    "AuctionApiUrl": "https://475fyzlta5.execute-api.ap-south-1.amazonaws.com/prod/"
+  }
+}
