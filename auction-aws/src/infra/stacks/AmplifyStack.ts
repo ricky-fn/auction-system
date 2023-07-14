@@ -127,29 +127,43 @@ export class AmplifyStack extends Stack {
 							},
 							build: {
 								commands: [
-									// Allow Next.js to access environment variables
-									// See https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
-									`env | grep -E '${Object.keys(environmentVariables).join("|")}' >> .env.production`,
-									"echo $CDK_RESOURCES > ../auction-shared/outputs.json",
-									// Build Next.js app
-									"npx next build --no-lint",
+									"npm run build:test"
 								],
-							},
-							postBuild: {
-								commands: [
-									"npm run test:ci",
-									"npm run e2e:headless"
-								]
 							}
 						},
 						artifacts: {
 							baseDirectory: ".next",
 							files: ["**/*"],
+						}
+					},
+					test: {
+						phases: {
+							test: {
+								commands: [
+									"npm run test:ci",
+									"npm run e2e:headless"
+								]
+							},
+							postTest: {
+								commands: [
+									// Allow Next.js to access environment variables
+									// See https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+									`env | grep -E '${Object.keys(environmentVariables).join("|")}' >> .env.production`,
+									// Update the env variables in amplify manually
+									"echo $CDK_RESOURCES > ../auction-shared/outputs.json",
+									// Build Next.js app
+									"npx next build --no-lint",
+								]
+							}
+						},
+						artifacts: {
+							baseDirectory: "cypress",
+							files: ["**/*.png", "**/*.mp4"],
 						},
 						cache: {
 							paths: ["node_modules/**/*", ".next/**/*"],
 						}
-					},
+					}
 				},
 			],
 		});
