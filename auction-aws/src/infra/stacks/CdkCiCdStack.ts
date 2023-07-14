@@ -51,16 +51,24 @@ export class CdkCicdStack extends cdk.Stack {
 			]
 		}));
 
-		pipelineStage.addPost(new ShellStep("Output", {
-			envFromCfnOutputs: {
-				...flattenObject(stage.stackCfnOutputs)
-			},
-			commands: [`
-				curl --header "Content-Type: application/json"
-					--request POST
-					--data {"params":'${convertObjectToString(stage.stackCfnOutputs)}}'
-				${stage.updateEnvVariableEndpoint}"
-			`]
-		}));
+		/**
+		 * This step is used to update the environment variables of amplify branch.
+		 * But the problem is that I can't call CfnOutput from the stage. the error is:
+		 * CfnOutput at 'AuctionCdkCiCdStackBETA/AuctionStageBETA/test' should be created in the scope of a Stack, but no Stack found
+		 * 
+		 * I followed this documentation to solve the problem but it didn't work. this is a BUG in CDK.
+		 * ref: https://docs.aws.amazon.com/cdk/api/v1/docs/pipelines-readme.html#using-cloudformation-stack-outputs-in-approvals
+		 */
+		// pipelineStage.addPost(new ShellStep("Output", {
+		// 	envFromCfnOutputs: {
+		// 		...flattenObject(stage.stackCfnOutputs)
+		// 	},
+		// 	commands: [`
+		// 		curl --header "Content-Type: application/json"
+		// 			--request POST
+		// 			--data {"params":'${convertObjectToString(stage.stackCfnOutputs)}}'
+		// 		${stage.updateEnvVariableEndpoint}"
+		// 	`]
+		// }));
 	}
 }

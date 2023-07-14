@@ -1,0 +1,12 @@
+[
+	{
+		"branch": "beta",
+		"stageName": "BETA",
+		"stageDomainParamName": "beta-domain"
+	},
+	{
+		"branch": "dev",
+		"stageName": "DEVELOPMENT",
+		"stageDomainParamName": "dev-domain"
+	}
+]

@@ -7,11 +7,10 @@ import { ScheduleStack } from "./ScheduleStack";
 import { Construct } from "constructs";
 
 const createCloudformationStacks = (scope: Construct, props: any): { updateEnvVariableEndpoint: string, assets: { [key: string]: IStackCfnOutputObject } } => {
-	const stackProps: IAppStackProps = {
+	const stackProps = {
 		env: {
 			region: props.env.region,
 		},
-		stageConfig: props.stageConfig,
 	};
 
 	const dataStack = new DataStack(scope, "AuctionDataStack", stackProps);

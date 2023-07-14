@@ -1,4 +1,3 @@
-import { IAppStackProps, IAuctionStages } from "../../types";
 import { LambdaIntegration } from "aws-cdk-lib/aws-apigateway";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
@@ -9,8 +8,9 @@ import { join } from "path";
 import { capitalizeFirstLetter } from "../Utils";
 import BaseStack from "./BaseStack";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import { StackProps } from "aws-cdk-lib";
 
-interface LambdaStackProps extends IAppStackProps {
+interface LambdaStackProps extends StackProps {
 	itemsTable: ITable,
 	bidsTable: ITable,
 	usersTable: ITable,
@@ -34,7 +34,7 @@ export class LambdaStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
 
-		this.suffix = capitalizeFirstLetter(props.stageConfig.stageName);
+		this.suffix = capitalizeFirstLetter(this.stageName);
 
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));
@@ -265,7 +265,7 @@ export class LambdaStack extends BaseStack {
 
 	private createUpdateEnvVariablesLambda(props: LambdaStackProps) {
 		const amplifyBranchArn = StringParameter.fromStringParameterAttributes(this, "amplify-branch-arn", {
-			parameterName: `auction-amplify-${props.stageConfig.branch}-branch-arn`
+			parameterName: `auction-amplify-${this.stageConfig.branch}-branch-arn`
 		}).stringValue;
 
 		const amplifyAppId = StringParameter.fromStringParameterAttributes(this, "amplify-app-id", {
@@ -275,7 +275,7 @@ export class LambdaStack extends BaseStack {
 		const updateEnvVariablesLambda = this.getLambdaRuntime("UpdateEnvVariablesLambda", {
 			entry: (join(__dirname, "..", "..", "services", "amplify", "updateEnvVariables.ts")),
 			environment: {
-				BRANCH: props.stageConfig.branch,
+				BRANCH: this.stageConfig.branch,
 				REGION: props.env.region,
 				APP_ID: amplifyAppId,
 			}

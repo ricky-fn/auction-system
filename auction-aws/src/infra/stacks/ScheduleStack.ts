@@ -1,13 +1,12 @@
-import { Duration, Stack } from "aws-cdk-lib";
+import { Duration, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import { IAppStackProps } from "../../types";
 import { capitalizeFirstLetter } from "../Utils";
 import BaseStack from "./BaseStack";
 
-interface ScheduleStackProps extends IAppStackProps {
+interface ScheduleStackProps extends StackProps {
 	checkStatusLambda: NodejsFunction,
 }
 
@@ -17,7 +16,7 @@ export class ScheduleStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: ScheduleStackProps) {
 		super(scope, id, props);
 
-		this.suffix = capitalizeFirstLetter(props.stageConfig.stageName);
+		this.suffix = capitalizeFirstLetter(this.stageName);
 
 		this.initRule(props);
 	}

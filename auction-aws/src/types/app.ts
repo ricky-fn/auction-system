@@ -5,7 +5,7 @@ export type IAuctionStages = "PRODUCTION" | "BETA" | "DEVELOPMENT" | "EXPERIMENT
 
 export type IAuctionStageConfig = {
   branch: string;
-  stageName: IAuctionStages;
+  stageName: IAuctionStages | string;
   stageDomainParamName: string;
 };
 

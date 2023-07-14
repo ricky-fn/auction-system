@@ -1,8 +1,26 @@
-import { CfnOutput, CfnOutputProps, Stack } from "aws-cdk-lib";
-import { IStackCfnOutputObject } from "../../types";
+import { App, CfnOutput, CfnOutputProps, Stack, StackProps, Stage } from "aws-cdk-lib";
+import { IAuctionStageConfig, IAuctionStages, IStackCfnOutputObject } from "../../types";
+import { Construct } from "constructs";
+import appStageConfig from "../stagConfig.json";
 
 class BaseStack extends Stack {
 	public envFromCfnOutputs: IStackCfnOutputObject = {};
+	public readonly stageName: IAuctionStages;
+	public readonly stageConfig: IAuctionStageConfig | undefined;
+	constructor(scope: Construct, id: string, props: StackProps) {
+		super(scope, id, props);
+
+		if (scope instanceof App || scope instanceof Stack) {
+			this.stageName = "DEVELOPMENT";
+		} else if (scope instanceof Stage) {
+			this.stageName = scope.stageName as IAuctionStages;
+		}
+
+		this.stageConfig = appStageConfig.find((stageConfig) => stageConfig.stageName === this.stageName);
+		if (!this.stageConfig) {
+			throw new Error(`No stage config found for stage: ${this.stageName}`);
+		}
+	}
 
 	protected addEnvFromCfnOutputs(id: string, value: string) {
 		if (this.envFromCfnOutputs[id]) {

@@ -1,9 +1,10 @@
 import { AttributeType, ITable, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
-import { createEnvCfnOutputs, getSuffixFromStack } from "../Utils";
+import { getSuffixFromStack } from "../Utils";
 import { Bucket, HttpMethods, IBucket, ObjectOwnership } from "aws-cdk-lib/aws-s3";
-import { IAppStackProps, IStackCfnOutputObject } from "../../types";
+import { IStackCfnOutputObject } from "../../types";
 import BaseStack from "./BaseStack";
+import { StackProps } from "aws-cdk-lib";
 
 export class DataStack extends BaseStack {
 	public readonly itemsTable: ITable;
@@ -12,10 +13,10 @@ export class DataStack extends BaseStack {
 	public readonly photosBucket: IBucket;
 	public envFromCfnOutputs: IStackCfnOutputObject;
 
-	constructor(scope: Construct, id: string, props: IAppStackProps) {
+	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
-		const { stageName } = props.stageConfig;
+		const { stageName } = this.stageConfig;
 
 		const suffix = `${stageName.toLowerCase()}-${getSuffixFromStack(this)}`;
 

@@ -1,4 +1,4 @@
-import { Aws } from "aws-cdk-lib";
+import { Aws, StackProps } from "aws-cdk-lib";
 import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -6,9 +6,9 @@ import { IBucket } from "aws-cdk-lib/aws-s3";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import BaseStack from "./BaseStack";
-import { IAppStackProps, IAuctionStageConfig, IStackCfnOutputObject } from "../../types";
+import { IAuctionStageConfig, IStackCfnOutputObject } from "../../types";
 
-interface AuthStackProps extends IAppStackProps {
+interface AuthStackProps extends StackProps {
 	userSignUpLambda: NodejsFunction
 	userSignInLambda: NodejsFunction
 	photosBucket: IBucket
@@ -27,9 +27,9 @@ export class AuthStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: AuthStackProps) {
 		super(scope, id, props);
 
-		this.createUserPool(props.stageConfig);
+		this.createUserPool();
 		this.createGoogleIdentityPool();
-		this.createUserPoolClient(props.stageConfig);
+		this.createUserPoolClient();
 		this.createAuthTriggers(props);
 		this.createIdentityPool();
 		this.createRoles(props.photosBucket);
@@ -39,7 +39,7 @@ export class AuthStack extends BaseStack {
 		this.addEnvFromCfnOutputs("AuctionAuthRegion", Aws.REGION);
 	}
 
-	private createUserPool(stageConfig: IAuctionStageConfig) {
+	private createUserPool() {
 		this.userPool = new UserPool(this, "AuctionUserPool", {
 			selfSignUpEnabled: true,
 			signInAliases: {
@@ -49,7 +49,7 @@ export class AuthStack extends BaseStack {
 
 		const CognitoDomain = this.userPool.addDomain("AuctionUserPoolDomain", {
 			cognitoDomain: {
-				domainPrefix: `auction-${stageConfig.stageName.toLowerCase()}`
+				domainPrefix: `auction-${this.stageName.toLowerCase()}`
 			}
 		});
 
@@ -57,12 +57,12 @@ export class AuthStack extends BaseStack {
 
 		this.addEnvFromCfnOutputs("AuctionUserPoolId", this.userPool.userPoolId);
 	}
-	private createUserPoolClient(stageConfig: IAuctionStageConfig) {
+	private createUserPoolClient() {
 		const stageDomain = StringParameter.fromStringParameterAttributes(this, "StageDomain", {
-			parameterName: stageConfig.stageDomainParamName
+			parameterName: this.stageConfig.stageDomainParamName
 		}).stringValue;
 
-		const callbackUrls = stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000/api/auth/callback/cognito"] : [];
+		const callbackUrls = this.stageName === "DEVELOPMENT" ? ["http://localhost:3000/api/auth/callback/cognito"] : [];
 		callbackUrls.push(`https://${stageDomain}/api/auth/callback/cognito`);
 
 		this.userPoolClient = this.userPool.addClient("AuctionUserPoolClient", {

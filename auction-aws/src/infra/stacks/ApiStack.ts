@@ -1,5 +1,5 @@
 import { IAppStackProps } from "../../types";
-import { CfnOutput, Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
 import { AuthorizationType, CognitoUserPoolsAuthorizer, Cors, LambdaIntegration, MethodOptions, ResourceOptions, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { IUserPool } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
@@ -7,7 +7,7 @@ import { capitalizeFirstLetter } from "../Utils";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import BaseStack from "./BaseStack";
 
-interface ApiStackProps extends IAppStackProps {
+interface ApiStackProps extends StackProps {
 	getItemsLambdaIntegration: LambdaIntegration,
 	getUserLambdaIntegration: LambdaIntegration,
 	createItemLambdaIntegration: LambdaIntegration,
@@ -28,7 +28,7 @@ export class ApiStack extends BaseStack {
 		const authorizer = new CognitoUserPoolsAuthorizer(this, "AuctionApiAuthorizer", {
 			cognitoUserPools: [props.userPool],
 			identitySource: "method.request.header.Authorization",
-			authorizerName: `AuctionApiAuthorizer${capitalizeFirstLetter(props.stageConfig.stageName)}`
+			authorizerName: `AuctionApiAuthorizer${capitalizeFirstLetter(this.stageName)}`
 		});
 		authorizer._attachToApi(api);
 
@@ -40,10 +40,10 @@ export class ApiStack extends BaseStack {
 		};
 
 		const stageDomain = StringParameter.fromStringParameterAttributes(this, "StageDomain", {
-			parameterName: props.stageConfig.stageDomainParamName
+			parameterName: this.stageConfig.stageDomainParamName
 		}).stringValue;
 
-		const origins = props.stageConfig.stageName === "DEVELOPMENT" ? ["http://localhost:3000"] : [];
+		const origins = this.stageName === "DEVELOPMENT" ? ["http://localhost:3000"] : [];
 		origins.push(`https://${stageDomain}`);
 
 		const optionsWithCors: ResourceOptions = { // define cors for all methods and origins
