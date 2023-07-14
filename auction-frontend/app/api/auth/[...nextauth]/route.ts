@@ -53,7 +53,7 @@ export const authOptions: AuthOptions = {
   providers: [
     CognitoProvider({
       clientId: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
-      clientSecret: client_secret,
+      clientSecret: client_secret!,
       issuer: `https://cognito-idp.${CDKStack.AuctionAuthStack.AuctionAuthRegion}.amazonaws.com/${CDKStack.AuctionAuthStack.AuctionUserPoolId}`,
       checks: "nonce"
     }),

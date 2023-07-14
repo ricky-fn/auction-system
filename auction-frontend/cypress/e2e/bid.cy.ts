@@ -30,6 +30,8 @@ describe('Test the bidding workflow', () => {
   it('should send a bid request when clicking on the submit button', () => {
     cy.get('[data-cy="item-bid-button"]').first().click()
 
+    cy.wait(300) // wait for the modal to show up
+
     cy.get('[data-cy="bid-amount-input"]').type('200')
 
     const getTotalBidAmountResponse: ApiResponseList['get-total-bid-amount'] = {
