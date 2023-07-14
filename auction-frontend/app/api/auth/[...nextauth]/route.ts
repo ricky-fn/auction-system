@@ -2,12 +2,15 @@ import NextAuth, { AuthOptions, JWT, User } from "next-auth";
 import CDKStack from 'auction-shared/outputs.json';
 import CognitoProvider from "next-auth/providers/cognito";
 
+const client_secret = process.env.ENABLE_MOCKS ? process.env.NEXTAUTH_JWT_SECRET : CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret;
+
 async function refreshAccessToken(token: JWT) {
   // try {
   // Base 64 encode authentication string
-  const headerString = CDKStack.AuctionAuthStack.AuctionUserPoolClientId + ':' + CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret;
+  const headerString = CDKStack.AuctionAuthStack.AuctionUserPoolClientId + ':' + client_secret;
   const buff = Buffer.from(headerString, 'utf-8');
   const authHeader = buff.toString('base64');
+
 
   const refreshedTokensResponse = await fetch("https://" + CDKStack.AuctionAuthStack.AuctionUserPoolDomain + "/oauth2/token", {
     headers: {
@@ -18,7 +21,7 @@ async function refreshAccessToken(token: JWT) {
     body: Object.entries({
       grant_type: "refresh_token",
       client_id: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
-      client_secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
+      client_secret,
       refresh_token: token.refreshToken!,
     }).map(([k, v]) => `${k}=${v}`).join("&"),
   })
@@ -50,12 +53,12 @@ export const authOptions: AuthOptions = {
   providers: [
     CognitoProvider({
       clientId: CDKStack.AuctionAuthStack.AuctionUserPoolClientId,
-      clientSecret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
+      clientSecret: client_secret,
       issuer: `https://cognito-idp.${CDKStack.AuctionAuthStack.AuctionAuthRegion}.amazonaws.com/${CDKStack.AuctionAuthStack.AuctionUserPoolId}`,
       checks: "nonce"
     }),
   ],
-  secret: CDKStack.AuctionAuthStack.AuctionUserPoolClientSecret,
+  secret: client_secret,
   pages: {
     signIn: '/',
   },

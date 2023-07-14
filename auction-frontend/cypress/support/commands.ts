@@ -40,7 +40,6 @@ Cypress.Commands.add("login", (userObj: JWTPayload) => {
   // Generate and set a valid cookie from the fixture that next-auth can decrypt
   cy.wrap(null)
     .then(() => {
-      debugger;
       return encode(userObj, Cypress.env("NEXTAUTH_JWT_SECRET"));
     })
     .then((encryptedToken) =>
