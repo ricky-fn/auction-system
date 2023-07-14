@@ -98,8 +98,9 @@ export class AmplifyStack extends Stack {
 	private createSourceCodeProvider(): GitHubSourceCodeProvider {
 		const sourceCodeProvider = new GitHubSourceCodeProvider({
 			oauthToken: SecretValue.secretsManager("GITHUB_TOKEN_KEY"), // replace GITHUB_TOKEN_KEY by the name of the Secrets Manager resource storing your GitHub token
-			owner: "ricky-fn", // ! read from env
-			repository: "auction-system", // ! read from env
+			// next two lines can read from Secrets Manager as well
+			owner: "ricky-fn",
+			repository: "auction-system",
 		});
 
 		return sourceCodeProvider;
@@ -129,11 +130,17 @@ export class AmplifyStack extends Stack {
 									// Allow Next.js to access environment variables
 									// See https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
 									`env | grep -E '${Object.keys(environmentVariables).join("|")}' >> .env.production`,
-									"echo $CDK_RESOURCES >> ../auction-shared/outputs.json",
+									"echo $CDK_RESOURCES > ../auction-shared/outputs.json",
 									// Build Next.js app
 									"npx next build --no-lint",
 								],
 							},
+							postBuild: {
+								commands: [
+									"npm run test:ci",
+									"npm run e2e:headless"
+								]
+							}
 						},
 						artifacts: {
 							baseDirectory: ".next",
