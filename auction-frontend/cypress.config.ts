@@ -9,12 +9,7 @@ dotenvExtended.load({
 
 export default defineConfig({
   e2e: {
-    baseUrl: process.env.NEXTAUTH_URL,
-    env: {
-      NEXTAUTH_JWT_SECRET: process.env.NEXTAUTH_JWT_SECRET,
-      BASE_URL: process.env.NEXTAUTH_URL,
-      ENABLE_MOCKS: process.env.ENABLE_MOCKS
-    }
+    env: process.env
   },
   component: {
     devServer: {

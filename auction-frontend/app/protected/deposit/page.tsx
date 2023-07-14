@@ -13,7 +13,7 @@ import { useState } from "react";
 export default function DepositPage() {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -44,6 +44,10 @@ export default function DepositPage() {
     if (error) {
       setAmountError(error);
       return;
+    }
+
+    if (!session) {
+      return console.error('Session is null');
     }
 
     try {

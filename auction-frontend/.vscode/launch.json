@@ -8,6 +8,12 @@
       "command": "npm run dev"
     },
     {
+      "name": "Next.js: debug server-side with test env",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "export NODE_ENV=\"test\" && npm run dev"
+    },
+    {
       "name": "Next.js: debug client-side",
       "type": "chrome",
       "request": "launch",

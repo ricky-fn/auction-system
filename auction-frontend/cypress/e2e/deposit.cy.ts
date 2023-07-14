@@ -19,6 +19,8 @@ describe('Test the deposit workflow', () => {
 
     cy.get('[data-cy="amount-input"]').type('1000')
 
+    cy.wait(1000) // wait for the session state to be updated
+
     cy.get('[data-cy="deposit-button"]').click()
 
     cy.get('[data-cy="loading"]').should('exist')
