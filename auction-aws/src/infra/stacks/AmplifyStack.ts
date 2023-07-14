@@ -25,7 +25,7 @@ export class AmplifyStack extends Stack {
 
 		this.createBranches(props.appStageConfig);
 
-		new AwsCustomResource(this, "aws-custom", {
+		new AwsCustomResource(this, "auction-aws-custom", {
 			onCreate: {
 				service: "Amplify",
 				action: "updateApp",
@@ -34,7 +34,7 @@ export class AmplifyStack extends Stack {
 					platform: "WEB_COMPUTE",
 				},
 				physicalResourceId: PhysicalResourceId.of(
-					"test-amplify-custom-resource"
+					"auction-next-amplify-custom-resource"
 				),
 			},
 
@@ -70,9 +70,9 @@ export class AmplifyStack extends Stack {
 		const buildSpec = this.createBuildSpec();
 
 		// Define Amplify app
-		const amplifyApp = new App(this, "AmplifyAppResource", {
-			appName: "Auction System",
-			description: "Jitera Auction System",
+		const amplifyApp = new App(this, "AuctionNextApp", {
+			appName: "Auction Next App",
+			description: "Jitera Auction App",
 			role: amplifyRole,
 			sourceCodeProvider: sourceCodeProvider,
 			buildSpec: buildSpec,
