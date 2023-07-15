@@ -5,6 +5,7 @@ import { classNames } from "@/lib/utils/styles";
 import { setLoading, showToast } from "@/store/actions/appActions";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { AxiosResponse } from "axios";
+import { Metadata } from "next";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation'
