@@ -35,7 +35,7 @@ appStageConfig.forEach((stageConfig) => {
 			stageConfig
 		});
 	} else {
-		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
+		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName.toLocaleLowerCase())}`, {
 			...stackProps,
 			repoString,
 			appRoot,
