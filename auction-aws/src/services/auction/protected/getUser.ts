@@ -2,15 +2,10 @@
  * v 0.1.0
  * Registration function
  * 
- * @example
- * {
- *   "username": "ducky.test@gmail.com",
- *   "password": "abc123123111"
- * }
- * 
  * Errors:
  * Bad Request: B001
- * Internal Error: I001, I002
+ * Internal Error: I001
+ * Authorization Fail: A001, A002
  */
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";

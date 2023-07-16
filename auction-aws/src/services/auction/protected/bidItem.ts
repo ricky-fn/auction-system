@@ -2,12 +2,6 @@
  * v0.1.3
  * Allows user to bid an item, the price must be higher than current highest price
  * 
- * @example
- * {
- *   "itemId": "item-1684722365121-4242",
- *   "bidAmount": 300
- * }
- * 
  * Errors:
  * Bad Request: B001, B002, B003, B004, B005, B006, B007, B008, B009, B010, B011
  * Internal Error: I001, I002, I003, I004, I005

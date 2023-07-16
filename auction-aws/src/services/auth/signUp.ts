@@ -2,12 +2,6 @@
  * v 0.1.0
  * Registration function
  * 
- * @example
- * {
- *   "username": "ducky.test@gmail.com",
- *   "password": "abc123123111"
- * }
- * 
  * Errors:
  * Bad Request: B001
  * Internal Error: I001, I002

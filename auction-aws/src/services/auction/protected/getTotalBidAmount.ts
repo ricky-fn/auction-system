@@ -2,11 +2,10 @@
  * v 0.1.0
  * retrieve total bid amount for a user
  * 
- * @example
- * 
  * Errors:
- * Bad Request: B001
- * Internal Error: I001, I002
+ * Bad Request: B001, B002
+ * Internal Error: I001, I002, I003,
+ * Authorization Fail: A001, A002
  */
 import { DynamoDBClient, GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
@@ -53,7 +52,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	try {
 		item = await getItem(result.itemId);
 	} catch (err) {
-		const error = new InternalError("I001", err.message);
+		const error = new InternalError("I002", err.message);
 		return error.getResponse();
 	}
 
@@ -66,7 +65,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	try {
 		bidRecords = await getBidRecords(item.itemId, userId);
 	} catch (err) {
-		const error = new InternalError("I002", err.message);
+		const error = new InternalError("I003", err.message);
 		return error.getResponse();
 	}
 
