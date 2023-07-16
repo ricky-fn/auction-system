@@ -3,7 +3,8 @@ import { Construct } from "constructs";
 import { PipelineStage } from "./../stages/PipelineStage";
 import { capitalizeFirstLetter } from "../Utils";
 import { IAuctionStageConfig } from "../../types";
-import { SecretValue, Stack, StackProps } from "aws-cdk-lib";
+import { SecretValue, StackProps } from "aws-cdk-lib";
+import BaseStack from "./BaseStack";
 
 interface CdkCicdStackProps extends StackProps {
 	repoString: string;
@@ -11,14 +12,14 @@ interface CdkCicdStackProps extends StackProps {
 	stageConfig: IAuctionStageConfig;
 }
 
-export class CdkCicdStack extends Stack {
+export class CdkCicdStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: CdkCicdStackProps) {
 		super(scope, id, props);
 
 		const { stageName, branch } = props.stageConfig;
 
-		const pipeline = new CodePipeline(this, `AuctionPipeline${capitalizeFirstLetter(stageName)}`, {
-			pipelineName: `AuctionPipeline${capitalizeFirstLetter(stageName)}`,
+		const pipeline = new CodePipeline(this, `AuctionPipeline${this.suffix}`, {
+			pipelineName: `AuctionPipeline${this.suffix}`,
 			synth: new ShellStep("Synth", {
 				input: CodePipelineSource.gitHub(props.repoString, branch, {
 					authentication: SecretValue.secretsManager("GITHUB_TOKEN_KEY")
@@ -32,7 +33,7 @@ export class CdkCicdStack extends Stack {
 			})
 		});
 
-		const stage = new PipelineStage(this, `AuctionStage${capitalizeFirstLetter(stageName)}`, {
+		const stage = new PipelineStage(this, `AuctionStage${this.suffix}`, {
 			env: props.env,
 			stageName,
 		});

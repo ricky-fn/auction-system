@@ -17,7 +17,6 @@ interface LambdaStackProps extends StackProps {
 }
 
 export class LambdaStack extends BaseStack {
-	private suffix: string;
 
 	public readonly getItemsLambdaIntegration: LambdaIntegration;
 	public readonly createItemLambdaIntegration: LambdaIntegration;
@@ -33,8 +32,6 @@ export class LambdaStack extends BaseStack {
 
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
-
-		this.suffix = capitalizeFirstLetter(this.stageName);
 
 		this.getItemsLambdaIntegration = new LambdaIntegration(this.createGetItemsLambda(props));
 		this.getUserLambdaIntegration = new LambdaIntegration(this.createGetUserLambda(props));

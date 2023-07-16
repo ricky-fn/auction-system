@@ -16,16 +16,12 @@ export class DataStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
-		const { stageName } = this.stageConfig;
-
-		const suffix = `${stageName.toLowerCase()}-${getSuffixFromStack(this)}`;
-
 		this.itemsTable = new Table(this, "ItemsTable", {
 			partitionKey: {
 				name: "itemId",
 				type: AttributeType.STRING
 			},
-			tableName: `items-table-${suffix}`
+			tableName: `items-table-${this.suffix}`
 		});
 
 		this.bidsTable = new Table(this, "BidsTable", {
@@ -33,7 +29,7 @@ export class DataStack extends BaseStack {
 				name: "bidId",
 				type: AttributeType.STRING
 			},
-			tableName: `bids-record-table-${suffix}`
+			tableName: `bids-record-table-${this.suffix}`
 		});
 
 		this.usersTable = new Table(this, "UsersTable", {
@@ -41,12 +37,11 @@ export class DataStack extends BaseStack {
 				name: "id",
 				type: AttributeType.STRING
 			},
-			tableName: `users-table-${suffix}`
+			tableName: `users-table-${this.suffix}`
 		});
 
-
 		this.photosBucket = new Bucket(this, "AuctionPhotos", {
-			bucketName: `auction-photos-${suffix}`,
+			bucketName: `auction-photos-${this.suffix.toLocaleLowerCase()}`,
 			cors: [
 				{
 					allowedMethods: [

@@ -3,7 +3,6 @@ import { Construct } from "constructs";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import { capitalizeFirstLetter } from "../Utils";
 import BaseStack from "./BaseStack";
 
 interface ScheduleStackProps extends StackProps {
@@ -12,11 +11,8 @@ interface ScheduleStackProps extends StackProps {
 
 export class ScheduleStack extends BaseStack {
 	private rule: Rule;
-	private suffix: string;
 	constructor(scope: Construct, id: string, props: ScheduleStackProps) {
 		super(scope, id, props);
-
-		this.suffix = capitalizeFirstLetter(this.stageName);
 
 		this.initRule(props);
 	}

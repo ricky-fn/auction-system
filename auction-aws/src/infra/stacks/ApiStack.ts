@@ -28,7 +28,7 @@ export class ApiStack extends BaseStack {
 		const authorizer = new CognitoUserPoolsAuthorizer(this, "AuctionApiAuthorizer", {
 			cognitoUserPools: [props.userPool],
 			identitySource: "method.request.header.Authorization",
-			authorizerName: `AuctionApiAuthorizer${capitalizeFirstLetter(this.stageName)}`
+			authorizerName: `AuctionApiAuthorizer${this.suffix}`
 		});
 		authorizer._attachToApi(api);
 
