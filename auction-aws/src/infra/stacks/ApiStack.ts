@@ -15,6 +15,7 @@ interface ApiStackProps extends StackProps {
 	bidItemLambdaIntegration: LambdaIntegration,
 	getTotalBidAmountLambdaIntegration: LambdaIntegration,
 	updateEnvVariablesLambdaIntegration: LambdaIntegration,
+	getItemByIdLambdaIntegration: LambdaIntegration,
 	userPool: IUserPool;
 }
 
@@ -70,6 +71,9 @@ export class ApiStack extends BaseStack {
 
 		const getTotalBidAmountApiResource = api.root.addResource("get-total-bid-amount", optionsWithCors); // attach cors to apigateway root
 		getTotalBidAmountApiResource.addMethod("GET", props.getTotalBidAmountLambdaIntegration, optionsWithAuth);
+
+		const getItemByIdApiResource = api.root.addResource("get-item-by-id", optionsWithCors); // attach cors to apigateway root
+		getItemByIdApiResource.addMethod("GET", props.getItemByIdLambdaIntegration);
 
 		const updateEnvVariablesApiResource = api.root.addResource("update-env-variables", {
 			defaultCorsPreflightOptions: {

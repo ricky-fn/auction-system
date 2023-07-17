@@ -25,6 +25,7 @@ export class LambdaStack extends BaseStack {
 	public readonly bidItemLambdaIntegration: LambdaIntegration;
 	public readonly getTotalBidAmountLambdaIntegration: LambdaIntegration;
 	public readonly updateEnvVariablesLambdaIntegration: LambdaIntegration;
+	public readonly getItemByIdLambdaIntegration: LambdaIntegration;
 
 	public readonly userSignUpLambda: NodejsFunction;
 	public readonly userSignInLambda: NodejsFunction;
@@ -40,6 +41,7 @@ export class LambdaStack extends BaseStack {
 		this.bidItemLambdaIntegration = new LambdaIntegration(this.createBidItemLambda(props));
 		this.getTotalBidAmountLambdaIntegration = new LambdaIntegration(this.createGetTotalBidAmountLambda(props));
 		this.updateEnvVariablesLambdaIntegration = new LambdaIntegration(this.createUpdateEnvVariablesLambda(props));
+		this.getItemByIdLambdaIntegration = new LambdaIntegration(this.createGetItemByIdLambda(props));
 
 		this.userSignUpLambda = this.createUserSignUpLambda(props);
 		this.userSignInLambda = this.createUserSignInLambda(props);
@@ -258,6 +260,25 @@ export class LambdaStack extends BaseStack {
 		}));
 
 		return getTotalBidAmountLambda;
+	}
+
+	private createGetItemByIdLambda(props: LambdaStackProps) {
+		const getItemByIdLambda = this.getLambdaRuntime("GetItemByIdLambda", {
+			entry: (join(__dirname, "..", "..", "services", "auction", "getItemById.ts")),
+			environment: {
+				DB_ITEMS_TABLE: props.itemsTable.tableName,
+			}
+		});
+
+		getItemByIdLambda.addToRolePolicy(new PolicyStatement({
+			effect: Effect.ALLOW,
+			resources: [props.itemsTable.tableArn],
+			actions: [
+				"dynamodb:GetItem",
+			]
+		}));
+
+		return getItemByIdLambda;
 	}
 
 	private createUpdateEnvVariablesLambda(props: LambdaStackProps) {

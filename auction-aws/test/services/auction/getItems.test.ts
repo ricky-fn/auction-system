@@ -45,7 +45,7 @@ describe("Test getItems LambdaFunction", () => {
 		expect(responseData).toEqual(expectedResponseData);
 	});
 
-	it.only("should return InternalError when an error occurs", async () => {
+	it("should return InternalError when an error occurs", async () => {
 		mockDBClient.on(ScanCommand).rejects(new Error("test error"));
 
 		const { body: response } = await handler();
