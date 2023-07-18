@@ -3,6 +3,7 @@ import { createAuthorizedAxios } from "@/lib/api/axiosInstance";
 import { useAppDispatch } from "@/lib/hooks/useRedux";
 import { classNames } from "@/lib/utils/styles";
 import { setLoading, showToast } from "@/store/actions/appActions";
+import { deposit } from "@/store/actions/userActions";
 import { ApiRequestParams, ApiResponseList } from "auction-shared/api";
 import { AxiosResponse } from "axios";
 import { Metadata } from "next";
@@ -61,6 +62,8 @@ export default function DepositPage() {
       >('/deposit', {
         amount: Number(amount),
       });
+
+      dispatch(deposit(Number(amount)));
 
       dispatch(showToast({
         type: 'success',

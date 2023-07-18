@@ -13,6 +13,7 @@ import { setLoading, showToast } from '@/store/actions/appActions'
 import { AxiosResponse } from 'axios'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAppDispatch } from '@/lib/hooks/useRedux'
+import { deduct } from '@/store/actions/userActions'
 
 type Categories = {
   completed: Items,
@@ -106,6 +107,8 @@ export default function ItemListContainer({ items }: { items: Items }) {
         type: 'success',
         message: 'You Have Placed A Bid'
       }))
+      dispatch(deduct(amount));
+      dispatch(setLoading(false));
       refreshData();
     } catch (error) {
       dispatch(showToast({
