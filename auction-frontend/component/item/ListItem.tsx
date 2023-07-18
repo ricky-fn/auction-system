@@ -25,7 +25,7 @@ export default function ListItem({ onClick, item }: ListItemProps) {
             <button
               data-cy="item-bid-button"
               className={classNames(
-                "bg-blue-500 text-white font-bold py-2 px-4 rounded mr-1",
+                "bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2",
                 item.status === "completed" ? "opacity-50" : "hover:bg-blue-700"
               )}
               onClick={onClick}
@@ -35,7 +35,7 @@ export default function ListItem({ onClick, item }: ListItemProps) {
             </button>
             <Link
               href={`/item/${item.itemId}`}
-              className="bg-green-500 text-white font-bold py-2.5 px-4 rounded hover:bg-green-700"
+              className="inline-block bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-700"
             >
               View
             </Link>
