@@ -10,7 +10,9 @@ export const handlers = [
     return res(
       ctx.json<ApiResponseList["get-user"]>({
         timestamp: Date.now(),
-        data: generateFakeUser()
+        data: generateFakeUser({
+          balance: 1000
+        })
       })
     )
   }),

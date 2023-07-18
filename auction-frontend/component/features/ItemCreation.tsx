@@ -8,7 +8,6 @@ import { useState } from 'react';
 import useServices from '@/lib/hooks/useServices';
 import { setLoading, showToast } from '@/store/actions/appActions';
 import PhotoDropzone from './PhotoDropzone';
-import { useRouter } from 'next/navigation'
 import { AxiosResponse } from 'axios';
 import { useSession } from 'next-auth/react';
 import { useAppDispatch } from '@/lib/hooks/useRedux';

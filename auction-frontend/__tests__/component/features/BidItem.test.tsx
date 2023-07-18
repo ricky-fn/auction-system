@@ -2,6 +2,23 @@ import { screen, render, waitFor } from "@testing-library/react";
 import BidItem, { BidModalProps } from "@/component/features/BidItem";
 import { generateFakeItem } from "auction-shared/mocks/fakeData/bid";
 import userEvent from "@testing-library/user-event";
+import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
+
+const mockSelector = jest.fn(() => {
+  return generateFakeUser()
+});
+
+jest.mock('react-redux', () => {
+  const originalModule = jest.requireActual('react-redux');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    useSelector: jest.fn(() => {
+      return mockSelector;
+    }),
+  };
+});
 
 describe('BidItem', () => {
   const fakeItem = generateFakeItem();
@@ -11,6 +28,11 @@ describe('BidItem', () => {
     item: fakeItem,
     bid: jest.fn(),
   };
+
+  afterEach(() => {
+    mockSelector.mockClear();
+  });
+
   it('should not render if isOpen is false', () => {
     render(<BidItem {...props} isOpen={false} />);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -18,14 +40,14 @@ describe('BidItem', () => {
 
   it('should render if isOpen is true', async () => {
     render(<BidItem {...props} />);
-    const dialog = await waitFor(() => screen.getByRole('dialog'));
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
   });
 
   it('should render item name', async () => {
     render(<BidItem {...props} isOpen={true} />);
 
-    const itemName = await waitFor(() => screen.getByText(fakeItem.name));
+    const itemName = await screen.findByText(fakeItem.name);
 
     expect(itemName).toBeInTheDocument();
   });

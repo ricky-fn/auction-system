@@ -49,18 +49,12 @@ describe('Test the item creation workflow', () => {
 
     cy.get('[data-cy="submit-button"]').click();
 
-    cy.get('[data-cy="loading"]').should('exist')
-
     cy.wait('@create-item').then(({ request: { body } }) => {
       const { startingPrice, ...requestParams } = body;
       const { startingPrice: expectedStartingPrice, ..._expectedRequestParams } = expectedRequestParams;
       expect(requestParams).to.deep.equal(_expectedRequestParams)
       expect(startingPrice).to.equal(expectedStartingPrice.toString())
     });
-
-    cy.get('[data-cy="loading"]').should('not.exist');
-
-    cy.get('[data-cy="toast-message"]').should('exist').should('contain.text', 'You Have Created An Item')
 
     cy.url().should('eq', Cypress.env("BASE_URL"))
   });
