@@ -8,7 +8,6 @@ import { useState } from 'react';
 import useServices from '@/lib/hooks/useServices';
 import { setLoading, showToast } from '@/store/actions/appActions';
 import PhotoDropzone from './PhotoDropzone';
-import { useRouter } from 'next/navigation'
 import { AxiosResponse } from 'axios';
 import { useSession } from 'next-auth/react';
 import { useAppDispatch } from '@/lib/hooks/useRedux';
@@ -123,7 +122,6 @@ export default function ItemCreation() {
   const { data: session } = useSession();
 
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const updateFields = (name: string, value: string | File) => {
     const updatedFields = fields.map((field) => {
@@ -199,7 +197,7 @@ export default function ItemCreation() {
 
       // Reset form fields and errors
       setFields(initialFields);
-      router.push('/')
+      location.href = '/'; // force home page refresh
     } catch (error) {
       dispatch(showToast({
         type: 'error',

@@ -2,6 +2,7 @@ import { classNames } from "@/lib/utils/styles";
 import { Menu, Transition } from "@headlessui/react";
 import { User } from "auction-shared/models";
 import { Fragment } from "react";
+import Avatar from "./Avatar";
 
 export interface NavbarMenuProps {
   user: User,
@@ -14,7 +15,7 @@ export default function NavbarMenu({ signOut, userNavigation, user }: NavbarMenu
     <Menu as="div" className="relative ml-3">
       <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
         <span className="sr-only">Open user menu</span>
-        <img className="h-10 w-10 rounded-full" src={user.picture} />
+        <Avatar url={user.picture} />
       </Menu.Button>
       <Transition
         as={Fragment}

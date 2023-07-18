@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useEffect } from 'react';
 import { signIn, signOut } from 'next-auth/react';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
@@ -7,6 +7,9 @@ import { User } from 'auction-shared/models';
 import NavbarMenu from './NavbarMenu';
 import Logo from "@/public/logo.svg"
 import Link from 'next/link';
+import Avatar from './Avatar';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks/useRedux';
+import { login, logout } from '@/store/actions/userActions';
 
 export const userNavigation = [
   { name: 'Create New Item', href: '/protected/create' },
@@ -14,6 +17,17 @@ export const userNavigation = [
 ]
 
 const Nav = ({ user }: { user: undefined | User }) => {
+  const dispatch = useAppDispatch();
+  const userState = useAppSelector(state => state.user);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(login(user))
+    } else {
+      dispatch(logout())
+    }
+  }, [user])
+
   const handleSignOut = () => {
     if (!user) return
     signOut()
@@ -40,6 +54,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                   <>
                     <div className="hidden md:block">
                       <div className="ml-4 flex items-center md:ml-6">
+                        <span className="text-white">${userState.balance}</span>
                         <NavbarMenu user={user} signOut={handleSignOut} userNavigation={userNavigation} />
                       </div>
                     </div>
@@ -66,7 +81,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src={user.picture} />
+                      <Avatar url={user.picture} />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">{user.given_name}</div>

@@ -1,3 +1,4 @@
+import { useAppSelector } from '@/lib/hooks/useRedux';
 import { classNames } from '@/lib/utils/styles';
 import { Dialog, Transition } from '@headlessui/react'
 import { Item } from 'auction-shared/models'
@@ -11,6 +12,7 @@ export interface BidModalProps {
 }
 
 export default function BidModal({ item, isOpen, closeModal, bid }: BidModalProps) {
+  const userState = useAppSelector(state => state.user);
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
 
@@ -20,6 +22,9 @@ export default function BidModal({ item, isOpen, closeModal, bid }: BidModalProp
     }
     if (Number(amount) <= 0) {
       return 'Amount must be greater than 0';
+    }
+    if (Number(amount) > userState.balance!) {
+      return 'Amount must be less than your balance';
     }
     return null;
   };

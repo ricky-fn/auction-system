@@ -28,6 +28,10 @@ describe('ToastMessage', () => {
     showToast: true,
   }
 
+  afterEach(() => {
+    mockDispatch.mockClear();
+  });
+
   it('should render the component with message and icon', () => {
     renderWithProviders(<ToastMessage />, {
       preloadedState: {
