@@ -69,8 +69,15 @@ function createUserObject(event: PreSignUpTriggerEvent): User {
 		};
 	}
 
-	// if (event.triggerSource === "PreSignUp_SignUp") {
-	// }
+	if (event.triggerSource === "PreSignUp_SignUp") {
+		const userId = event.userName;
+
+		user = {
+			id: userId,
+			create_at: new Date().getTime(),
+			balance: 0,
+		};
+	}
 
 	return user;
 }
