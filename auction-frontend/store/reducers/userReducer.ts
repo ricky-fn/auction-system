@@ -19,12 +19,12 @@ export const userReducer = (state = initialState, action: UserAction) => {
     case 'DEPOSIT':
       return {
         ...state,
-        balance: (state.balance || 0) + depositPayload.amount,
+        balance: state.balance! + depositPayload.amount,
       };
     case 'DEDUCT':
       return {
         ...state,
-        balance: (state.balance || 0) - deductPayload.amount,
+        balance: state.balance! - deductPayload.amount,
       };
     default:
       return state;
