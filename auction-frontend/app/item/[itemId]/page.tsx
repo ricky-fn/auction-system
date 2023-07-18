@@ -31,7 +31,7 @@ export default async function Page({ params }: { params: { itemId: string } }) {
                     Cover Photo
                   </label>
                   <div className="mt-2">
-                    <img src={item?.photo} alt={item?.name} />
+                    <img src={item?.photo} alt={item?.name} className="h-80" />
                   </div>
                 </div>
               </div>
