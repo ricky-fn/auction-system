@@ -57,7 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	const itemId = uuid("item");
 
 	// Get the current timestamp
-	const createdAt = Math.floor(Date.now() / 1000);
+	const createdAt = Date.now();
 
 	const newItem: Item = {
 		...result,
