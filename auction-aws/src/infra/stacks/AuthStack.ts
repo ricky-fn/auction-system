@@ -41,7 +41,7 @@ export class AuthStack extends BaseStack {
 
 	private createUserPool() {
 		this.userPool = new UserPool(this, `AuctionUserPool${this.suffix}`, {
-			selfSignUpEnabled: true,
+			selfSignUpEnabled: false,
 			signInAliases: {
 				username: true,
 			}
