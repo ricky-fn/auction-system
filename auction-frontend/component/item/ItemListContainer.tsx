@@ -13,7 +13,6 @@ import { setLoading, showToast } from '@/store/actions/appActions'
 import { AxiosResponse } from 'axios'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAppDispatch } from '@/lib/hooks/useRedux'
-import Link from 'next/link'
 
 type Categories = {
   completed: Items,
@@ -155,9 +154,7 @@ export default function ItemListContainer({ items }: { items: Items }) {
             >
               {
                 items.map((item) => (
-                  <Link href={`/item/${item.itemId}`} key={item.itemId}>
-                    <ListItem onClick={() => openBidModal(item)} item={item} />
-                  </Link>
+                  <ListItem key={item.itemId} onClick={() => openBidModal(item)} item={item} />
                 ))
               }
             </Tab.Panel>
