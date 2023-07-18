@@ -7,7 +7,7 @@ import { createAuthorizedAxios } from "@/lib/api/axiosInstance";
 import { ApiResponseList } from "auction-shared/api";
 import { User } from "auction-shared/models";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import favicon from "@/public/favicon.ico";
 import { Metadata } from "next";
 

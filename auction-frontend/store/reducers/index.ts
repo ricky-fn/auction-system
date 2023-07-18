@@ -1,14 +1,10 @@
 import { combineReducers, Store, AnyAction, PreloadedState } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { userReducer } from './userReducer';
 import { appReducer } from './appReducer';
-// import { itemsReducer } from './ItemsReducer';
 import thunkMiddleware from 'redux-thunk';
 
 const rootReducer = combineReducers({
   app: appReducer,
-  user: userReducer,
-  // items: itemsReducer,
 });
 
 export function setupStore(preloadedState?: PreloadedState<RootState>): Store<RootState, AnyAction> {
