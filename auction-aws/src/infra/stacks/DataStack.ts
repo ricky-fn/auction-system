@@ -16,37 +16,28 @@ export class DataStack extends BaseStack {
 	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
-		const { stageName } = this.stageConfig;
-
-		const suffix = `${stageName.toLowerCase()}-${getSuffixFromStack(this)}`;
-
-		this.itemsTable = new Table(this, "ItemsTable", {
+		this.itemsTable = new Table(this, `ItemsTable${this.suffix}`, {
 			partitionKey: {
 				name: "itemId",
 				type: AttributeType.STRING
 			},
-			tableName: `items-table-${suffix}`
 		});
 
-		this.bidsTable = new Table(this, "BidsTable", {
+		this.bidsTable = new Table(this, `BidsTable${this.suffix}`, {
 			partitionKey: {
 				name: "bidId",
 				type: AttributeType.STRING
 			},
-			tableName: `bids-record-table-${suffix}`
 		});
 
-		this.usersTable = new Table(this, "UsersTable", {
+		this.usersTable = new Table(this, `UsersTable${this.suffix}`, {
 			partitionKey: {
 				name: "id",
 				type: AttributeType.STRING
 			},
-			tableName: `users-table-${suffix}`
 		});
 
-
-		this.photosBucket = new Bucket(this, "AuctionPhotos", {
-			bucketName: `auction-photos-${suffix}`,
+		this.photosBucket = new Bucket(this, `AuctionPhotos${this.suffix}`, {
 			cors: [
 				{
 					allowedMethods: [

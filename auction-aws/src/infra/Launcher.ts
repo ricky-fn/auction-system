@@ -1,19 +1,21 @@
 import { App, StackProps } from "aws-cdk-lib";
 import { AmplifyStack } from "./stacks/AmplifyStack";
 import { CdkCicdStack } from "./stacks/CdkCiCdStack";
-import { IAuctionStageConfig } from "../types";
 import { capitalizeFirstLetter } from "./Utils";
 import createCloudformationStacks from "./stacks";
-import appStageConfig from "./stagConfig.json";
+import appStageConfig from "./stageConfig.json";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const app = new App({
 	context: {
-		region: "ap-south-1",
+		region: process.env.CDK_DEFAULT_REGION,
 	},
 });
 
-const repoString = "ricky-fn/auction-system";
-const appRoot = "auction-aws";
+const repoString = process.env.GITHUB_REPO_STRING;
+const appRoot = process.env.CDK_APP_ROOT;
 
 const stackProps: StackProps = {
 	env: {
@@ -33,7 +35,7 @@ appStageConfig.forEach((stageConfig) => {
 			stageConfig
 		});
 	} else {
-		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName)}`, {
+		new CdkCicdStack(app, `AuctionCdkCiCdStack${capitalizeFirstLetter(stageConfig.stageName.toLocaleLowerCase())}`, {
 			...stackProps,
 			repoString,
 			appRoot,

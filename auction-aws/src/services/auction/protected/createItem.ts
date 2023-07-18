@@ -11,8 +11,8 @@
  * 
  * Errors:
  * Bad Request: B001, B002, B003, B004, B005, B006, B007
- * Internal Error: I001, I002, I003
- * Authorization Fail: A001
+ * Internal Error: I001, I002
+ * Authorization Fail: A001, A002
  */
 
 import { APIGatewayProxyEvent } from "aws-lambda";
@@ -57,7 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 	const itemId = uuid("item");
 
 	// Get the current timestamp
-	const createdAt = Math.floor(Date.now() / 1000);
+	const createdAt = Date.now();
 
 	const newItem: Item = {
 		...result,
@@ -75,7 +75,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 			Item: marshall(newItem)
 		}));
 	} catch (err) {
-		const error = new InternalError("I001", err.message);
+		const error = new InternalError("I002", err.message);
 		return error.getResponse();
 	}
 

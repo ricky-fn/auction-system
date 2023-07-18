@@ -2,17 +2,10 @@
  * v 0.1.0
  * Deposit Lambda function
  * 
- * @example
- * {
- *   "name": "Example Item",
- *   "startingPrice": 100,
- *   "timeWindow": 3600
- * }
- * 
  * Errors:
  * Bad Request: B001, B002, B003, B004
  * Internal Error: I001, I002, I003
- * Authorization Fail: A001
+ * Authorization Fail: A001, A002
  */
 
 

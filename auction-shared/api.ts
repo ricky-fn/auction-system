@@ -12,6 +12,7 @@ export interface ApiResponseList {
   'deposit': ApiResponse<null>;
   'bid-item': ApiResponse<Item>;
   'get-total-bid-amount': ApiResponse<number>;
+  'get-item-by-id': ApiResponse<Item>;
 }
 
 export interface ApiRequestParams {
@@ -22,4 +23,5 @@ export interface ApiRequestParams {
   'bid-item': { itemId: string, bidAmount: number };
   'get-total-bid-amount': { itemId: string };
   'update-amplify-env': { params: { [key: string]: string } };
+  'get-item-by-id': { itemId: string };
 }

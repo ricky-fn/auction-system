@@ -1,5 +1,6 @@
 import { classNames } from "@/lib/utils/styles"
 import { Item } from "auction-shared/models"
+import Link from "next/link"
 
 interface ListItemProps {
   onClick: () => void
@@ -24,7 +25,7 @@ export default function ListItem({ onClick, item }: ListItemProps) {
             <button
               data-cy="item-bid-button"
               className={classNames(
-                "bg-blue-500 text-white font-bold py-2 px-4 rounded",
+                "bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2",
                 item.status === "completed" ? "opacity-50" : "hover:bg-blue-700"
               )}
               onClick={onClick}
@@ -32,6 +33,12 @@ export default function ListItem({ onClick, item }: ListItemProps) {
             >
               Bid
             </button>
+            <Link
+              href={`/item/${item.itemId}`}
+              className="inline-block bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-700"
+            >
+              View
+            </Link>
           </td>
         </tr>
       </tbody>

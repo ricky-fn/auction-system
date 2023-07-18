@@ -1,4 +1,4 @@
-import { Aws, StackProps } from "aws-cdk-lib";
+import { Aws, SecretValue, StackProps } from "aws-cdk-lib";
 import { CfnIdentityPool, CfnIdentityPoolRoleAttachment, OAuthScope, ProviderAttribute, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolIdentityProviderGoogle, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, FederatedPrincipal, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -40,14 +40,14 @@ export class AuthStack extends BaseStack {
 	}
 
 	private createUserPool() {
-		this.userPool = new UserPool(this, "AuctionUserPool", {
-			selfSignUpEnabled: true,
+		this.userPool = new UserPool(this, `AuctionUserPool${this.suffix}`, {
+			selfSignUpEnabled: false,
 			signInAliases: {
 				username: true,
 			}
 		});
 
-		const CognitoDomain = this.userPool.addDomain("AuctionUserPoolDomain", {
+		const CognitoDomain = this.userPool.addDomain(`AuctionUserPoolDomain${this.suffix}`, {
 			cognitoDomain: {
 				domainPrefix: `auction-${this.stageName.toLowerCase()}`
 			}
@@ -112,8 +112,8 @@ export class AuthStack extends BaseStack {
 		this.googleIdentityProvider = new UserPoolIdentityProviderGoogle(this, "AuctionGoogleIdentityProvider", {
 			userPool: this.userPool,
 			// for security reasons, we should read these from ssm parameters
-			clientId: "800113811294-etpqqag073u3jh9komps2oc2k4nr5te2.apps.googleusercontent.com",
-			clientSecret: "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",
+			clientId: process.env.GOOGLE_CLIENT_ID!,
+			clientSecretValue: SecretValue.secretsManager("GOOGLE_CLIENT_SECRET"),
 			scopes: ["email", "openid", "profile"],
 			attributeMapping: {
 				email: ProviderAttribute.GOOGLE_EMAIL,
@@ -129,7 +129,7 @@ export class AuthStack extends BaseStack {
 	}
 
 	private createIdentityPool() {
-		this.identityPool = new CfnIdentityPool(this, "AuctionIdentityPool", {
+		this.identityPool = new CfnIdentityPool(this, `AuctionIdentityPool${this.suffix}`, {
 			allowUnauthenticatedIdentities: true,
 			cognitoIdentityProviders: [{ // connected to our user pool
 				clientId: this.userPoolClient.userPoolClientId,

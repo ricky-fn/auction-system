@@ -6,6 +6,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { User } from 'auction-shared/models';
 import NavbarMenu from './NavbarMenu';
 import Logo from "@/public/logo.svg"
+import Link from 'next/link';
 
 export const userNavigation = [
   { name: 'Create New Item', href: '/protected/create' },
@@ -30,7 +31,9 @@ const Nav = ({ user }: { user: undefined | User }) => {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <img className="w-17" src={Logo.src} alt="Jitera" />
+                    <Link href="/">
+                      <img className="w-17" src={Logo.src} alt="Jitera" />
+                    </Link>
                   </div>
                 </div>
                 {user ? (

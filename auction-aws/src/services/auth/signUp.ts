@@ -2,12 +2,6 @@
  * v 0.1.0
  * Registration function
  * 
- * @example
- * {
- *   "username": "ducky.test@gmail.com",
- *   "password": "abc123123111"
- * }
- * 
  * Errors:
  * Bad Request: B001
  * Internal Error: I001, I002
@@ -75,8 +69,15 @@ function createUserObject(event: PreSignUpTriggerEvent): User {
 		};
 	}
 
-	// if (event.triggerSource === "PreSignUp_SignUp") {
-	// }
+	if (event.triggerSource === "PreSignUp_SignUp") {
+		const userId = event.userName;
+
+		user = {
+			id: userId,
+			create_at: new Date().getTime(),
+			balance: 0,
+		};
+	}
 
 	return user;
 }

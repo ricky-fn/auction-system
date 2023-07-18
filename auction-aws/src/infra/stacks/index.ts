@@ -35,6 +35,7 @@ const createCloudformationStacks = (scope: Construct, props: any): { updateEnvVa
 		bidItemLambdaIntegration: lambdaStack.bidItemLambdaIntegration,
 		getTotalBidAmountLambdaIntegration: lambdaStack.getTotalBidAmountLambdaIntegration,
 		updateEnvVariablesLambdaIntegration: lambdaStack.updateEnvVariablesLambdaIntegration,
+		getItemByIdLambdaIntegration: lambdaStack.getItemByIdLambdaIntegration,
 		userPool: authStack.userPool,
 	});
 	const scheduleStack = new ScheduleStack(scope, "AuctionScheduleStack", {

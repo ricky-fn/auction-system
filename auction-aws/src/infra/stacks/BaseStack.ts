@@ -1,11 +1,13 @@
 import { App, CfnOutput, CfnOutputProps, Stack, StackProps, Stage } from "aws-cdk-lib";
 import { IAuctionStageConfig, IAuctionStages, IStackCfnOutputObject } from "../../types";
 import { Construct } from "constructs";
-import appStageConfig from "../stagConfig.json";
+import appStageConfig from "../stageConfig.json";
+import { capitalizeFirstLetter } from "../Utils";
 
 class BaseStack extends Stack {
 	public envFromCfnOutputs: IStackCfnOutputObject = {};
 	public readonly stageName: IAuctionStages;
+	public readonly suffix: string;
 	public readonly stageConfig: IAuctionStageConfig | undefined;
 	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
@@ -20,6 +22,8 @@ class BaseStack extends Stack {
 		if (!this.stageConfig) {
 			throw new Error(`No stage config found for stage: ${this.stageName}`);
 		}
+
+		this.suffix = capitalizeFirstLetter(this.stageName.toLowerCase());
 	}
 
 	protected addEnvFromCfnOutputs(id: string, value: string) {
