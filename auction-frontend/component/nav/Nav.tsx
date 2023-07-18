@@ -7,6 +7,7 @@ import { User } from 'auction-shared/models';
 import NavbarMenu from './NavbarMenu';
 import Logo from "@/public/logo.svg"
 import Link from 'next/link';
+import Avatar from './Avatar';
 
 export const userNavigation = [
   { name: 'Create New Item', href: '/protected/create' },
@@ -66,7 +67,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src={user.picture} />
+                      <Avatar url={user.picture} />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">{user.given_name}</div>
