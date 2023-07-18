@@ -123,7 +123,6 @@ export default function ItemCreation() {
   const { data: session } = useSession();
 
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const updateFields = (name: string, value: string | File) => {
     const updatedFields = fields.map((field) => {
@@ -199,7 +198,7 @@ export default function ItemCreation() {
 
       // Reset form fields and errors
       setFields(initialFields);
-      router.push('/')
+      location.href = '/'; // force home page refresh
     } catch (error) {
       dispatch(showToast({
         type: 'error',
