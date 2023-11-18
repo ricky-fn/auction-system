@@ -1,4 +1,4 @@
-import Logo from "@/public/logo.svg"
+import Logo from "@/public/logo.png";
 import { screen } from '@testing-library/react';
 import Nav from "@/component/nav/Nav";
 import { generateFakeUser } from "auction-shared/mocks/fakeData/user";
@@ -33,8 +33,7 @@ describe('Nav', () => {
     renderWithProviders(<Nav user={fakeUser} />);
     const logo = await screen.findByRole('img', { name: /Auction System/i });
     expect(logo).toBeInTheDocument();
-    // expect(logo).toHaveAttribute('src', Logo.src);
-    expect(logo).toHaveAttribute('src');
+    expect(logo).toHaveAttribute('src', Logo.src);
   });
 
   it('should render the sign in button when user is not logged in', async () => {
