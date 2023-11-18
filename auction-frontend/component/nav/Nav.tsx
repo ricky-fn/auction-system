@@ -5,11 +5,11 @@ import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { User } from 'auction-shared/models';
 import NavbarMenu from './NavbarMenu';
-import Logo from "@/public/logo.svg"
 import Link from 'next/link';
 import Avatar from './Avatar';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks/useRedux';
 import { login, logout } from '@/store/actions/userActions';
+import Image from 'next/image';
 
 export const userNavigation = [
   { name: 'Create New Item', href: '/protected/create' },
@@ -46,7 +46,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Link href="/">
-                      <img className="w-17" src={Logo.src} alt="Jitera" />
+                      <Image className="w-17" src="https://d0.awsstatic.com/logos/powered-by-aws-white.png" alt="Auction System" />
                     </Link>
                   </div>
                 </div>

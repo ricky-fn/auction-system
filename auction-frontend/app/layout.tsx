@@ -16,7 +16,7 @@ if (process.env.ENABLE_MOCKS) {
 }
 
 export const metadata: Metadata = {
-  title: 'Jitera | Auction System'
+  title: 'Auction System | Powered By AWS'
 }
 
 export default async function RootLayout({

@@ -2,7 +2,7 @@ import ItemCreation from "@/component/features/ItemCreation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Jitera | Auction System | Create Item'
+  title: 'Auction System | Create Item | Powered By AWS'
 }
 
 export default async function CreateItemPage() {
