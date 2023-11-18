@@ -46,7 +46,7 @@ const Nav = ({ user }: { user: undefined | User }) => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Link href="/">
-                      <img className="w-10" src={Logo.src} alt="Auction System" />
+                      <img className="h-16" src={Logo.src} alt="Auction System" />
                     </Link>
                   </div>
                 </div>
