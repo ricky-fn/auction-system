@@ -3,7 +3,7 @@
  * Check the status of the items and refund the users if the item is completed
  * 
  * Errors:
- * Internal Error: I001, I002, I003, I004, I005, I006, I007, I008
+ * Internal Error: I001, I002, I003, I004, I005, I006, I007, I008, I009
  */
 
 import { InternalError } from "@/src/services/auction/utils";
@@ -55,10 +55,9 @@ export const handler = async () => {
 
 	// For each completed item, retrieve the highest bidder and refund the other bidders
 	for (const item of expiredItems) {
-		const highestBidder = item.highestBidder;
 
 		// Refund the other bidders
-		const refundResult = await refundUsers(item.itemId, highestBidder);
+		const refundResult = await refundUsers(item.itemId);
 
 		if (refundResult instanceof InternalError) {
 			return refundResult;
@@ -92,7 +91,7 @@ export const handler = async () => {
 };
 
 // scan the bid records table to refund the users except the highest bidder
-async function refundUsers(itemId: string, highestBidder: string): Promise<void | InternalError> {
+async function refundUsers(itemId: string): Promise<void | InternalError> {
 	const bidsResult = await retrieveBidRecords(itemId);
 
 	if (bidsResult instanceof InternalError) {
@@ -104,10 +103,11 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 		return;
 	}
 
-	const bidsExceptHighestBidder = bids.filter((bid) => bid.bidderId !== highestBidder);
+	const highestAmount = Math.max(...bids.map(bid => bid.amount));
+	const bidsExceptHighestBid = bids.filter((bid) => bid.amount < highestAmount);
 
 	// retrieve the users' balance and sum up the total amount to refund
-	const usersResult = await retrieveUsers(bidsExceptHighestBidder);
+	const usersResult = await retrieveUsers(bidsExceptHighestBid);
 
 	if (usersResult instanceof InternalError) {
 		return usersResult;
@@ -118,7 +118,9 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 	// Use dynamodb.batchWrite to update the users' balance
 	const usersBatchRequests = usersDBData.map((user) => {
 		// count the total amount to refund
-		const refund = bidsExceptHighestBidder.filter((bid) => bid.bidderId === user.id).reduce((acc, bid) => acc + bid.amount, 0);
+		const refund = bidsExceptHighestBid
+			.filter((bid) => bid.bidderId === user.id)
+			.reduce((acc, bid) => acc + bid.amount, 0);
 		return {
 			PutRequest: {
 				Item: marshall({
@@ -143,7 +145,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 	}
 
 	// change the status of the highest bidder's bid record to "completed"
-	const highestBidderBidRecord = bids.filter((bid) => bid.bidderId === highestBidder);
+	const highestBidderBidRecord = bids.filter((bid) => bid.amount === highestAmount);
 	const highestBidderBidRecordUpdateRequest = highestBidderBidRecord.map((bid) => {
 		const item: BidRecord = {
 			...bid,
@@ -170,7 +172,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 	}
 
 	// Use dynamodb.batchWrite to refund the users
-	const refundedRecordBatchWrite = bidsExceptHighestBidder.map((bid) => {
+	const refundedRecordBatchWrite = bidsExceptHighestBid.map((bid) => {
 		const item: BidRecord = {
 			...bid,
 			status: "refunded",
@@ -193,7 +195,7 @@ async function refundUsers(itemId: string, highestBidder: string): Promise<void 
 		);
 
 		// console log the item ids
-		console.log(`${bidsExceptHighestBidder.length} bids are refunded:`, bidsExceptHighestBidder.map((bid) => bid.bidId));
+		console.log(`${bidsExceptHighestBid.length} bids are refunded:`, bidsExceptHighestBid.map((bid) => bid.bidId));
 	} catch (err) {
 		const error = new InternalError("I006", err.message);
 		return error;
@@ -228,6 +230,10 @@ async function retrieveBidRecords(itemId: string): Promise<BidRecord[] | Interna
 }
 
 async function retrieveUsers(bids: BidRecord[]): Promise<User[] | InternalError> {
+	if (bids.length === 0) {
+		return new InternalError("I008", "argument bids is an empty array");
+	}
+
 	const userIds = bids.map((bid) => bid.bidderId);
 
 	let usersDBData;
@@ -254,7 +260,7 @@ async function retrieveUsers(bids: BidRecord[]): Promise<User[] | InternalError>
 			})
 		);
 	} catch (err) {
-		return new InternalError("I008", err.message);
+		return new InternalError("I009", err.message);
 	}
 
 	const users: User[] = usersDBData.Responses![DB_USERS_TABLE].map((user) => {
