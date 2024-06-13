@@ -1,39 +1,39 @@
 {
   "AuctionDataStack": {
-    "ExportsOutputFnGetAttItemsTableDevelopmentA9E7143DArnB34B20EA": "arn:aws:dynamodb:ap-south-1:399759979072:table/AuctionDataStack-ItemsTableDevelopmentA9E7143D-1CFD326GH2HPX",
-    "ExportsOutputRefBidsTableDevelopment209E30EE8C13B647": "AuctionDataStack-BidsTableDevelopment209E30EE-1N4YZEJWWWR8",
-    "ExportsOutputFnGetAttBidsTableDevelopment209E30EEArn2E599681": "arn:aws:dynamodb:ap-south-1:399759979072:table/AuctionDataStack-BidsTableDevelopment209E30EE-1N4YZEJWWWR8",
-    "AuctionPhotosBucketName": "auctiondatastack-auctionphotosdevelopment81d0a238-17ymuexpc02ef",
-    "ExportsOutputRefItemsTableDevelopmentA9E7143DCA9BEA2E": "AuctionDataStack-ItemsTableDevelopmentA9E7143D-1CFD326GH2HPX",
-    "ExportsOutputFnGetAttAuctionPhotosDevelopment81D0A238Arn7D389E83": "arn:aws:s3:::auctiondatastack-auctionphotosdevelopment81d0a238-17ymuexpc02ef",
-    "ExportsOutputRefUsersTableDevelopment640C60BC821279A1": "AuctionDataStack-UsersTableDevelopment640C60BC-1UP07I7AWWWS8",
-    "ExportsOutputFnGetAttUsersTableDevelopment640C60BCArnD2A96BEC": "arn:aws:dynamodb:ap-south-1:399759979072:table/AuctionDataStack-UsersTableDevelopment640C60BC-1UP07I7AWWWS8"
+    "ExportsOutputFnGetAttItemsTableDevelopmentA9E7143DArnB34B20EA": "arn:aws:dynamodb:ap-southeast-1:637423491695:table/AuctionDataStack-ItemsTableDevelopmentA9E7143D-1G60WOQ2LYKSV",
+    "ExportsOutputRefBidsTableDevelopment209E30EE8C13B647": "AuctionDataStack-BidsTableDevelopment209E30EE-1VFJ2LC9JNK55",
+    "ExportsOutputFnGetAttBidsTableDevelopment209E30EEArn2E599681": "arn:aws:dynamodb:ap-southeast-1:637423491695:table/AuctionDataStack-BidsTableDevelopment209E30EE-1VFJ2LC9JNK55",
+    "AuctionPhotosBucketName": "auctiondatastack-auctionphotosdevelopment81d0a238-ftc5ayk2et94",
+    "ExportsOutputRefItemsTableDevelopmentA9E7143DCA9BEA2E": "AuctionDataStack-ItemsTableDevelopmentA9E7143D-1G60WOQ2LYKSV",
+    "ExportsOutputFnGetAttAuctionPhotosDevelopment81D0A238Arn7D389E83": "arn:aws:s3:::auctiondatastack-auctionphotosdevelopment81d0a238-ftc5ayk2et94",
+    "ExportsOutputRefUsersTableDevelopment640C60BC821279A1": "AuctionDataStack-UsersTableDevelopment640C60BC-RXJLT5CTX06F",
+    "ExportsOutputFnGetAttUsersTableDevelopment640C60BCArnD2A96BEC": "arn:aws:dynamodb:ap-southeast-1:637423491695:table/AuctionDataStack-UsersTableDevelopment640C60BC-RXJLT5CTX06F"
   },
   "AuctionLambdaStack": {
-    "ExportsOutputFnGetAttCreateItemLambdaDevelopment0B95FA93ArnAB947438": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CreateItemLambdaDevelopment0B95-i4smEjuk8uud",
-    "ExportsOutputFnGetAttGetTotalBidAmountLambdaDevelopment66B6AFA8ArnFCC1854D": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetTotalBidAmountLambdaDevelopm-4YZX6vLvYfV9",
-    "ExportsOutputFnGetAttUserSignInLambdaDevelopment6567AAC3ArnC320BA15": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignInLambdaDevelopment6567-5naQhFNR2YdK",
-    "ExportsOutputFnGetAttCheckStatusLambdaDevelopment6F90D261ArnF2269B99": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-CheckStatusLambdaDevelopment6F9-D1oBFvBLWAmr",
-    "ExportsOutputFnGetAttDepositLambdaDevelopmentE6CE985CArn62022032": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-DepositLambdaDevelopmentE6CE985-nRgdYr0bWzbZ",
-    "ExportsOutputFnGetAttGetUserLambdaDevelopment87513309Arn251F5022": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetUserLambdaDevelopment8751330-G2eGToRSewPw",
-    "ExportsOutputFnGetAttBidItemLambdaDevelopmentE28E5716Arn06DFCB38": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-BidItemLambdaDevelopmentE28E571-qp4QH2jTffA2",
-    "ExportsOutputFnGetAttGetItemByIdLambdaDevelopment90A8EE81Arn557BC1E6": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemByIdLambdaDevelopment90A-sPIFQ4Ctbqgv",
-    "ExportsOutputFnGetAttUpdateEnvVariablesLambdaDevelopment5650A361ArnEFA5EADA": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UpdateEnvVariablesLambdaDevelop-CsxLsWVtr8I3",
-    "ExportsOutputFnGetAttUserSignUpLambdaDevelopmentADD387B7ArnBC5FB2BD": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-UserSignUpLambdaDevelopmentADD3-PZZ22v1LWelZ",
-    "ExportsOutputFnGetAttGetItemsLambdaDevelopment2E510A59Arn6853463C": "arn:aws:lambda:ap-south-1:399759979072:function:AuctionLambdaStack-GetItemsLambdaDevelopment2E510A-lGV4iUbmv6Wc"
+    "ExportsOutputFnGetAttCreateItemLambdaDevelopment0B95FA93ArnAB947438": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-CreateItemLambdaDevelopment0B95-HtcS6yg1hwvM",
+    "ExportsOutputFnGetAttGetTotalBidAmountLambdaDevelopment66B6AFA8ArnFCC1854D": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-GetTotalBidAmountLambdaDevelopm-Xau8OYrjCNRb",
+    "ExportsOutputFnGetAttUserSignInLambdaDevelopment6567AAC3ArnC320BA15": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-UserSignInLambdaDevelopment6567-5n8qFis1rhWO",
+    "ExportsOutputFnGetAttCheckStatusLambdaDevelopment6F90D261ArnF2269B99": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-CheckStatusLambdaDevelopment6F9-hGpf71vxPzvV",
+    "ExportsOutputFnGetAttDepositLambdaDevelopmentE6CE985CArn62022032": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-DepositLambdaDevelopmentE6CE985-BE323nlRgBT8",
+    "ExportsOutputFnGetAttGetUserLambdaDevelopment87513309Arn251F5022": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-GetUserLambdaDevelopment8751330-yMy89p6NFsaq",
+    "ExportsOutputFnGetAttBidItemLambdaDevelopmentE28E5716Arn06DFCB38": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-BidItemLambdaDevelopmentE28E571-yJmVKveJJ7o9",
+    "ExportsOutputFnGetAttGetItemByIdLambdaDevelopment90A8EE81Arn557BC1E6": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-GetItemByIdLambdaDevelopment90A-fqaYWKfvF5ap",
+    "ExportsOutputFnGetAttUpdateEnvVariablesLambdaDevelopment5650A361ArnEFA5EADA": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-UpdateEnvVariablesLambdaDevelop-ChdC9bbClkjF",
+    "ExportsOutputFnGetAttUserSignUpLambdaDevelopmentADD387B7ArnBC5FB2BD": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-UserSignUpLambdaDevelopmentADD3-YzLVnbh1aIzs",
+    "ExportsOutputFnGetAttGetItemsLambdaDevelopment2E510A59Arn6853463C": "arn:aws:lambda:ap-southeast-1:637423491695:function:AuctionLambdaStack-GetItemsLambdaDevelopment2E510A-8TArMPmSWafy"
   },
   "AuctionAuthStack": {
-    "AuctionIdentityPoolId": "ap-south-1:e410a423-e638-4e76-bf40-84e7b920b1e4",
-    "ExportsOutputFnGetAttAuctionUserPoolDevelopment79D8AED3ArnFAC535FB": "arn:aws:cognito-idp:ap-south-1:399759979072:userpool/ap-south-1_HhJ5mo5cu",
-    "AuctionAuthRegion": "ap-south-1",
-    "AuctionUserPoolDomain": "auction-development.auth.ap-south-1.amazoncognito.com",
-    "AuctionUserPoolId": "ap-south-1_HhJ5mo5cu",
-    "AuctionUserPoolClientSecret": "5o2bd3fgv46ftulopmctbah65aulj02j4hqmrlm75gjb6m1h8fc",
-    "AuctionUserPoolClientId": "6ned7bsmcv63e10c0qodpbj049"
+    "AuctionIdentityPoolId": "ap-southeast-1:47af7b32-14a7-43de-ab1a-5a846c8e5d33",
+    "ExportsOutputFnGetAttAuctionUserPoolDevelopment79D8AED3ArnFAC535FB": "arn:aws:cognito-idp:ap-southeast-1:637423491695:userpool/ap-southeast-1_GyKJtvZQa",
+    "AuctionAuthRegion": "ap-southeast-1",
+    "AuctionUserPoolDomain": "auction-development.auth.ap-southeast-1.amazoncognito.com",
+    "AuctionUserPoolId": "ap-southeast-1_GyKJtvZQa",
+    "AuctionUserPoolClientSecret": "uto4sdtfoh74t64vetov39ug3tq6cvfbk1k5otffh3jf950vaif",
+    "AuctionUserPoolClientId": "71db3po3bn2ngo3ljger9bf68r"
   },
   "AuctionApiStack": {
-    "AuctionApiEndpointD888402B": "https://4ha6olsrae.execute-api.ap-south-1.amazonaws.com/prod/",
-    "UpdateEnvVariablesEndpoint": "https://4ha6olsrae.execute-api.ap-south-1.amazonaws.com/prod//update-env-variables",
-    "AuctionApiUrl": "https://4ha6olsrae.execute-api.ap-south-1.amazonaws.com/prod/"
+    "AuctionApiEndpointD888402B": "https://p1emzgygy5.execute-api.ap-southeast-1.amazonaws.com/prod/",
+    "UpdateEnvVariablesEndpoint": "https://p1emzgygy5.execute-api.ap-southeast-1.amazonaws.com/prod//update-env-variables",
+    "AuctionApiUrl": "https://p1emzgygy5.execute-api.ap-southeast-1.amazonaws.com/prod/"
   }
 }
